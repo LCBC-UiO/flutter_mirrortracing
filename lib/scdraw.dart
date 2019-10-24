@@ -129,8 +129,54 @@ class _DrawScreenState extends State<DrawScreen> {
   @override
   Widget build(BuildContext context) {
     List<Widget> mstack = [];
-    if (_state == _DrawState.Recording) {
-      mstack.add(
+    // if (_state == _DrawState.Recording) {
+    //   mstack.add(
+    //     Align(
+    //       alignment: Alignment.topLeft,
+    //       child: Padding(
+    //         padding: EdgeInsets.all(10),
+    //         child: Row(
+    //           children: [
+    //             Icon(
+    //               Icons.fiber_manual_record,
+    //               color: Colors.red,
+    //             ),
+    //             Text(
+    //               "REC",
+    //               style: TextStyle(color: Colors.red),
+    //             )
+    //           ]
+    //         ),
+    //       )
+    //     ),
+    //   );
+    // }
+
+    // mstack.add(
+    //   Align(
+    //     alignment: Alignment.topLeft,
+    //     child: _finishedDrawing != null ? FractionallySizedBox(widthFactor: 0.3, child: _finishedDrawing,) : Text(""),
+    //   ),
+    // );
+
+    return LcScaffold(
+      actions: <Widget>[
+        LcScaffold.getActionReset(context)
+      ],
+      body: _getDrawScreenLayout(
+        top: _getTop(),
+        center: _getCenter(),
+        bottom: _getBottom(),
+        centerSize: widget.objImg.boundary.width,
+      )
+    );
+  }
+
+
+  Widget _getTop() {
+    List<Widget> l = [];
+   if (_state == _DrawState.Recording) {
+      l.add(
         Align(
           alignment: Alignment.topLeft,
           child: Padding(
@@ -151,10 +197,8 @@ class _DrawScreenState extends State<DrawScreen> {
         ),
       );
     }
-
-    mstack.add(
-      Align(
-        alignment: Alignment.topCenter,
+    l.add(
+      Center(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
@@ -181,43 +225,52 @@ class _DrawScreenState extends State<DrawScreen> {
             ),
           ]
         )
-      ),
-    );
-    mstack.add(
-      Center(
-        child: Container(
-          decoration: BoxDecoration(
-            border: Border.all(
-              color: Colors.grey,
-              width: 1,
-            )
-          ),
-          child: SizedBox(
-            width: widget.objImg.boundary.width.toDouble(),
-            height: widget.objImg.boundary.height.toDouble(),
-            child: _getDrawArea()
-          )
-        )
-      ),
-    );
-    // mstack.add(
-    //   Align(
-    //     alignment: Alignment.topLeft,
-    //     child: _finishedDrawing != null ? FractionallySizedBox(widthFactor: 0.3, child: _finishedDrawing,) : Text(""),
-    //   ),
-    // );
-
-    return LcScaffold(
-      actions: <Widget>[
-        LcScaffold.getActionReset(context)
-      ],
-      body: Stack(
-        children: mstack
       )
+    );
+
+    return Stack(
+      children: l,
     );
   }
 
-  Widget _getDrawArea() {
+  Widget _getBottom() {
+    return null;
+  }
+
+  Widget _getDrawScreenLayout({
+    final Widget top,
+    final Widget center,
+    final Widget bottom,
+    final int centerSize,
+  }) {
+    return Column(
+      children: [
+        Expanded(
+          child: top ?? Text(""),
+        ), 
+        Center(
+          child: Container(
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: Colors.grey,
+                width: 1,
+              )
+            ),
+            child: SizedBox(
+              height: centerSize.toDouble(),
+              width: centerSize.toDouble(),
+              child: center,
+            )
+          ),
+        ),
+        Expanded(
+          child: bottom ?? Text(""),
+        )
+      ]
+    );
+  }
+
+  Widget _getCenter() {
     if (_state == _DrawState.Finishing) {
       return Center(
         child: CupertinoActivityIndicator(),
