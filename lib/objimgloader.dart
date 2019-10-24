@@ -67,8 +67,8 @@ void _loadObjImg(_IsolateParam param) {
     for (int i = 0; i < canvasScaled.width; i++) {
       final bool hasBlue  = img.getBlue(canvasScaled.getPixelSafe(i, j)) > 0;
       final bool hasGreen = img.getGreen(canvasScaled.getPixelSafe(i, j)) > 0;
-      // set to black
-      objMask.setPixelSafe(i, j,  (hasBlue || hasGreen) ? 0xff000000 : 0);
+      // set to black - transparent outside ok-area
+      objMask.setPixelSafe(i, j,  (hasBlue || hasGreen) ?  0xff000000 : 0x00);
     }
   }
   // create visualization of boundaries - use blue channel

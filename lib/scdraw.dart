@@ -37,6 +37,7 @@ class _ImgEvaluation {
 enum _DrawState {
   Init,
   Recording,
+  Finishing,
   Finished,
 }
 
@@ -44,21 +45,15 @@ enum _DrawState {
 
 class _DrawScreenState extends State<DrawScreen> {
   PainterController _controller;
-  Image _finishedDrawing;
-  img.Image _objMask;
   _DrawState _state;
 
   DateTime _startTime;
   DateTime _endTime;
   int _numStrokes;
 
-  Future<_ImgEvaluation> _fImgEvaluation;
+  _ImgEvaluation _imgEval;
 
-
-
-  static const String kStrObjMask = "ObjMask";
-  static const String kStrObjBoundary = "ObjBoundary";
-
+  Image _imgBoundary;
 
   @override
   void initState() {
@@ -66,13 +61,15 @@ class _DrawScreenState extends State<DrawScreen> {
     super.initState();
     _controller = _newController();
     _numStrokes = 0;
+    _imgEval = null;
+    _imgBoundary = Image.memory(img.encodePng(widget.objImg.boundary));
   }
 
   PainterController _newController() {
     PainterController controller = PainterController();
 
     controller.thickness = 2.0;
-    controller.drawColor = Colors.blue;
+    controller.drawColor = Color(0xffff0000);
     controller.backgroundColor = Colors.transparent;
     return controller;
   }
@@ -83,8 +80,31 @@ class _DrawScreenState extends State<DrawScreen> {
     @required img.Image objMask,
     @required PictureDetails drawing,
     }) async {
+    final dbytes = (await (await drawing.toImage()).toByteData());
+    final List<int> bytes = (dbytes.buffer).asUint8List(dbytes.offsetInBytes, dbytes.lengthInBytes);
+    img.Image dimg = img.Image.fromBytes(
+      drawing.width,
+      drawing.height,
+      bytes,
+    );
+    assert(objMask.width == dimg.width);
+    assert(objMask.height == dimg.height);
+    for (int j = 0; j < dimg.height; j++) {
+      for (int i = 0; i < dimg.width; i++) {
+        // transfer mask
+        final bool isInside = img.getAlpha(objMask.getPixel(i, j)) > 0;
+        final bool hasPaint = img.getRed(dimg.getPixel(i, j)) > 0;
+        // pixel contains paint?
+        final r = hasPaint && ! isInside ? 255 : 0;
+        final g = hasPaint && isInside   ? 255 : 0;
+        final b = ! hasPaint && isInside ? 255 : 0;
+        final a = hasPaint || isInside   ? 255 : 0;
+        dimg.setPixelSafe(i, j, img.getColor(r, g, b, a));
+      }
+    }
+
     return _ImgEvaluation(
-      drawing: null,
+      drawing: dimg,
       numStrokes: numStrokes,
       time: time,
     );
@@ -144,16 +164,17 @@ class _DrawScreenState extends State<DrawScreen> {
             ),
             CupertinoButton(
               onPressed: _state != _DrawState.Recording ? null : () async {
-                img.Image tmp = img.decodeImage(await _controller.finish().toPNG());
-                _finishedDrawing = Image.memory(img.encodePng(tmp));
-                  setState(() {
-                    _state = _DrawState.Finished;
-                    _fImgEvaluation = _getEvaluatedImage(
-                      drawing: _controller.finish(),
-                      numStrokes: _numStrokes,
-                      objMask: _objMask,
-                      time: _endTime.difference(_startTime),
-                    );
+                setState(() {
+                  _state = _DrawState.Finishing;
+                });
+                _imgEval = await _getEvaluatedImage(
+                  drawing: _controller.finish(),
+                  numStrokes: _numStrokes,
+                  objMask: widget.objImg.mask,
+                  time: _endTime.difference(_startTime),
+                );
+                setState(() {
+                  _state = _DrawState.Finished;
                 });
               },
               child: Text("Done"),
@@ -164,28 +185,27 @@ class _DrawScreenState extends State<DrawScreen> {
     );
     mstack.add(
       Center(
-        child: SizedBox(
-          width: widget.objImg.boundary.width.toDouble(),
-          height: widget.objImg.boundary.height.toDouble(),
-          child: Stack(
-            children: <Widget>[
-              Image.memory(img.encodePng(widget.objImg.boundary)), //TODO: cache?
-              Painter(
-                _controller,
-                onPanStart: _cbOnStrokeStart,
-                onPanEnd: _cbOnStrokeEnd,
-              ),
-            ],
+        child: Container(
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: Colors.grey,
+              width: 1,
+            )
+          ),
+          child: SizedBox(
+            width: widget.objImg.boundary.width.toDouble(),
+            height: widget.objImg.boundary.height.toDouble(),
+            child: _getDrawArea()
           )
         )
       ),
     );
-    mstack.add(
-      Align(
-        alignment: Alignment.topLeft,
-        child: _finishedDrawing != null ? FractionallySizedBox(widthFactor: 0.3, child: _finishedDrawing,) : Text(""),
-      ),
-    );
+    // mstack.add(
+    //   Align(
+    //     alignment: Alignment.topLeft,
+    //     child: _finishedDrawing != null ? FractionallySizedBox(widthFactor: 0.3, child: _finishedDrawing,) : Text(""),
+    //   ),
+    // );
 
     return LcScaffold(
       actions: <Widget>[
@@ -197,8 +217,30 @@ class _DrawScreenState extends State<DrawScreen> {
     );
   }
 
+  Widget _getDrawArea() {
+    if (_state == _DrawState.Finishing) {
+      return Center(
+        child: CupertinoActivityIndicator(),
+      );
+    }
+    if (_state == _DrawState.Finished) {
+      return Center(
+        child: Image.memory(img.encodePng(_imgEval.drawing)) //TODO: cache
+      );
+    }
+    return Stack(
+      children: <Widget>[
+        _imgBoundary,
+        Painter(
+          _controller,
+          onPanStart: _cbOnStrokeStart,
+          onPanEnd: _cbOnStrokeEnd,
+        ),
+      ],
+    );
+  }
 
-  _showRestartDialog() {
+  void _showRestartDialog() {
     showDialog(
       context: context,
       builder: (BuildContext context) => CupertinoAlertDialog(

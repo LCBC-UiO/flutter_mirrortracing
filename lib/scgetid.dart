@@ -59,6 +59,9 @@ class _GetIdScreenState extends State<GetIdScreen> {
           onSubmitted: (v) async {
             setState(() {
               _onNext = () async {
+                setState(() {
+                  _onNext = null;
+                });
                 final ObjImg objImg = await widget._fLoadObjImg;
                 Navigator.of(context).pushReplacement(
                   MaterialPageRoute(
