@@ -21,7 +21,7 @@ class StartScreen extends StatelessWidget {
               color: Theme.of(context).primaryColor,
               iconSize: 80,
               onPressed: () {
-                  Navigator.of(context).pushReplacement(
+                Navigator.of(context).pushReplacement(
                   MaterialPageRoute(
                     builder: (context) => GetIdScreen(screenWidth: MediaQuery.of(context).size.width),
                   )

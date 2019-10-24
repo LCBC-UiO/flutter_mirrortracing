@@ -3,10 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:mirrortask/helper.dart';
 import 'package:mirrortask/settings.dart';
 
+import 'scsetsize.dart';
+
+/*----------------------------------------------------------------------------*/
+
 class SettingsScreen extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => _SettingsScreenState();
 }
+
+/*----------------------------------------------------------------------------*/
 
 class _SettingsScreenState extends State<SettingsScreen> {
   @override
@@ -23,6 +29,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
             _ActionItem(
               "Configure display size",
               () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => SetSizeScreen(),
+                  )
+                );
               }
             ),
             _ActionItem(
@@ -50,8 +61,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
       )
     );
   }
-  
 }
+
+/*----------------------------------------------------------------------------*/
 
 class _Heading extends StatelessWidget {
   const _Heading(this.text);

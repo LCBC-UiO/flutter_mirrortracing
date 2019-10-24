@@ -18,6 +18,39 @@ class DrawScreen extends StatefulWidget {
     @required this.objImg,
   });
 
+  static Widget getDrawScreenLayout({
+    final Widget top,
+    final Widget center,
+    final Widget bottom,
+    final int centerSize,
+  }) {
+    return Column(
+      children: [
+        Expanded(
+          child: top ?? Text(""),
+        ), 
+        Center(
+          child: Container(
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: Colors.grey,
+                width: 1,
+              )
+            ),
+            child: SizedBox(
+              height: centerSize.toDouble(),
+              width: centerSize.toDouble(),
+              child: center,
+            )
+          ),
+        ),
+        Expanded(
+          child: bottom ?? Text(""),
+        )
+      ]
+    );
+  }
+
   @override
   State<StatefulWidget> createState() => _DrawScreenState();
 }
@@ -37,6 +70,8 @@ class _ImgEvaluation {
     @required this.numOutsidePixels,
   });
 }
+
+
 
 enum _DrawState {
   Init,
@@ -138,42 +173,11 @@ class _DrawScreenState extends State<DrawScreen> {
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> mstack = [];
-    // if (_state == _DrawState.Recording) {
-    //   mstack.add(
-    //     Align(
-    //       alignment: Alignment.topLeft,
-    //       child: Padding(
-    //         padding: EdgeInsets.all(10),
-    //         child: Row(
-    //           children: [
-    //             Icon(
-    //               Icons.fiber_manual_record,
-    //               color: Colors.red,
-    //             ),
-    //             Text(
-    //               "REC",
-    //               style: TextStyle(color: Colors.red),
-    //             )
-    //           ]
-    //         ),
-    //       )
-    //     ),
-    //   );
-    // }
-
-    // mstack.add(
-    //   Align(
-    //     alignment: Alignment.topLeft,
-    //     child: _finishedDrawing != null ? FractionallySizedBox(widthFactor: 0.3, child: _finishedDrawing,) : Text(""),
-    //   ),
-    // );
-
     return LcScaffold(
       actions: <Widget>[
         LcScaffold.getActionReset(context)
       ],
-      body: _getDrawScreenLayout(
+      body: DrawScreen.getDrawScreenLayout(
         top: _getTop(),
         center: _getCenter(),
         bottom: _getBottom(),
@@ -181,7 +185,6 @@ class _DrawScreenState extends State<DrawScreen> {
       )
     );
   }
-
 
   Widget _getTop() {
     List<Widget> l = [];
@@ -255,58 +258,27 @@ class _DrawScreenState extends State<DrawScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
+            Text("${DateTime.now().toString().split(".")[0]}"),
             Text("user ID: ${widget.userId}"),
             Text("num. strokes: ${_imgEval.numStrokes}"),
             Text("time (ms): ${_imgEval.time.inMilliseconds}"),
-            Text("date: ${DateTime.now().toString().split(".")[0]}"),
           ],
         ),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
+            Text(""),
             Text("num. pixel: ${_imgEval.numTotalPixels}"),
             Text("inside object: ${inside.toStringAsFixed(1)}%"),
             Text("outside object: ${outside.toStringAsFixed(1)}%"),
-            Text(""),
           ],
         ),
       ],
     );
   }
 
-  Widget _getDrawScreenLayout({
-    final Widget top,
-    final Widget center,
-    final Widget bottom,
-    final int centerSize,
-  }) {
-    return Column(
-      children: [
-        Expanded(
-          child: top ?? Text(""),
-        ), 
-        Center(
-          child: Container(
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: Colors.grey,
-                width: 1,
-              )
-            ),
-            child: SizedBox(
-              height: centerSize.toDouble(),
-              width: centerSize.toDouble(),
-              child: center,
-            )
-          ),
-        ),
-        Expanded(
-          child: bottom ?? Text(""),
-        )
-      ]
-    );
-  }
+  
 
   Widget _getCenter() {
     if (_state == _DrawState.Finishing) {
