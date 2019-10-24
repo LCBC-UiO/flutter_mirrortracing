@@ -26,11 +26,15 @@ class _ImgEvaluation {
   final img.Image drawing;
   final int numStrokes;
   final Duration time;
+  final int numTotalPixels;
+  final int numOutsidePixels;
 
   _ImgEvaluation({
     @required this.drawing,
     @required this.numStrokes,
     @required this.time,
+    @required this.numTotalPixels,
+    @required this.numOutsidePixels,
   });
 }
 
@@ -89,6 +93,8 @@ class _DrawScreenState extends State<DrawScreen> {
     );
     assert(objMask.width == dimg.width);
     assert(objMask.height == dimg.height);
+    int numTotalPixels = 0;
+    int numOutsidePixels = 0;
     for (int j = 0; j < dimg.height; j++) {
       for (int i = 0; i < dimg.width; i++) {
         // transfer mask
@@ -100,6 +106,8 @@ class _DrawScreenState extends State<DrawScreen> {
         final b = ! hasPaint && isInside ? 255 : 0;
         final a = hasPaint || isInside   ? 255 : 0;
         dimg.setPixelSafe(i, j, img.getColor(r, g, b, a));
+        numTotalPixels   += hasPaint ? 1 : 0;
+        numOutsidePixels += hasPaint && ! isInside ? 1 : 0;
       }
     }
 
@@ -107,6 +115,8 @@ class _DrawScreenState extends State<DrawScreen> {
       drawing: dimg,
       numStrokes: numStrokes,
       time: time,
+      numTotalPixels: numTotalPixels,
+      numOutsidePixels: numOutsidePixels,
     );
   }
 
@@ -227,14 +237,42 @@ class _DrawScreenState extends State<DrawScreen> {
         )
       )
     );
-
     return Stack(
       children: l,
     );
   }
 
   Widget _getBottom() {
-    return null;
+    if (_state != _DrawState.Finished) {
+      return null;
+    }
+    final double inside = (_imgEval.numTotalPixels - _imgEval.numOutsidePixels) / _imgEval.numTotalPixels * 100;
+    final double outside = _imgEval.numOutsidePixels / _imgEval.numTotalPixels * 100;
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: <Widget>[
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: <Widget>[
+            Text("user ID: ${widget.userId}"),
+            Text("num. strokes: ${_imgEval.numStrokes}"),
+            Text("time (ms): ${_imgEval.time.inMilliseconds}"),
+            Text("date: ${DateTime.now().toString().split(".")[0]}"),
+          ],
+        ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: <Widget>[
+            Text("num. pixel: ${_imgEval.numTotalPixels}"),
+            Text("inside object: ${inside.toStringAsFixed(1)}%"),
+            Text("outside object: ${outside.toStringAsFixed(1)}%"),
+            Text(""),
+          ],
+        ),
+      ],
+    );
   }
 
   Widget _getDrawScreenLayout({
