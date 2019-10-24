@@ -5,13 +5,33 @@ import 'dart:ui' as ui;
 import 'dart:async';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:mirrortask/settings.dart';
 
-const coldef_lcbcgreen1 = Color(0xffC6DA85);
-const coldef_lcbcgreen2 = Color(0xff95C21A);
-const coldef_lcbcblue2  = Color(0xFF00A0E4);
-const coldef_lcbcblue1  = Color(0xFF00B2EC);
+import 'helper.dart';
+import 'scstart.dart';
+
+
+// start
+// - paint
+// - config
+
+// config
+// - box/obj sizes
+// - nettskjema
+
+// paint
+// - paint-done
+// - reset -> confirm -> start
+
+// paint-done
+// - reset -> confirm -> start
+// - upload
+// - save
+
+
 
 void main() async {
+  await LcSettings().init();
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
@@ -25,11 +45,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'MirrorTask',
+      title: 'LCBC Mirror Tracing',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: HomePage(),
+      home: StartScreen(),
     );
   }
 }
@@ -43,6 +63,9 @@ class HomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<HomePage> {
   PainterController _controller;
+  double _boxSize = 0.9;
+  double _objSize = 0.9;
+
 
   @override
   void initState() {
@@ -66,30 +89,22 @@ class _MyHomePageState extends State<HomePage> {
     );
 
     Widget _doPadding(Widget w) {
-      return Padding(
-        padding: EdgeInsets.all(20),
+      return FractionallySizedBox(
+        widthFactor: _objSize,
         child: w,
       );
     }
 
 
-    return Scaffold(
-      appBar: CustomAppBar(
-        actions: <Widget>[
-          Icon(Icons.refresh),
-          Icon(Icons.clear),
-          IconButton(
-            onPressed: () {
-              _controller.clear();
-            },
-            icon: Icon(Icons.check_circle)
-          )
-        ],
-      ),
-      body: Center(
+    return LcScaffold(
+      body: 
+      Stack(
+        children: <Widget>[      
+      Center(
         child:
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 10),
+        FractionallySizedBox(
+          //padding: EdgeInsets.symmetric(horizontal: 10),
+          widthFactor: _boxSize,
           child: AspectRatio(
           aspectRatio: 1,
           child: Container(
@@ -116,44 +131,57 @@ class _MyHomePageState extends State<HomePage> {
         ))
         ),
       ),
-    );
-  }
-}
-
-
-class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
-
-  final List<Widget> actions;
-
-  CustomAppBar({
-    this.actions
-  });
-
-
-  @override
-  Size get preferredSize => Size.fromHeight(kToolbarHeight);
-
-   @override
-  Widget build(BuildContext context) {
-    return  Container(
-        decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
-              colors: [coldef_lcbcgreen1, coldef_lcbcgreen2, coldef_lcbcblue2, coldef_lcbcblue1],
-              stops: [0.0, 0.25, 0.75, 1],
-              )
+      
+      Card(
+        color: Theme.of(context).canvasColor.withOpacity(0.3),
+        child:     
+            Padding(
+              padding: EdgeInsets.all(8),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                Text("Box size: ${_boxSize.toStringAsFixed(3)}"),
+                SizedBox(
+                  height: 50,
+                  child: Slider(
+                    min: 0,
+                    max: 1,
+                    
+                    onChanged: (v) {
+                      setState(() {
+                        _boxSize = v;
+                      });
+                    },
+                    value: _boxSize,
+                  )
+                ),
+                Text("Object size: ${_objSize.toStringAsFixed(3)}"),
+                SizedBox(
+                  height: 50,
+                  child: Slider(
+                    min: 0,
+                    max: 1,
+                    
+                    onChanged: (v) {
+                      setState(() {
+                        _objSize = v;
+                      });
+                    },
+                    value: _objSize,
+                  )
+                ),
+              ],
             ),
-        child: AppBar(
-          actions: actions,
-          title: Text("MirrorTracingTask"),
-          backgroundColor: Color(0x00000000),
-          centerTitle: true,
-        ),
+          )),
+        ],
+      )
     );
   }
-
 }
+
+
+
 
 
 
