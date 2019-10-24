@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mirrortask/objimgloader.dart';
 import 'package:mirrortask/scdraw.dart';
 import 'helper.dart';
 import 'settings.dart';
@@ -6,12 +7,36 @@ import 'settings.dart';
 /*----------------------------------------------------------------------------*/
 
 class GetIdScreen extends StatefulWidget {
+  final double screenWidth;
+  final Future<ObjImg> _fLoadObjImg;
+
+  GetIdScreen({
+    this.screenWidth
+  }) : _fLoadObjImg = _getFLoadObjImg(screenWidth);
+
+
+  static _getFLoadObjImg(double w) {
+    final double boxWidth = LcSettings().getDouble(LcSettings.BOX_SIZE_DBL);
+    final double objWidth = LcSettings().getDouble(LcSettings.OBJECT_SIZE_DBL);
+    return loadObjImg(
+      boxWidth: (w * boxWidth).round(),
+      objWidth: (w * boxWidth * objWidth).round(),
+    );
+  }
+
   @override
   State<StatefulWidget> createState() => _GetIdScreenState();
 }
 
+/*----------------------------------------------------------------------------*/
+
 class _GetIdScreenState extends State<GetIdScreen> {
   Function _onNext;
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   void dispose() {
@@ -20,7 +45,6 @@ class _GetIdScreenState extends State<GetIdScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final int drawingWidth = (MediaQuery.of(context).size.width * LcSettings().getDouble(LcSettings.BOX_SIZE_DBL)).round();
     return LcScaffold(
       onNext: _onNext,
       body: Center(
@@ -34,10 +58,11 @@ class _GetIdScreenState extends State<GetIdScreen> {
           autofocus: true,
           onSubmitted: (v) async {
             setState(() {
-              _onNext = () {
+              _onNext = () async {
+                final ObjImg objImg = await widget._fLoadObjImg;
                 Navigator.of(context).pushReplacement(
                   MaterialPageRoute(
-                    builder: (context) => DrawScreen(userId: v, drawingWidth: drawingWidth),
+                    builder: (context) => DrawScreen(userId: v, objImg: objImg),
                   )
                 );
               };
@@ -53,3 +78,6 @@ class _GetIdScreenState extends State<GetIdScreen> {
     );
   }
 }
+
+
+

@@ -1,23 +1,21 @@
 
-import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:mirrortask/helper.dart';
 import 'dart:ui' as ui;
 import 'package:image/image.dart' as img;
-import 'package:mirrortask/settings.dart';
+import 'package:mirrortask/objimgloader.dart';
 
 /*----------------------------------------------------------------------------*/
 
 class DrawScreen extends StatefulWidget {
   final String userId;
-  final int drawingWidth;
+  final ObjImg objImg;
 
   DrawScreen({
     @required this.userId,
-    @required this.drawingWidth,
+    @required this.objImg,
   });
 
   @override
@@ -49,7 +47,14 @@ class _DrawScreenState extends State<DrawScreen> {
   Image _finishedDrawing;
   img.Image _objMask;
   _DrawState _state;
-  Future<Map<String, img.Image>> _fLoadImg; 
+
+  DateTime _startTime;
+  DateTime _endTime;
+  int _numStrokes;
+
+  Future<_ImgEvaluation> _fImgEvaluation;
+
+
 
   static const String kStrObjMask = "ObjMask";
   static const String kStrObjBoundary = "ObjBoundary";
@@ -60,7 +65,7 @@ class _DrawScreenState extends State<DrawScreen> {
     _state = _DrawState.Init;
     super.initState();
     _controller = _newController();
-    _fLoadImg = _loadImg();
+    _numStrokes = 0;
   }
 
   PainterController _newController() {
@@ -71,75 +76,15 @@ class _DrawScreenState extends State<DrawScreen> {
     controller.backgroundColor = Colors.transparent;
     return controller;
   }
-  Future<Map<String, img.Image>> _loadImg() async {
-    final data = (await rootBundle.load('assets/star2.png'));
-    final buffer = data.buffer;
-    List<int> bytes = buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
-    img.Image objectRaw = img.decodePng(bytes);
-    // create big canvas  - we will scale later
-    img.Image canvasUnscaled = (){
-      final int cw = (objectRaw.width / LcSettings().getDouble(LcSettings.OBJECT_SIZE_DBL)).round();
-      img.Image c = img.Image(cw, cw);
-      // set transparent
-      c.fill(0xff000000);
-      return c;
-    }();
-    // paste object into canvas
-    assert(canvasUnscaled.width >=  objectRaw.width);
-    final inset = ((canvasUnscaled.width -  objectRaw.width) / 2).round();
-    canvasUnscaled = img.copyInto(canvasUnscaled, objectRaw, dstX: inset, dstY: inset);
-    // scale
-    final img.Image canvasScaled = img.copyResize(canvasUnscaled, width: widget.drawingWidth, height: widget.drawingWidth, interpolation: img.Interpolation.cubic);
-    // create mask - use whatever is in the green or blue channel
-    img.Image objMask = img.Image(canvasScaled.width, canvasScaled.width);
-    for (int j = 0; j < canvasScaled.height; j++) {
-      for (int i = 0; i < canvasScaled.width; i++) {
-        final bool hasBlue  = img.getBlue(canvasScaled.getPixelSafe(i, j)) > 0;
-        final bool hasGreen = img.getGreen(canvasScaled.getPixelSafe(i, j)) > 0;
-        // set to black
-        objMask.setPixelSafe(i, j,  (hasBlue || hasGreen) ? 0xff000000 : 0);
-      }
-    }
-    // create visualization of boundaries - use blue channel
-    img.Image objBoundary = img.Image(canvasScaled.width, canvasScaled.width);
-    for (int j = 0; j < canvasScaled.height; j++) {
-      for (int i = 0; i < canvasScaled.width; i++) {
-        final int alpha  = img.getBlue(canvasScaled.getPixelSafe(i, j));
-        // convert blue channel to alpha - whole image has black color
-        objBoundary.setPixelSafe(i, j,  img.getColor(0, 0, 0, alpha));
-      }
-    }
-    return {
-      kStrObjMask:     objMask,
-      kStrObjBoundary: objBoundary,
-    };
-  }
-
-  // Widget _getDrawArea(BuildContext context) {
-  //   return Center(
-  //     child: SizedBox(
-  //           height: widget.drawingWidth.toDouble(),
-  //           width: widget.drawingWidth.toDouble(),
-  //           child: Stack(
-  //             children: <Widget>[
-  //               snapshot.data,
-  //               Painter(_controller),
-  //             ],
-  //           ),
-  //         );
-  //       }
-  //     )
-  //   );
-  // }
 
   Future<_ImgEvaluation> _getEvaluatedImage({
     @required int numStrokes,
     @required Duration time,
     @required img.Image objMask,
-    @required img.Image drawing,
+    @required PictureDetails drawing,
     }) async {
     return _ImgEvaluation(
-      drawing: drawing,
+      drawing: null,
       numStrokes: numStrokes,
       time: time,
     );
@@ -149,13 +94,16 @@ class _DrawScreenState extends State<DrawScreen> {
     if (_state == _DrawState.Init) {
       setState(() {
         _state = _DrawState.Recording;
+        _startTime = DateTime.now();
+        _numStrokes = 0;
       });
     }
-    // TODO: update numStrokes and timeend
+    _numStrokes++;
+    _endTime = DateTime.now();
   }
 
   void _cbOnStrokeEnd() {
-    // TODO: update numStrokes and timeend
+    _endTime = DateTime.now();
   }
 
   @override
@@ -191,17 +139,21 @@ class _DrawScreenState extends State<DrawScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             CupertinoButton(
-              //color: Theme.of(context).accentColor,
               onPressed: _state == _DrawState.Init ? null : _showRestartDialog,
               child: Text("Reset"),
             ),
             CupertinoButton(
-              //color: Theme.of(context).accentColor,
-              onPressed: () async {
+              onPressed: _state != _DrawState.Recording ? null : () async {
                 img.Image tmp = img.decodeImage(await _controller.finish().toPNG());
                 _finishedDrawing = Image.memory(img.encodePng(tmp));
                   setState(() {
                     _state = _DrawState.Finished;
+                    _fImgEvaluation = _getEvaluatedImage(
+                      drawing: _controller.finish(),
+                      numStrokes: _numStrokes,
+                      objMask: _objMask,
+                      time: _endTime.difference(_startTime),
+                    );
                 });
               },
               child: Text("Done"),
@@ -212,30 +164,21 @@ class _DrawScreenState extends State<DrawScreen> {
     );
     mstack.add(
       Center(
-        child: FutureBuilder<Map<String, img.Image>>(
-          future: _fLoadImg,
-          builder: (context, snapshot) {
-            if (!snapshot.hasData) {
-              return CircularProgressIndicator();
-            }
-            _objMask = snapshot.data[kStrObjMask];
-            return SizedBox(
-              width: widget.drawingWidth.toDouble(),
-              height: widget.drawingWidth.toDouble(),
-              child: Stack(
-                children: <Widget>[
-                  Image.memory(img.encodePng(snapshot.data[kStrObjBoundary])),
-                  Painter(
-                    _controller,
-                    onPanStart: _cbOnStrokeStart,
-                    onPanEnd: _cbOnStrokeEnd,
-                  ),
-                ],
-              )
-            );
-          }
-        ),
-      )
+        child: SizedBox(
+          width: widget.objImg.boundary.width.toDouble(),
+          height: widget.objImg.boundary.height.toDouble(),
+          child: Stack(
+            children: <Widget>[
+              Image.memory(img.encodePng(widget.objImg.boundary)), //TODO: cache?
+              Painter(
+                _controller,
+                onPanStart: _cbOnStrokeStart,
+                onPanEnd: _cbOnStrokeEnd,
+              ),
+            ],
+          )
+        )
+      ),
     );
     mstack.add(
       Align(
@@ -269,7 +212,7 @@ class _DrawScreenState extends State<DrawScreen> {
               Navigator.of(context).pop();
               Navigator.of(context).pushReplacement(
                 MaterialPageRoute(
-                  builder: (context) => DrawScreen(userId: widget.userId, drawingWidth: widget.drawingWidth),
+                  builder: (context) => DrawScreen(userId: widget.userId, objImg: widget.objImg,),
                 )
               );
             },

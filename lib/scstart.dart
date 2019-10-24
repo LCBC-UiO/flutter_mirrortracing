@@ -23,7 +23,7 @@ class StartScreen extends StatelessWidget {
               onPressed: () {
                   Navigator.of(context).pushReplacement(
                   MaterialPageRoute(
-                    builder: (context) => GetIdScreen(),
+                    builder: (context) => GetIdScreen(screenWidth: MediaQuery.of(context).size.width),
                   )
                 );
               },
