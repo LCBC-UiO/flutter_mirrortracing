@@ -27,11 +27,17 @@ class LcScaffold extends StatelessWidget {
   final Widget body;
   final List<Widget> actions;
   final Function onNext;
+  final Function onPrev;
+  final Widget iconPrev;
+  final Widget iconNext;
 
   LcScaffold({
     this.body,
     this.actions: const [],
     this.onNext,
+    this.onPrev,
+    this.iconNext = const Icon(Icons.navigate_next),
+    this.iconPrev = const Icon(Icons.navigate_before),
   });
 
   @override
@@ -41,18 +47,16 @@ class LcScaffold extends StatelessWidget {
         actions: actions,
       ),
       body: body,
-      floatingActionButton: 
-        onNext != null
-          ? FloatingActionButton(onPressed: onNext,child: Icon(Icons.navigate_next),) 
-          : null,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: _getButtonRow(context),
     );
   }
 
   static Widget getActionSettings(context) {
-  return IconButton(
-    icon: Icon(Icons.settings,),
+    return IconButton(
+      icon: Icon(Icons.settings,),
       onPressed: () {
-          Navigator.of(context).push(
+        Navigator.of(context).push(
           MaterialPageRoute(
             builder: (context) => SettingsScreen(),
           )
@@ -96,6 +100,51 @@ class LcScaffold extends StatelessWidget {
         );
       },
     );
+  }
+
+  Widget _getButtonRow(context) {
+    // "next"-button
+    Widget nextButton;
+    if (onNext != null) {
+      nextButton = FloatingActionButton(
+        onPressed: onNext,
+        child: iconNext,
+        backgroundColor: Theme.of(context).primaryColor,
+        foregroundColor: Theme.of(context).canvasColor,
+      );
+    }
+    // "prev"-button
+    Widget prevButton;
+    if (onPrev != null) {
+      prevButton = FloatingActionButton(
+        onPressed: onPrev,
+        child: iconPrev,
+        backgroundColor: Theme.of(context).primaryColor,
+        foregroundColor: Theme.of(context).canvasColor,
+        heroTag: 'prev',
+      );
+    }
+    Widget buttonRow;
+    if (nextButton != null && prevButton != null) {
+      buttonRow = Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          prevButton,
+          nextButton
+        ],
+      );
+    } else if (nextButton != null) {
+      buttonRow = Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          nextButton,
+        ],
+      );
+    }
+    return buttonRow != null ? Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        child: buttonRow,
+      ) : null;
   }
 }
 

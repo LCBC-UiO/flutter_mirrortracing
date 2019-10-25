@@ -1,9 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:mirrortask/helper.dart';
-import 'package:mirrortask/scdraw.dart';
-import 'package:mirrortask/settings.dart';
+import 'scsettings.dart';
+import 'helper.dart';
+import 'scdraw.dart';
+import 'scsethome.dart';
+import 'settings.dart';
 
 /*----------------------------------------------------------------------------*/
 
@@ -29,6 +31,24 @@ class _SetSizeScreenState extends State<SetSizeScreen> {
   Widget build(BuildContext context) {
     final double w = MediaQuery.of(context).size.width;
     return LcScaffold(
+      iconNext: Icon(Icons.done),
+      onNext: () async {
+        await LcSettings().setDouble(LcSettings.RELATIVE_BOX_SIZE_DBL,    _boxSize);
+        await LcSettings().setDouble(LcSettings.RELATIVE_OBJECT_SIZE_DBL, _objSize);
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => SetHomeScreen(),
+          )
+        );
+      },
+      iconPrev: Icon(Icons.close),
+      onPrev: () {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => SettingsScreen(),
+          )
+        );
+      },
       body: Stack(
         children: <Widget>[
           DrawScreen.getDrawScreenLayout(
@@ -85,21 +105,6 @@ class _SetSizeScreenState extends State<SetSizeScreen> {
                   });
                 },
                 value: _objSize,
-              )
-            ),
-            Align(
-              alignment: Alignment.centerRight,
-              child: 
-                Builder(
-                builder: (context) => CupertinoButton(
-                  child: Text("Save"),
-                  onPressed: () async {
-                    await LcSettings().setDouble(LcSettings.RELATIVE_BOX_SIZE_DBL,    _boxSize);
-                    await LcSettings().setDouble(LcSettings.RELATIVE_OBJECT_SIZE_DBL, _objSize);
-                    final snackBar = SnackBar(content: Text('Settings saved'));
-                    Scaffold.of(context).showSnackBar(snackBar);
-                  },
-                )
               )
             )
           ],

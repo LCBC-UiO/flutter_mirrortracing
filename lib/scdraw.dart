@@ -7,6 +7,7 @@ import 'dart:ui' as ui;
 import 'package:image/image.dart' as img;
 import 'package:mirrortask/objimgloader.dart';
 import 'package:mirrortask/settings.dart';
+import 'uihomearea.dart';
 
 /*----------------------------------------------------------------------------*/
 
@@ -298,9 +299,11 @@ class _DrawScreenState extends State<DrawScreen> {
           onPanUpdate: _cbOnStrokeUpdate,
           onPanEnd: _cbOnStrokeEnd,
         ),
-        Align(
-          alignment: Alignment(0.0,-0.8),
-          child: CustomPaint(painter: _FinishAreaCircle(width: 20)),
+        PositionedHomeArea(
+          x: 100,
+          y: 100,
+          color: Colors.green.withAlpha(64),
+          radius: 30,
         )
       ],
     );
@@ -508,30 +511,6 @@ class _PainterPainter extends CustomPainter {
 
 
 
-
-
-class _FinishAreaCircle extends CustomPainter {
-  final double width;
-
-  Paint _paint;
-
-  _FinishAreaCircle({@required this.width}) {
-    _paint = Paint()
-      ..color = Colors.green.withAlpha(64)
-      ..strokeWidth = 10.0
-      ..style = PaintingStyle.fill;
-  }
-
-  @override
-  void paint(Canvas canvas, Size size) {
-     canvas.drawCircle(Offset(0.0, 0.0), width, _paint);
-  }
-
-  @override
-  bool shouldRepaint(CustomPainter oldDelegate) {
-    return false;
-  }
-}
 
 
 

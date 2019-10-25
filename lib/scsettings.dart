@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mirrortask/helper.dart';
+import 'package:mirrortask/scsethome.dart';
 import 'package:mirrortask/settings.dart';
 
 import 'scsetsize.dart';
@@ -27,11 +28,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
           children: <Widget>[
             const _Heading('Options'),
             _ActionItem(
-              "Configure display size",
+              "Configure size of shape",
               () {
-                Navigator.of(context).push(
+                Navigator.of(context).pushReplacement(
                   MaterialPageRoute(
                     builder: (context) => SetSizeScreen(),
+                  )
+                );
+              }
+            ),
+            _ActionItem(
+              "Configure home area",
+              () {
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(
+                    builder: (context) => SetHomeScreen(),
                   )
                 );
               }

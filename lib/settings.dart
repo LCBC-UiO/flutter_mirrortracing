@@ -11,6 +11,9 @@ class LcSettings {
   static const String RELATIVE_BOX_SIZE_DBL    = "RELATIVE_BOX_SIZE_DBL";
   static const String NETTSKJEMA_ID_INT        = "NETTSKJEMA_ID_INT";
   static const String SCREEN_WIDTH_CM_DBL      = "SCREEN_SIZE_CM_DBL";
+  static const String HOME_POS_X_INT           = "HOME_POS_X_INT";
+  static const String HOME_POS_Y_INT           = "HOME_POS_Y_INT";
+  static const String HOME_RADIUS_INT          = "HOME_RADIUS_INT";
   
 
   SharedPreferences _prefs;
@@ -24,6 +27,9 @@ class LcSettings {
     await _initValueDouble(RELATIVE_OBJECT_SIZE_DBL, 0.9);
     await _initValueDouble(RELATIVE_BOX_SIZE_DBL,    0.9);
     await _initValueInt(NETTSKJEMA_ID_INT,   -1);
+    await _initValueInt(HOME_POS_X_INT,   100);
+    await _initValueInt(HOME_POS_Y_INT,   100);
+    await _initValueInt(HOME_RADIUS_INT,  20);
     _keys.add(SCREEN_WIDTH_CM_DBL);
   }
 
