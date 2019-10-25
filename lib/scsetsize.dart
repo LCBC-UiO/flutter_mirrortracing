@@ -4,7 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'scsettings.dart';
 import 'helper.dart';
 import 'scdraw.dart';
-import 'scsethome.dart';
+import 'scsethomepos.dart';
 import 'settings.dart';
 
 /*----------------------------------------------------------------------------*/
@@ -37,7 +37,7 @@ class _SetSizeScreenState extends State<SetSizeScreen> {
         await LcSettings().setDouble(LcSettings.RELATIVE_OBJECT_SIZE_DBL, _objSize);
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
-            builder: (context) => SetHomeScreen(),
+            builder: (context) => SetHomeAreaPositionScreen(),
           )
         );
       },

@@ -97,6 +97,7 @@ class _DrawScreenState extends State<DrawScreen> {
   _ImgEvaluation _imgEval;
 
   Image _imgBoundary;
+  _HomeAreaHelper _homeArea = _HomeAreaHelper();
 
   @override
   void initState() {
@@ -299,12 +300,7 @@ class _DrawScreenState extends State<DrawScreen> {
           onPanUpdate: _cbOnStrokeUpdate,
           onPanEnd: _cbOnStrokeEnd,
         ),
-        PositionedHomeArea(
-          x: 100,
-          y: 100,
-          color: Colors.green.withAlpha(64),
-          radius: 30,
-        )
+        _homeArea.getVis(),
       ],
     );
   }
@@ -405,7 +401,24 @@ class _DrawScreenState extends State<DrawScreen> {
 
 
 
+class _HomeAreaHelper {
+  final double posX = LcSettings().getInt(LcSettings.HOME_POS_X_INT).toDouble();
+  final double posY = LcSettings().getInt(LcSettings.HOME_POS_Y_INT).toDouble();
+  final double innerRadius = LcSettings().getInt(LcSettings.HOME_INNER_RADIUS_INT).toDouble();
+  final double outerRadius = LcSettings().getInt(LcSettings.HOME_OUTER_RADIUS_INT).toDouble();
 
+  Widget getVis() {
+    return  PositionedHomeArea(
+      x: posX,
+      y: posY,
+      innerColor: Colors.green.withAlpha(64),
+      innerRadius: innerRadius,
+      outerRadius: outerRadius,
+    );
+  }
+
+
+}
 
 
 

@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -9,27 +10,29 @@ import 'uihomearea.dart';
 
 /*----------------------------------------------------------------------------*/
 
-class SetHomeScreen extends StatefulWidget {
+class SetHomeAreaSizeScreen extends StatefulWidget {
   @override
-  State<StatefulWidget> createState() => _SetHomeScreenState();
+  State<StatefulWidget> createState() => _SetHomeAreaSizeScreenState();
 }
 
 /*----------------------------------------------------------------------------*/
 
-class _SetHomeScreenState extends State<SetHomeScreen> {
+class _SetHomeAreaSizeScreenState extends State<SetHomeAreaSizeScreen> {
   final double _boxSize = LcSettings().getDouble(LcSettings.RELATIVE_BOX_SIZE_DBL);
   final double _objSize = LcSettings().getDouble(LcSettings.RELATIVE_OBJECT_SIZE_DBL);
 
   double _homeX;
   double _homeY;
-  double _homeRadius;
+  double _homeInnerRadius;
+  double _homeOuterRadius;
 
   @override
   void initState() {
     super.initState();
     _homeX = LcSettings().getInt(LcSettings.HOME_POS_X_INT).toDouble();
     _homeY = LcSettings().getInt(LcSettings.HOME_POS_Y_INT).toDouble();
-    _homeRadius = LcSettings().getInt(LcSettings.HOME_RADIUS_INT).toDouble();
+    _homeInnerRadius = LcSettings().getInt(LcSettings.HOME_INNER_RADIUS_INT).toDouble();
+    _homeOuterRadius = LcSettings().getInt(LcSettings.HOME_OUTER_RADIUS_INT).toDouble();
   }
 
   @override
@@ -38,9 +41,8 @@ class _SetHomeScreenState extends State<SetHomeScreen> {
     return LcScaffold(
       iconNext: Icon(Icons.done),
       onNext: () async {
-        await LcSettings().setInt(LcSettings.HOME_POS_X_INT, _homeX.round());
-        await LcSettings().setInt(LcSettings.HOME_POS_Y_INT, _homeY.round());
-        await LcSettings().setInt(LcSettings.HOME_RADIUS_INT, _homeRadius.round());
+        await LcSettings().setInt(LcSettings.HOME_INNER_RADIUS_INT, _homeInnerRadius.round());
+        await LcSettings().setInt(LcSettings.HOME_OUTER_RADIUS_INT, _homeOuterRadius.round());
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
             builder: (context) => SettingsScreen(),
@@ -59,31 +61,24 @@ class _SetHomeScreenState extends State<SetHomeScreen> {
         children: <Widget>[
           DrawScreen.getDrawScreenLayout(
             centerSize: (w * _boxSize).round(),
-            center: GestureDetector(
-              behavior: HitTestBehavior.translucent,
-              onTapDown: (e) {
-                setState(() {
-                  _homeX = e.localPosition.dx;
-                  _homeY = e.localPosition.dy;
-                });
-              },
-              child: Stack( 
-                children: [
-                  Center(
-                    child: SizedBox(
-                      width:  w * _boxSize * _objSize,
-                      height: w * _boxSize * _objSize,
-                      child: Image.asset("assets/star2.png"),
-                    )
-                  ),
-                  PositionedHomeArea(
-                    x: _homeX,
-                    y: _homeY,
-                    color: Colors.red.withAlpha(64),
-                    radius: _homeRadius,
-                  ),
-                ]
-              )
+            center: Stack( 
+              children: [
+                Center(
+                  child: SizedBox(
+                    width:  w * _boxSize * _objSize,
+                    height: w * _boxSize * _objSize,
+                    child: Image.asset("assets/star2.png"),
+                  )
+                ),
+                PositionedHomeArea(
+                  x: _homeX,
+                  y: _homeY,
+                  innerColor: Colors.red.withAlpha(64),
+                  outerColor: Colors.grey.withAlpha(64),
+                  innerRadius: _homeInnerRadius,
+                  outerRadius: _homeOuterRadius,
+                ),
+              ]
             ),
             bottom: Center(child: Text("Tap screen to change position")),
           ),
@@ -105,9 +100,7 @@ class _SetHomeScreenState extends State<SetHomeScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Text("Home area position: ${_homeX.toStringAsFixed(1)}, ${_homeY.toStringAsFixed(1)}"),
-            divy_1,
-            Text("Home area size: ${_homeRadius.toStringAsFixed(1)}"),
+            Text("Home area size: ${_homeInnerRadius.toStringAsFixed(1)}"),
             SizedBox(
               height: 50,
               child: Slider(
@@ -115,10 +108,26 @@ class _SetHomeScreenState extends State<SetHomeScreen> {
                 max: 1 * w * _boxSize / 2,
                 onChanged: (v) {
                   setState(() {
-                    _homeRadius = v;
+                    _homeInnerRadius = v;
+                    _homeOuterRadius = max(_homeOuterRadius, _homeInnerRadius);
                   });
                 },
-                value: _homeRadius,
+                value: _homeInnerRadius,
+              ),
+            ),
+            divy_1,
+            Text("Start zone size: ${_homeOuterRadius.toStringAsFixed(1)}"),
+            SizedBox(
+              height: 50,
+              child: Slider(
+                min: _homeInnerRadius,
+                max: 1 * w * _boxSize / 2,
+                onChanged: (v) {
+                  setState(() {
+                    _homeOuterRadius = v;
+                  });
+                },
+                value: max(_homeOuterRadius, _homeInnerRadius),
               ),
             ),
           ],
