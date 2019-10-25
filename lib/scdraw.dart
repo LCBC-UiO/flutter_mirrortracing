@@ -121,6 +121,7 @@ class _DrawScreenState extends State<DrawScreen> {
     @required int numStrokes,
     @required Duration time,
     @required img.Image objMask,
+    @required img.Image objBoudary,
     @required PictureDetails drawing,
     }) async {
     final dbytes = (await (await drawing.toImage()).toByteData());
@@ -132,18 +133,19 @@ class _DrawScreenState extends State<DrawScreen> {
     );
     assert(objMask.width == dimg.width);
     assert(objMask.height == dimg.height);
+    assert(objMask.width == objBoudary.width);
+    assert(objMask.height == objBoudary.height);
     int numTotalPixels = 0;
     int numOutsidePixels = 0;
     for (int j = 0; j < dimg.height; j++) {
       for (int i = 0; i < dimg.width; i++) {
-        // transfer mask
-        final bool isInside = img.getAlpha(objMask.getPixel(i, j)) > 0;
-        final bool hasPaint = img.getRed(dimg.getPixel(i, j)) > 0;
-        // pixel contains paint?
-        final r = hasPaint && ! isInside ? 255 : 0;
-        final g = hasPaint && isInside   ? 255 : 0;
-        final b = ! hasPaint && isInside ? 255 : 0;
-        final a = hasPaint || isInside   ? 255 : 0;
+        final bool isInside   = img.getAlpha(objMask.getPixel(i, j)) > 0;
+        final bool isBoundary = img.getAlpha(objBoudary.getPixel(i, j)) > 0;
+        final bool hasPaint   = img.getRed(dimg.getPixel(i, j)) > 0;
+        final r = hasPaint ? 255 : 0;
+        final g = isInside && ! isBoundary  ? 255 : 0;
+        final b = isBoundary ? 255 : 0;
+        final a = hasPaint || isInside || isBoundary  ? 255 : 0;
         dimg.setPixelSafe(i, j, img.getColor(r, g, b, a));
         numTotalPixels   += hasPaint ? 1 : 0;
         numOutsidePixels += hasPaint && ! isInside ? 1 : 0;
@@ -159,7 +161,7 @@ class _DrawScreenState extends State<DrawScreen> {
     );
   }
 
-  void _cbOnStrokeStart() {
+  void _cbOnStrokeStart(Offset o) {
     _strokeStart = DateTime.now();
     if (_state == _DrawState.Init) {
       setState(() {
@@ -170,6 +172,10 @@ class _DrawScreenState extends State<DrawScreen> {
     }
     _numStrokes++;
     _endTime = DateTime.now();
+  }
+
+  void _cbOnStrokeUpdate(Offset o) {
+    print("${o.dx} ${o.dy}");
   }
 
   void _cbOnStrokeEnd() {
@@ -196,7 +202,7 @@ class _DrawScreenState extends State<DrawScreen> {
 
   Widget _getTop() {
     List<Widget> l = [];
-   if (_state == _DrawState.Recording) {
+    if (_state == _DrawState.Recording) {
       l.add(
         Align(
           alignment: Alignment.topLeft,
@@ -220,31 +226,12 @@ class _DrawScreenState extends State<DrawScreen> {
     }
     l.add(
       Center(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            CupertinoButton(
-              onPressed: _state == _DrawState.Init ? null : _showRestartDialog,
-              child: Text("Reset"),
-            ),
-            CupertinoButton(
-              onPressed: _state != _DrawState.Recording ? null : () async {
-                setState(() {
-                  _state = _DrawState.Finishing;
-                });
-                _imgEval = await _getEvaluatedImage(
-                  drawing: _controller.finish(),
-                  numStrokes: _numStrokes,
-                  objMask: widget.objImg.mask,
-                  time: _endTime.difference(_startTime),
-                );
-                setState(() {
-                  _state = _DrawState.Finished;
-                });
-              },
-              child: Text("Done"),
-            ),
-          ]
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 800),
+          transitionBuilder: (Widget child, Animation<double> animation) {
+            return SlideTransition(child: child, position: Tween<Offset>(begin: Offset(1,0), end: Offset(0,0)).animate(CurvedAnimation(parent: animation, curve: Curves.easeInOutSine)));
+          },
+          child: _getButtonRow()
         )
       )
     );
@@ -268,7 +255,7 @@ class _DrawScreenState extends State<DrawScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
             Text("${DateTime.now().toString().split(".")[0]}"),
-            Text("size on display (cm): ${screenWidth.toStringAsFixed(1)}"),
+            Text("user ID: ${widget.userId}"),
             Text("num. strokes: ${_imgEval.numStrokes}"),
             Text("total time (ms): ${_imgEval.time.inMilliseconds}"),
             Text("drawing time (ms): ${_drawingTime.inMilliseconds}"),
@@ -279,10 +266,10 @@ class _DrawScreenState extends State<DrawScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
             Text(""),
-            Text("user ID: ${widget.userId}"),
             Text("num. pixel: ${_imgEval.numTotalPixels}"),
             Text("inside object: ${inside.toStringAsFixed(1)}%"),
             Text("outside object: ${outside.toStringAsFixed(1)}%"),
+            Text("obj. size on display (cm): ${screenWidth.toStringAsFixed(1)}"),
           ],
         ),
       ],
@@ -308,13 +295,69 @@ class _DrawScreenState extends State<DrawScreen> {
         Painter(
           _controller,
           onPanStart: _cbOnStrokeStart,
+          onPanUpdate: _cbOnStrokeUpdate,
           onPanEnd: _cbOnStrokeEnd,
         ),
+        Align(
+          alignment: Alignment(0.0,-0.8),
+          child: CustomPaint(painter: _FinishAreaCircle(width: 20)),
+        )
       ],
     );
   }
 
-  void _showRestartDialog() {
+  Widget _getButtonRow() {
+    if (_state != _DrawState.Finished) {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          CupertinoButton(
+            onPressed: _state == _DrawState.Init ? null : _actionReset,
+            child: Text("Reset"),
+          ),
+          CupertinoButton(
+            onPressed: _state != _DrawState.Recording ? null : _actionDone,
+            child: Text("Done"),
+          ),
+        ]
+      );
+    } else 
+    return Center(child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        CupertinoButton(
+          onPressed: _state == _DrawState.Init ? null : _actionReset,
+          child: Text("Reset"),
+        ),
+        CupertinoButton(
+          onPressed: _actionReset,
+          child: Text("Save"),
+        ),
+        CupertinoButton(
+          onPressed: _actionDone,
+          child: Text("Upload"),
+        ),
+      ]
+    ));
+  }
+
+  void _actionDone() async {
+    setState(() {
+      _state = _DrawState.Finishing;
+    });
+    _imgEval = await _getEvaluatedImage(
+      drawing: _controller.finish(),
+      numStrokes: _numStrokes,
+      objMask: widget.objImg.mask,
+      objBoudary: widget.objImg.boundary,
+      time: _endTime.difference(_startTime),
+    );
+    setState(() {
+      _state = _DrawState.Finished;
+    });
+  }
+
+  void _actionReset() {
     showDialog(
       context: context,
       builder: (BuildContext context) => CupertinoAlertDialog(
@@ -369,10 +412,12 @@ class _DrawScreenState extends State<DrawScreen> {
 class Painter extends StatefulWidget {
   final PainterController painterController;
   final Function onPanStart;
+  final Function onPanUpdate;
   final Function onPanEnd;
 
   Painter(PainterController painterController, {
     @required this.onPanStart,
+    @required this.onPanUpdate,
     @required this.onPanEnd,
   })
       : this.painterController = painterController,
@@ -427,7 +472,7 @@ class _PainterState extends State<Painter> {
         .globalToLocal(start.globalPosition);
     widget.painterController._pathHistory.add(pos);
     widget.painterController._notifyListeners();
-    widget.onPanStart();
+    widget.onPanStart(pos);
   }
 
   void _onPanUpdate(DragUpdateDetails update) {
@@ -435,6 +480,7 @@ class _PainterState extends State<Painter> {
         .globalToLocal(update.globalPosition);
     widget.painterController._pathHistory.updateCurrent(pos);
     widget.painterController._notifyListeners();
+    widget.onPanUpdate(pos);
   }
 
   void _onPanEnd(DragEndDetails end) {
@@ -464,7 +510,28 @@ class _PainterPainter extends CustomPainter {
 
 
 
+class _FinishAreaCircle extends CustomPainter {
+  final double width;
 
+  Paint _paint;
+
+  _FinishAreaCircle({@required this.width}) {
+    _paint = Paint()
+      ..color = Colors.green.withAlpha(64)
+      ..strokeWidth = 10.0
+      ..style = PaintingStyle.fill;
+  }
+
+  @override
+  void paint(Canvas canvas, Size size) {
+     canvas.drawCircle(Offset(0.0, 0.0), width, _paint);
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) {
+    return false;
+  }
+}
 
 
 
