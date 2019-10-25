@@ -90,6 +90,8 @@ class _DrawScreenState extends State<DrawScreen> {
   DateTime _startTime;
   DateTime _endTime;
   int _numStrokes;
+  Duration _drawingTime;
+  DateTime _strokeStart;
 
   _ImgEvaluation _imgEval;
 
@@ -103,6 +105,7 @@ class _DrawScreenState extends State<DrawScreen> {
     _numStrokes = 0;
     _imgEval = null;
     _imgBoundary = Image.memory(img.encodePng(widget.objImg.boundary));
+    _drawingTime = Duration();
   }
 
   PainterController _newController() {
@@ -157,6 +160,7 @@ class _DrawScreenState extends State<DrawScreen> {
   }
 
   void _cbOnStrokeStart() {
+    _strokeStart = DateTime.now();
     if (_state == _DrawState.Init) {
       setState(() {
         _state = _DrawState.Recording;
@@ -170,6 +174,9 @@ class _DrawScreenState extends State<DrawScreen> {
 
   void _cbOnStrokeEnd() {
     _endTime = DateTime.now();
+    // add time of last stroke to total drawing time
+    Duration strokeDuration = _endTime.difference(_strokeStart);
+    _drawingTime = Duration(milliseconds: _drawingTime.inMilliseconds + strokeDuration.inMilliseconds);
   }
 
   @override
@@ -264,7 +271,7 @@ class _DrawScreenState extends State<DrawScreen> {
             Text("size on display (cm): ${screenWidth.toStringAsFixed(1)}"),
             Text("num. strokes: ${_imgEval.numStrokes}"),
             Text("total time (ms): ${_imgEval.time.inMilliseconds}"),
-            Text("drawing time (ms): ${_imgEval.time.inMilliseconds}"),
+            Text("drawing time (ms): ${_drawingTime.inMilliseconds}"),
           ],
         ),
         Column(
