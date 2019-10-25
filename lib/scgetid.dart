@@ -17,8 +17,8 @@ class GetIdScreen extends StatefulWidget {
 
 
   static _getFLoadObjImg(double w) {
-    final double boxWidth = LcSettings().getDouble(LcSettings.BOX_SIZE_DBL);
-    final double objWidth = LcSettings().getDouble(LcSettings.OBJECT_SIZE_DBL);
+    final double boxWidth = LcSettings().getDouble(LcSettings.RELATIVE_BOX_SIZE_DBL);
+    final double objWidth = LcSettings().getDouble(LcSettings.RELATIVE_OBJECT_SIZE_DBL);
     return loadObjImg(
       boxWidth: (w * boxWidth).round(),
       objWidth: (w * boxWidth * objWidth).round(),
@@ -65,7 +65,7 @@ class _GetIdScreenState extends State<GetIdScreen> {
   Widget _getTextField() {
     return TextField(
       decoration: InputDecoration(
-        hintText:  "enter user ID",
+        hintText:  "enter participant ID",
       ),
       textAlign: TextAlign.center,
       //maxLengthEnforced: true,

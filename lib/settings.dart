@@ -6,10 +6,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 /*----------------------------------------------------------------------------*/
 
 class LcSettings {
-  static const String RANDOM_32_STR     = "RANDOM_32_STR";
-  static const String OBJECT_SIZE_DBL   = "OBJECT_SIZE_DBL";
-  static const String BOX_SIZE_DBL      = "BOX_SIZE_DBL";
-  static const String NETTSKJEMA_ID_INT = "NETTSKJEMA_ID_INT";
+  static const String RANDOM_32_STR            = "RANDOM_32_STR";
+  static const String RELATIVE_OBJECT_SIZE_DBL = "RELATIVE_OBJECT_SIZE_DBL";
+  static const String RELATIVE_BOX_SIZE_DBL    = "RELATIVE_BOX_SIZE_DBL";
+  static const String NETTSKJEMA_ID_INT        = "NETTSKJEMA_ID_INT";
+  static const String SCREEN_WIDTH_CM_DBL      = "SCREEN_SIZE_CM_DBL";
   
 
   SharedPreferences _prefs;
@@ -20,9 +21,10 @@ class LcSettings {
     _keys.clear();
     _prefs = await SharedPreferences.getInstance();
     await _initValueStr(RANDOM_32_STR, await _generateRAndom32());
-    await _initValueDouble(OBJECT_SIZE_DBL, 0.9);
-    await _initValueDouble(BOX_SIZE_DBL,    0.9);
+    await _initValueDouble(RELATIVE_OBJECT_SIZE_DBL, 0.9);
+    await _initValueDouble(RELATIVE_BOX_SIZE_DBL,    0.9);
     await _initValueInt(NETTSKJEMA_ID_INT,   -1);
+    _keys.add(SCREEN_WIDTH_CM_DBL);
   }
 
   Future<void> clear() async {

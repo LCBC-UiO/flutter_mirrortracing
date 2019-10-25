@@ -6,6 +6,7 @@ import 'package:mirrortask/helper.dart';
 import 'dart:ui' as ui;
 import 'package:image/image.dart' as img;
 import 'package:mirrortask/objimgloader.dart';
+import 'package:mirrortask/settings.dart';
 
 /*----------------------------------------------------------------------------*/
 
@@ -251,6 +252,7 @@ class _DrawScreenState extends State<DrawScreen> {
     }
     final double inside = (_imgEval.numTotalPixels - _imgEval.numOutsidePixels) / _imgEval.numTotalPixels * 100;
     final double outside = _imgEval.numOutsidePixels / _imgEval.numTotalPixels * 100;
+    final double screenWidth = LcSettings().getDouble(LcSettings.SCREEN_WIDTH_CM_DBL);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: <Widget>[
@@ -259,9 +261,10 @@ class _DrawScreenState extends State<DrawScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
             Text("${DateTime.now().toString().split(".")[0]}"),
-            Text("user ID: ${widget.userId}"),
+            Text("size on display (cm): ${screenWidth.toStringAsFixed(1)}"),
             Text("num. strokes: ${_imgEval.numStrokes}"),
-            Text("time (ms): ${_imgEval.time.inMilliseconds}"),
+            Text("total time (ms): ${_imgEval.time.inMilliseconds}"),
+            Text("drawing time (ms): ${_imgEval.time.inMilliseconds}"),
           ],
         ),
         Column(
@@ -269,6 +272,7 @@ class _DrawScreenState extends State<DrawScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
             Text(""),
+            Text("user ID: ${widget.userId}"),
             Text("num. pixel: ${_imgEval.numTotalPixels}"),
             Text("inside object: ${inside.toStringAsFixed(1)}%"),
             Text("outside object: ${outside.toStringAsFixed(1)}%"),

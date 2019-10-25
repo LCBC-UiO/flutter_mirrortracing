@@ -21,8 +21,8 @@ class _SetSizeScreenState extends State<SetSizeScreen> {
   @override
   void initState() {
     super.initState();
-    _boxSize = LcSettings().getDouble(LcSettings.BOX_SIZE_DBL);
-    _objSize = LcSettings().getDouble(LcSettings.OBJECT_SIZE_DBL);
+    _boxSize = LcSettings().getDouble(LcSettings.RELATIVE_BOX_SIZE_DBL);
+    _objSize = LcSettings().getDouble(LcSettings.RELATIVE_OBJECT_SIZE_DBL);
   }
 
   @override
@@ -94,8 +94,8 @@ class _SetSizeScreenState extends State<SetSizeScreen> {
                 builder: (context) => CupertinoButton(
                   child: Text("Save"),
                   onPressed: () async {
-                    await LcSettings().setDouble(LcSettings.BOX_SIZE_DBL, _boxSize);
-                    await LcSettings().setDouble(LcSettings.OBJECT_SIZE_DBL, _objSize);
+                    await LcSettings().setDouble(LcSettings.RELATIVE_BOX_SIZE_DBL,    _boxSize);
+                    await LcSettings().setDouble(LcSettings.RELATIVE_OBJECT_SIZE_DBL, _objSize);
                     final snackBar = SnackBar(content: Text('Settings saved'));
                     Scaffold.of(context).showSnackBar(snackBar);
                   },

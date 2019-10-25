@@ -1,9 +1,11 @@
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:mirrortask/scinit.dart';
 import 'package:mirrortask/settings.dart';
 import 'scstart.dart';
 
+/*----------------------------------------------------------------------------*/
 
 // start
 // - paint
@@ -22,7 +24,7 @@ import 'scstart.dart';
 // - upload
 // - save
 
-
+/*----------------------------------------------------------------------------*/
 
 void main() async {
   await LcSettings().init();
@@ -35,15 +37,18 @@ void main() async {
   );
 }
 
+/*----------------------------------------------------------------------------*/
+
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final bool hasInit = LcSettings().isDef(LcSettings.SCREEN_WIDTH_CM_DBL);
     return MaterialApp(
       title: 'LCBC Mirror Tracing',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: StartScreen(),
+      home: hasInit ? StartScreen() : InitScreen(),
     );
   }
 }
