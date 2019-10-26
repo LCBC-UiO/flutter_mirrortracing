@@ -17,7 +17,7 @@ class ObjImg {
 /*----------------------------------------------------------------------------*/
 
 Future<ObjImg> loadObjImg({int boxWidth, int objWidth}) async {
-  final ByteData assetBytes = (await rootBundle.load('assets/star2.png'));
+  final ByteData assetBytes = (await rootBundle.load('assets/star.png'));
   ReceivePort receivePort = ReceivePort();
   final param = _IsolateParam(
     receivePort.sendPort,
@@ -77,7 +77,7 @@ void _loadObjImg(_IsolateParam param) {
     for (int i = 0; i < canvasScaled.width; i++) {
       final int alpha  = img.getBlue(canvasScaled.getPixelSafe(i, j));
       // convert blue channel to alpha - whole image has black color
-      objBoundary.setPixelSafe(i, j,  img.getColor(0, 0, 0, alpha));
+      objBoundary.setPixelSafe(i, j,  img.getColor(127, 127, 127, alpha));
     }
   }
   param.sendPort.send(

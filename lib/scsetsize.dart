@@ -51,12 +51,12 @@ class _SetSizeScreenState extends State<SetSizeScreen> {
       },
       body: Stack(
         children: <Widget>[
-          DrawScreen.getDrawScreenLayout(
+          ExperimentMain.getDrawScreenLayout(
             center: Center(
               child: SizedBox(
                 width:  w * _boxSize * _objSize,
                 height: w * _boxSize * _objSize,
-                child: Image.asset("assets/star2.png"),
+                child: Image.asset("assets/star.png"),
               )
             ),
             centerSize: (w * _boxSize).round(),

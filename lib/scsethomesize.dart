@@ -67,7 +67,7 @@ class _SetHomeAreaSizeScreenState extends State<SetHomeAreaSizeScreen> {
                   child: SizedBox(
                     width:  w * _boxSize * _objSize,
                     height: w * _boxSize * _objSize,
-                    child: Image.asset("assets/star2.png"),
+                    child: Image.asset("assets/star.png"),
                   )
                 ),
                 PositionedHomeArea(
