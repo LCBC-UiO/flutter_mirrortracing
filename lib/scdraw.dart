@@ -7,15 +7,44 @@ import 'dart:ui' as ui;
 import 'package:image/image.dart' as img;
 import 'package:mirrortask/objimgloader.dart';
 import 'package:mirrortask/settings.dart';
+import 'package:provider/provider.dart';
 import 'uihomearea.dart';
 
 /*----------------------------------------------------------------------------*/
 
-class DrawScreen extends StatefulWidget {
+class DrawScreen extends StatelessWidget {
   final String userId;
   final ObjImg objImg;
 
   DrawScreen({
+    @required this.userId,
+    @required this.objImg,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+        builder: (context) => _ExperimentState(),
+        child: LcScaffold(
+        actions: <Widget>[
+          LcScaffold.getActionReset(context)
+        ],
+        body: ExperimentMain(
+          userId: userId,
+          objImg: objImg,
+        )
+      )
+    );
+  }
+}
+
+/*----------------------------------------------------------------------------*/
+
+class ExperimentMain extends StatefulWidget {
+  final String userId;
+  final ObjImg objImg;
+
+  ExperimentMain({
     @required this.userId,
     @required this.objImg,
   });
@@ -54,7 +83,7 @@ class DrawScreen extends StatefulWidget {
   }
 
   @override
-  State<StatefulWidget> createState() => _DrawScreenState();
+  State<StatefulWidget> createState() => _ExperimentMainState();
 }
 
 class _ImgEvaluation {
@@ -73,20 +102,10 @@ class _ImgEvaluation {
   });
 }
 
-
-
-enum _DrawState {
-  Init,
-  Recording,
-  Finishing,
-  Finished,
-}
-
 /*----------------------------------------------------------------------------*/
 
-class _DrawScreenState extends State<DrawScreen> {
+class _ExperimentMainState extends State<ExperimentMain> {
   PainterController _controller;
-  _DrawState _state;
 
   DateTime _startTime;
   DateTime _endTime;
@@ -101,7 +120,6 @@ class _DrawScreenState extends State<DrawScreen> {
 
   @override
   void initState() {
-    _state = _DrawState.Init;
     super.initState();
     _controller = _newController();
     _numStrokes = 0;
@@ -164,20 +182,26 @@ class _DrawScreenState extends State<DrawScreen> {
   }
 
   void _cbOnStrokeStart(Offset o) {
+    final expState = Provider.of<_ExperimentState>(context);
     _strokeStart = DateTime.now();
-    if (_state == _DrawState.Init) {
+    print("222 ${expState.state}");
+    if (expState.state == _ExperimentState.init && _homeArea.isStart(o)) {
+      print("333 ${expState.state}");
       setState(() {
-        _state = _DrawState.Recording;
+        expState.state = _ExperimentState.recording;
         _startTime = DateTime.now();
         _numStrokes = 0;
       });
     }
-    _numStrokes++;
-    _endTime = DateTime.now();
+    if (expState.state == _ExperimentState.recording) {
+      _numStrokes++;
+      _endTime = DateTime.now();
+    }
   }
 
   void _cbOnStrokeUpdate(Offset o) {
-    print("${o.dx} ${o.dy}");
+    //print("${o.dx} ${o.dy}");
+    
   }
 
   void _cbOnStrokeEnd() {
@@ -189,22 +213,17 @@ class _DrawScreenState extends State<DrawScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return LcScaffold(
-      actions: <Widget>[
-        LcScaffold.getActionReset(context)
-      ],
-      body: DrawScreen.getDrawScreenLayout(
-        top: _getTop(),
-        center: _getCenter(),
-        bottom: _getBottom(),
-        centerSize: widget.objImg.boundary.width,
-      )
+    return ExperimentMain.getDrawScreenLayout(
+      top: _getTop(context),
+      center: _getCenter(),
+      bottom: _getBottom(),
+      centerSize: widget.objImg.boundary.width,
     );
   }
 
-  Widget _getTop() {
+  Widget _getTop(context) {
     List<Widget> l = [];
-    if (_state == _DrawState.Recording) {
+    if (Provider.of<_ExperimentState>(context).state == _ExperimentState.recording) {
       l.add(
         Align(
           alignment: Alignment.topLeft,
@@ -243,7 +262,7 @@ class _DrawScreenState extends State<DrawScreen> {
   }
 
   Widget _getBottom() {
-    if (_state != _DrawState.Finished) {
+    if (Provider.of<_ExperimentState>(context).state != _ExperimentState.finished) {
       return null;
     }
     final double inside = (_imgEval.numTotalPixels - _imgEval.numOutsidePixels) / _imgEval.numTotalPixels * 100;
@@ -281,12 +300,12 @@ class _DrawScreenState extends State<DrawScreen> {
   
 
   Widget _getCenter() {
-    if (_state == _DrawState.Finishing) {
+    if (Provider.of<_ExperimentState>(context).state == _ExperimentState.finishing) {
       return Center(
         child: CupertinoActivityIndicator(),
       );
     }
-    if (_state == _DrawState.Finished) {
+    if (Provider.of<_ExperimentState>(context).state  == _ExperimentState.finished) {
       return Center(
         child: Image.memory(img.encodePng(_imgEval.drawing)) //TODO: cache
       );
@@ -306,16 +325,17 @@ class _DrawScreenState extends State<DrawScreen> {
   }
 
   Widget _getButtonRow() {
-    if (_state != _DrawState.Finished) {
+    final expState = Provider.of<_ExperimentState>(context);
+    if (expState.state != _ExperimentState.finished) {
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           CupertinoButton(
-            onPressed: _state == _DrawState.Init ? null : _actionReset,
+            onPressed: expState.state == _ExperimentState.init ? null : _actionReset,
             child: Text("Reset"),
           ),
           CupertinoButton(
-            onPressed: _state != _DrawState.Recording ? null : _actionDone,
+            onPressed: expState.state != _ExperimentState.recording ? null : _actionDone,
             child: Text("Done"),
           ),
         ]
@@ -325,7 +345,7 @@ class _DrawScreenState extends State<DrawScreen> {
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         CupertinoButton(
-          onPressed: _state == _DrawState.Init ? null : _actionReset,
+          onPressed: expState.state == _ExperimentState.init ? null : _actionReset,
           child: Text("Reset"),
         ),
         CupertinoButton(
@@ -341,8 +361,9 @@ class _DrawScreenState extends State<DrawScreen> {
   }
 
   void _actionDone() async {
+    final expState = Provider.of<_ExperimentState>(context);
     setState(() {
-      _state = _DrawState.Finishing;
+      expState.state = _ExperimentState.finishing;
     });
     _imgEval = await _getEvaluatedImage(
       drawing: _controller.finish(),
@@ -352,7 +373,7 @@ class _DrawScreenState extends State<DrawScreen> {
       time: _endTime.difference(_startTime),
     );
     setState(() {
-      _state = _DrawState.Finished;
+      expState.state = _ExperimentState.finished;
     });
   }
 
@@ -390,6 +411,28 @@ class _DrawScreenState extends State<DrawScreen> {
 }
 
 
+enum _ExpState {
+  Init,
+  Recording,
+  Finishing,
+  Finished,
+}
+class _ExperimentState with ChangeNotifier {
+  _ExpState _state = _ExpState.Init;
+
+  _ExpState get state => _state;
+
+  set state(_ExpState n) {
+    print("_ExperimentState set state $n");
+    _state = n;
+    notifyListeners();
+  }
+
+  static const _ExpState init      = _ExpState.Init;
+  static const _ExpState recording = _ExpState.Recording;
+  static const _ExpState finishing = _ExpState.Finishing;
+  static const _ExpState finished  = _ExpState.Finished;
+}
 
 
 
@@ -402,21 +445,30 @@ class _DrawScreenState extends State<DrawScreen> {
 
 
 class _HomeAreaHelper {
-  final double posX = LcSettings().getInt(LcSettings.HOME_POS_X_INT).toDouble();
-  final double posY = LcSettings().getInt(LcSettings.HOME_POS_Y_INT).toDouble();
+  final Offset pos = Offset(
+     LcSettings().getInt(LcSettings.HOME_POS_X_INT).toDouble(),
+     LcSettings().getInt(LcSettings.HOME_POS_Y_INT).toDouble(),
+  );
   final double innerRadius = LcSettings().getInt(LcSettings.HOME_INNER_RADIUS_INT).toDouble();
   final double outerRadius = LcSettings().getInt(LcSettings.HOME_OUTER_RADIUS_INT).toDouble();
 
   Widget getVis() {
     return  PositionedHomeArea(
-      x: posX,
-      y: posY,
+      x: pos.dx,
+      y: pos.dy,
       innerColor: Colors.green.withAlpha(64),
       innerRadius: innerRadius,
       outerRadius: outerRadius,
     );
   }
 
+  bool isStart(final Offset o) {
+    return ((pos - o).distance < innerRadius);
+  }
+
+  bool endStart(final Offset o) {
+    return ((pos - o).distance < innerRadius);
+  }
 
 }
 

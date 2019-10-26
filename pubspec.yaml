@@ -21,6 +21,8 @@ dependencies:
     sdk: flutter
   shared_preferences:
   image:
+  path_provider:
+  provider:
   nettskjema:
     git:
       url: https://github.com/LCBC-UiO/flutter_nettskjema

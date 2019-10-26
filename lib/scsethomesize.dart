@@ -59,7 +59,7 @@ class _SetHomeAreaSizeScreenState extends State<SetHomeAreaSizeScreen> {
       },
       body: Stack(
         children: <Widget>[
-          DrawScreen.getDrawScreenLayout(
+          ExperimentMain.getDrawScreenLayout(
             centerSize: (w * _boxSize).round(),
             center: Stack( 
               children: [
@@ -121,7 +121,7 @@ class _SetHomeAreaSizeScreenState extends State<SetHomeAreaSizeScreen> {
               height: 50,
               child: Slider(
                 min: _homeInnerRadius,
-                max: 1 * w * _boxSize / 2,
+                max: 1 * w * _boxSize,
                 onChanged: (v) {
                   setState(() {
                     _homeOuterRadius = v;

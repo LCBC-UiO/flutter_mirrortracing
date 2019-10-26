@@ -59,7 +59,7 @@ class _SetHomeAreaPositionScreenState extends State<SetHomeAreaPositionScreen> {
       },
       body: Stack(
         children: <Widget>[
-          DrawScreen.getDrawScreenLayout(
+          ExperimentMain.getDrawScreenLayout(
             top: Center(child: Text("Home area position:\n${_homeX.toStringAsFixed(1)}, ${_homeY.toStringAsFixed(1)}", textAlign: TextAlign.center,)),
             centerSize: (w * _boxSize).round(),
             center: GestureDetector(
