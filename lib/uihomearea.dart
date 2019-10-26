@@ -4,38 +4,31 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-class PositionedHomeArea extends StatelessWidget {
-  final double x;
-  final double y;
+class HomeArea extends StatelessWidget {
   final Color innerColor;
   final Color outerColor;
   final double innerRadius;
   final double outerRadius;
-  
-  PositionedHomeArea({
-    @required this.x,
-    @required this.y,
+
+  HomeArea({
+    Key key,
     innerColor,
     this.outerColor = Colors.transparent,
     @required this.innerRadius,
     @required this.outerRadius,
-  }) : this.innerColor = innerColor ?? Colors.green.withAlpha(64);
+  }) : this.innerColor = innerColor ?? Colors.green.withAlpha(64), super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Positioned(
-      left: x,
-      top: y,
-      child: Stack(
-        alignment: Alignment.center,
-        children: <Widget>[
-          CustomPaint(painter: _FinishAreaCircle(width: innerRadius, color: innerColor)),
-          CustomPaint(painter: _FinishAreaCircle(width: outerRadius, color: outerColor)),
-        ],
-      )
-      
+    return Stack(
+      alignment: Alignment.center,
+      children: <Widget>[
+        CustomPaint(painter: _FinishAreaCircle(width: innerRadius, color: innerColor)),
+        CustomPaint(painter: _FinishAreaCircle(width: outerRadius, color: outerColor)),
+      ],
     );
-  }}
+  }
+}
 
 class _FinishAreaCircle extends CustomPainter {
   final double width;

@@ -79,14 +79,16 @@ class _SetHomeAreaPositionScreenState extends State<SetHomeAreaPositionScreen> {
                       child: Image.asset("assets/star.png"),
                     )
                   ),
-                  PositionedHomeArea(
-                    x: _homeX,
-                    y: _homeY,
-                    innerColor: Colors.red.withAlpha(64),
-                    outerColor: Colors.grey.withAlpha(64),
-                    innerRadius: _homeInnerRadius,
-                    outerRadius: _homeOuterRadius,
-                  ),
+                  Positioned(
+                    left: _homeX,
+                    top: _homeY,
+                    child:HomeArea(
+                      innerColor: Colors.red.withAlpha(64),
+                      outerColor: Colors.grey.withAlpha(64),
+                      innerRadius: _homeInnerRadius,
+                      outerRadius: _homeOuterRadius,
+                    ),
+                  )
                 ]
               )
             ),

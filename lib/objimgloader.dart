@@ -57,8 +57,9 @@ void _loadObjImg(_IsolateParam param) {
   }();
   // paste object into canvas
   assert(canvasUnscaled.width >=  objectRaw.width);
-  final inset = ((canvasUnscaled.width -  objectRaw.width) / 2).round();
-  canvasUnscaled = img.copyInto(canvasUnscaled, objectRaw, dstX: inset, dstY: inset);
+  final insetX = ((canvasUnscaled.width  - objectRaw.width ) / 2).round();
+  final insetY = ((canvasUnscaled.height - objectRaw.height) / 2).round();
+  canvasUnscaled = img.copyInto(canvasUnscaled, objectRaw, dstX: insetX, dstY: insetY);
   // scale
   final img.Image canvasScaled = img.copyResize(canvasUnscaled, width: param.boxWidth, height: param.boxWidth, interpolation: img.Interpolation.cubic);
   // create mask - use whatever is in the green or blue channel

@@ -8,6 +8,7 @@ import 'package:image/image.dart' as img;
 import 'package:mirrortask/objimgloader.dart';
 import 'package:mirrortask/settings.dart';
 import 'package:provider/provider.dart';
+import 'imgevaluation.dart';
 import 'uihomearea.dart';
 
 /*----------------------------------------------------------------------------*/
@@ -85,38 +86,21 @@ class ExperimentMain extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => _ExperimentMainState();
 }
-
-class _ImgEvaluation {
-  final img.Image drawing;
-  final int numStrokes;
-  final Duration time;
-  final int numTotalPixels;
-  final int numOutsidePixels;
-
-  _ImgEvaluation({
-    @required this.drawing,
-    @required this.numStrokes,
-    @required this.time,
-    @required this.numTotalPixels,
-    @required this.numOutsidePixels,
-  });
-}
-
 /*----------------------------------------------------------------------------*/
 
 class _ExperimentMainState extends State<ExperimentMain> {
   PainterController _controller;
 
-  DateTime _startTime;
+  DateTime _startTime; 
   DateTime _endTime;
   int _numStrokes;
   Duration _drawingTime;
   DateTime _strokeStart;
-
-  _ImgEvaluation _imgEval;
+  ImgEvaluation _imgEval;
 
   Image _imgBoundary;
   _HomeAreaHelper _homeArea = _HomeAreaHelper();
+
 
   @override
   void initState() {
@@ -126,6 +110,7 @@ class _ExperimentMainState extends State<ExperimentMain> {
     _imgEval = null;
     _imgBoundary = Image.memory(img.encodePng(widget.objImg.boundary));
     _drawingTime = Duration();
+    _homeArea.state = _HomeAreaHelper.stateInit;
   }
 
   PainterController _newController() {
@@ -137,58 +122,14 @@ class _ExperimentMainState extends State<ExperimentMain> {
     return controller;
   }
 
-  Future<_ImgEvaluation> _getEvaluatedImage({
-    @required int numStrokes,
-    @required Duration time,
-    @required img.Image objMask,
-    @required img.Image objBoudary,
-    @required PictureDetails drawing,
-    }) async {
-    final dbytes = (await (await drawing.toImage()).toByteData());
-    final List<int> bytes = (dbytes.buffer).asUint8List(dbytes.offsetInBytes, dbytes.lengthInBytes);
-    img.Image dimg = img.Image.fromBytes(
-      drawing.width,
-      drawing.height,
-      bytes,
-    );
-    assert(objMask.width == dimg.width);
-    assert(objMask.height == dimg.height);
-    assert(objMask.width == objBoudary.width);
-    assert(objMask.height == objBoudary.height);
-    int numTotalPixels = 0;
-    int numOutsidePixels = 0;
-    for (int j = 0; j < dimg.height; j++) {
-      for (int i = 0; i < dimg.width; i++) {
-        final bool isInside   = img.getAlpha(objMask.getPixel(i, j)) > 0;
-        final bool isBoundary = img.getAlpha(objBoudary.getPixel(i, j)) > 0;
-        final bool hasPaint   = img.getRed(dimg.getPixel(i, j)) > 0;
-        final r = hasPaint ? 255 : 0;
-        final g = isInside && ! isBoundary  ? 255 : 0;
-        final b = isBoundary ? 255 : 0;
-        final a = hasPaint || isInside || isBoundary  ? 255 : 0;
-        dimg.setPixelSafe(i, j, img.getColor(r, g, b, a));
-        numTotalPixels   += hasPaint ? 1 : 0;
-        numOutsidePixels += hasPaint && ! isInside ? 1 : 0;
-      }
-    }
-
-    return _ImgEvaluation(
-      drawing: dimg,
-      numStrokes: numStrokes,
-      time: time,
-      numTotalPixels: numTotalPixels,
-      numOutsidePixels: numOutsidePixels,
-    );
-  }
 
   void _cbOnStrokeStart(Offset o) {
     final expState = Provider.of<_ExperimentState>(context);
     _strokeStart = DateTime.now();
-    print("222 ${expState.state}");
-    if (expState.state == _ExperimentState.init && _homeArea.isStart(o)) {
-      print("333 ${expState.state}");
+    if (expState.state == _ExperimentState.init && _homeArea.isInner(o)) {
       setState(() {
         expState.state = _ExperimentState.recording;
+        _homeArea.state = _HomeAreaHelper.stateStarted;
         _startTime = DateTime.now();
         _numStrokes = 0;
       });
@@ -200,8 +141,16 @@ class _ExperimentMainState extends State<ExperimentMain> {
   }
 
   void _cbOnStrokeUpdate(Offset o) {
+    print("${_homeArea.state} ${_homeArea.isOuter(o)}");
+    if (_homeArea.state == _HomeAreaHelper.stateStarted && ! _homeArea.isOuter(o)) {
+      setState(() {
+        _homeArea.state = _HomeAreaHelper.stateCompletable;
+      });
+    } else if (_homeArea.state == _HomeAreaHelper.stateCompletable && _homeArea.isInner(o)) {
+      _cbOnStrokeEnd();
+      _actionDone();
+    }
     //print("${o.dx} ${o.dy}");
-    
   }
 
   void _cbOnStrokeEnd() {
@@ -277,8 +226,8 @@ class _ExperimentMainState extends State<ExperimentMain> {
           children: <Widget>[
             Text("${DateTime.now().toString().split(".")[0]}"),
             Text("user ID: ${widget.userId}"),
-            Text("num. strokes: ${_imgEval.numStrokes}"),
-            Text("total time (ms): ${_imgEval.time.inMilliseconds}"),
+            Text("num. strokes: $_numStrokes"),
+            Text("total time (ms): ${_endTime.difference(_startTime).inMilliseconds}"),
             Text("drawing time (ms): ${_drawingTime.inMilliseconds}"),
           ],
         ),
@@ -300,12 +249,13 @@ class _ExperimentMainState extends State<ExperimentMain> {
   
 
   Widget _getCenter() {
-    if (Provider.of<_ExperimentState>(context).state == _ExperimentState.finishing) {
+    final expState = Provider.of<_ExperimentState>(context);
+    if (expState.state == _ExperimentState.finishing) {
       return Center(
         child: CupertinoActivityIndicator(),
       );
     }
-    if (Provider.of<_ExperimentState>(context).state  == _ExperimentState.finished) {
+    if (expState.state == _ExperimentState.finished) {
       return Center(
         child: Image.memory(img.encodePng(_imgEval.drawing)) //TODO: cache
       );
@@ -365,12 +315,10 @@ class _ExperimentMainState extends State<ExperimentMain> {
     setState(() {
       expState.state = _ExperimentState.finishing;
     });
-    _imgEval = await _getEvaluatedImage(
+    _imgEval = await ImgEvaluation.calculate(
       drawing: _controller.finish(),
-      numStrokes: _numStrokes,
       objMask: widget.objImg.mask,
       objBoudary: widget.objImg.boundary,
-      time: _endTime.difference(_startTime),
     );
     setState(() {
       expState.state = _ExperimentState.finished;
@@ -423,7 +371,6 @@ class _ExperimentState with ChangeNotifier {
   _ExpState get state => _state;
 
   set state(_ExpState n) {
-    print("_ExperimentState set state $n");
     _state = n;
     notifyListeners();
   }
@@ -442,8 +389,6 @@ class _ExperimentState with ChangeNotifier {
 
 
 
-
-
 class _HomeAreaHelper {
   final Offset pos = Offset(
      LcSettings().getInt(LcSettings.HOME_POS_X_INT).toDouble(),
@@ -452,22 +397,44 @@ class _HomeAreaHelper {
   final double innerRadius = LcSettings().getInt(LcSettings.HOME_INNER_RADIUS_INT).toDouble();
   final double outerRadius = LcSettings().getInt(LcSettings.HOME_OUTER_RADIUS_INT).toDouble();
 
+  static const int stateInit = 0;
+  static const int stateStarted = 1;
+  static const int stateCompletable = 2;
+
+  int state = stateInit;
+
   Widget getVis() {
-    return  PositionedHomeArea(
-      x: pos.dx,
-      y: pos.dy,
-      innerColor: Colors.green.withAlpha(64),
-      innerRadius: innerRadius,
-      outerRadius: outerRadius,
+    final color = () {
+      if (state == stateInit)        return Colors.red.withAlpha(64);
+      if (state == stateCompletable) return Colors.green.withAlpha(64);
+      return Colors.transparent;
+    }();
+    return Positioned(
+      left: pos.dx,
+      top: pos.dy,
+      child: AnimatedSwitcher(
+        switchInCurve: Curves.easeInOutSine,
+        switchOutCurve: Curves.easeInOutSine,
+        duration: const Duration(milliseconds: 500),
+        transitionBuilder: (Widget child, Animation<double> animation) {
+          return ScaleTransition(child: child, scale: animation);
+        },
+        child: HomeArea(
+          key: ValueKey(state),
+          innerColor: color,
+          innerRadius: innerRadius,
+          outerRadius: outerRadius,
+        )
+      )
     );
   }
 
-  bool isStart(final Offset o) {
+  bool isInner(final Offset o) {
     return ((pos - o).distance < innerRadius);
   }
 
-  bool endStart(final Offset o) {
-    return ((pos - o).distance < innerRadius);
+  bool isOuter(final Offset o) {
+    return ((pos - o).distance < outerRadius);
   }
 
 }
