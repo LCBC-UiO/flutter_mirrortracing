@@ -100,8 +100,8 @@ class _ExperimentMainState extends State<ExperimentMain> {
   _HomeAreaHelper _homeArea= _HomeAreaHelper();
   PenTrajectory _penTrajectory;
 
-  bool _dataSaved;
-  bool _dataUploaded;
+  _ActionState _dataSaved;
+  _ActionState _dataUploaded;
 
 
   @override
@@ -113,8 +113,8 @@ class _ExperimentMainState extends State<ExperimentMain> {
     _penTrajectory = PenTrajectory();
     _homeArea = _HomeAreaHelper();
     _homeArea.state = _HomeAreaHelper.stateInit;
-    _dataSaved = false;
-    _dataUploaded = false;
+    _dataSaved = _ActionState.init;
+    _dataUploaded = _ActionState.init;
   }
 
   PainterController _newController() {
@@ -298,19 +298,50 @@ class _ExperimentMainState extends State<ExperimentMain> {
       );
     } else 
     return Center(child: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        CupertinoButton(
-          onPressed: expState.state == _ExperimentState.init ? null : _actionReset,
-          child: Text("Reset"),
+        Expanded(
+          child: CupertinoButton(
+            onPressed: expState.state == _ExperimentState.init ? null : _actionReset,
+            child: Text("Reset"),
+          )
         ),
-        CupertinoButton(
-          onPressed: _dataSaved ? null : _actionSave,
-          child: _dataSaved ? Text("Saved") : Text("Save"),
+        Expanded(
+            child: CupertinoButton(
+            onPressed: _dataSaved != _ActionState.init ? null : _actionSave,
+            child: () {
+              switch (_dataSaved) {
+                case _ActionState.init:
+                  return Text("Save");
+                  break;
+                case _ActionState.inprogress:
+                  return Text("Saving");
+                  break;
+                case _ActionState.done:
+                  return Text("Saved");
+                  break;
+              }
+              throw "err";
+            }()
+          ),
         ),
-        CupertinoButton(
-          onPressed: _actionDone,
-          child: Text("Upload"),
+        Expanded(
+            child: CupertinoButton(
+            onPressed: _dataUploaded != _ActionState.init ? null : _actionUpload,
+            child: () {
+              switch (_dataUploaded) {
+                case _ActionState.init:
+                  return Text("Upload");
+                  break;
+                case _ActionState.inprogress:
+                  return Text("Uploading");
+                  break;
+                case _ActionState.done:
+                  return Text("Uploaded");
+                  break;
+              }
+              throw "err";
+            }()
+          ),
         ),
       ]
     ));
@@ -373,15 +404,41 @@ class _ExperimentMainState extends State<ExperimentMain> {
   }
 
   Future<void> _actionSave() async {
+    setState(() {
+      _dataSaved = _ActionState.inprogress;
+    });
     try {
       await _resultData.saveLocally(context);
+      setState(() {
+        _dataSaved = _ActionState.done;
+      });
       final snackBar = SnackBar(content: Text("Data saved"));
       Scaffold.of(context).showSnackBar(snackBar);
-      setState(() {
-        _dataSaved = true;
-      });
     } catch (e) {
-      final snackBar = SnackBar(content: Text("Warning: data not saved!"));
+      setState(() {
+        _dataSaved = _ActionState.init;
+      });
+      final snackBar = SnackBar(content: Text("Error: data not saved!"));
+      Scaffold.of(context).showSnackBar(snackBar);
+    }
+  }
+
+  Future<void> _actionUpload() async {
+    setState(() {
+      _dataUploaded = _ActionState.init;
+    });
+    try {
+      await _resultData.uploadNettskjema();
+      setState(() {
+        _dataUploaded = _ActionState.done;
+      });
+      final snackBar = SnackBar(content: Text("Data uploaded"));
+      Scaffold.of(context).showSnackBar(snackBar);
+    } catch (e) {
+      setState(() {
+        _dataUploaded = _ActionState.init;
+      });
+      final snackBar = SnackBar(content: Text("Error: ${e.toString()}"));
       Scaffold.of(context).showSnackBar(snackBar);
     }
   }
@@ -410,7 +467,11 @@ class _ExperimentState with ChangeNotifier {
 }
 
 
-
+enum _ActionState {
+  init,
+  inprogress,
+  done
+}
 
 
 
