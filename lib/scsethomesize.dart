@@ -82,7 +82,6 @@ class _SetHomeAreaSizeScreenState extends State<SetHomeAreaSizeScreen> {
                 )
               ]
             ),
-            bottom: Center(child: Text("Tap screen to change position")),
           ),
           Align(
             alignment: Alignment.topCenter,

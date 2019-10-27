@@ -73,9 +73,9 @@ void _calcResultImage(_IsolateParam param) {
   assert(param.objMask.height == param.objBoudary.height);
   for (int j = 0; j < dimg.height; j++) {
     for (int i = 0; i < dimg.width; i++) {
-      final bool isInside   = img.getAlpha(param.objMask.getPixel(i, j)) > 0;
-      final bool isBoundary = img.getAlpha(param.objBoudary.getPixel(i, j)) > 0;
-      final bool hasPaint   = img.getRed(dimg.getPixel(i, j)) > 0;
+      final bool isInside   = img.getAlpha(param.objMask.getPixelSafe(i, j)) > 0;
+      final bool isBoundary = img.getAlpha(param.objBoudary.getPixelSafe(i, j)) > 0;
+      final bool hasPaint   = img.getRed(dimg.getPixelSafe(i, j)) > 0;
       final r = hasPaint ? 255 : 0;
       final g = isInside && ! isBoundary  ? 255 : 0;
       final b = isBoundary ? 255 : 0;
@@ -92,8 +92,9 @@ void _calcResultImage(_IsolateParam param) {
     for (int l = 0; l < t[k].length; l++) {
       final i = t[k][l].posX;
       final j = t[k][l].posY;
-      final bool isInside   = img.getAlpha(param.objMask.getPixel(i, j)) > 0;
-      final bool isBoundary = img.getAlpha(param.objBoudary.getPixel(i, j)) > 0;
+      //NOTE: path position can be out of bounds, but ok - getPixelSafe will be 0
+      final bool isInside   = img.getAlpha(param.objMask.getPixelSafe(i, j)) > 0;
+      final bool isBoundary = img.getAlpha(param.objBoudary.getPixelSafe(i, j)) > 0;
       numTotalSamples++;
       numOutsideSamples += isInside || isBoundary ? 0 : 1;
       // calc boundary crossing only when not on boundary

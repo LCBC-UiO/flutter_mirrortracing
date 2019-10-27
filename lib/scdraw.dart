@@ -10,6 +10,7 @@ import 'package:mirrortask/settings.dart';
 import 'package:provider/provider.dart';
 import 'imgevaluation.dart';
 import 'pentrajectory.dart';
+import 'resultdata.dart';
 import 'uihomearea.dart';
 
 /*----------------------------------------------------------------------------*/
@@ -92,7 +93,7 @@ class ExperimentMain extends StatefulWidget {
 class _ExperimentMainState extends State<ExperimentMain> {
   PainterController _controller;
 
-  ImgEvaluation _imgEval;
+  ResultData _resultData;
   Image _resultImg;
 
   Image _imgBoundary;
@@ -104,7 +105,7 @@ class _ExperimentMainState extends State<ExperimentMain> {
   void initState() {
     super.initState();
     _controller = _newController();
-    _imgEval = null;
+    _resultData = null;
     _imgBoundary = Image.memory(img.encodePng(widget.objImg.boundary));
     _homeArea.state = _HomeAreaHelper.stateInit;
   }
@@ -213,12 +214,8 @@ class _ExperimentMainState extends State<ExperimentMain> {
     if (Provider.of<_ExperimentState>(context).state != _ExperimentState.finished) {
       return null;
     }
-    final double inside = (_imgEval.numTotalSamples - _imgEval.numOutsideSamples) / _imgEval.numTotalSamples * 100;
-    final double outside = _imgEval.numOutsideSamples / _imgEval.numTotalSamples * 100;
-    final double canvasWidth = (
-      LcSettings().getDouble(LcSettings.SCREEN_WIDTH_CM_DBL)
-      * LcSettings().getDouble(LcSettings.RELATIVE_BOX_SIZE_DBL)
-    );
+    final double inside = (_resultData.imgEval.numTotalSamples - _resultData.imgEval.numOutsideSamples) / _resultData.imgEval.numTotalSamples * 100;
+    final double outside = _resultData.imgEval.numOutsideSamples / _resultData.imgEval.numTotalSamples * 100;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: <Widget>[
@@ -226,22 +223,22 @@ class _ExperimentMainState extends State<ExperimentMain> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
-            Text("${DateTime.now().toString().split(".")[0]}"),
-            Text("user ID: ${widget.userId}"),
-            Text("num. continuous lines: ${_penTrajectory.numStrokes}"),
-            Text("total time (ms): ${_penTrajectory.totalTime}"),
-            Text("time pen drawing (ms): ${_penTrajectory.drawingTime}"),
+            Text("${_resultData.date.toString().split(".")[0]}"),
+            Text("user ID: ${_resultData.userId}"),
+            Text("num. continuous lines: ${_resultData.trajectory.numStrokes}"),
+            Text("total time (ms): ${_resultData.trajectory.totalTime}"),
+            Text("time pen drawing (ms): ${_resultData.trajectory.drawingTime}"),
           ],
         ),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
-            Text("number of samples: ${_imgEval.numTotalSamples}"),
+            Text("number of samples: ${_resultData.imgEval.numTotalSamples}"),
             Text("inside object: ${inside.toStringAsFixed(1)}%"),
             Text("outside object: ${outside.toStringAsFixed(1)}%"),
-            Text("num. boundary crossings ${_imgEval.numBoundaryCrossings}"),
-            Text("displ. canvas width (cm): ${canvasWidth.toStringAsFixed(1)}"),
+            Text("num. boundary crossings ${_resultData.imgEval.numBoundaryCrossings}"),
+            Text("displ. canvas width (cm): ${_resultData.canvasWidth.toStringAsFixed(1)}"),
           ],
         ),
       ],
@@ -317,13 +314,20 @@ class _ExperimentMainState extends State<ExperimentMain> {
     setState(() {
       expState.state = _ExperimentState.finishing;
     });
-    _imgEval = await ImgEvaluation.calculate(
-      drawing: _controller.finish(),
-      objMask: widget.objImg.mask,
-      objBoudary: widget.objImg.boundary,
+    _resultData = ResultData(
+      userId: widget.userId,
+      imgEval: await ImgEvaluation.calculate(
+        drawing: _controller.finish(),
+        objMask: widget.objImg.mask,
+        objBoudary: widget.objImg.boundary,
+        trajectory: _penTrajectory,
+      ),
+      date: DateTime.now(),
       trajectory: _penTrajectory,
+      canvasWidth: LcSettings().getDouble(LcSettings.SCREEN_WIDTH_CM_DBL)
+        * LcSettings().getDouble(LcSettings.RELATIVE_BOX_SIZE_DBL),
     );
-    _resultImg = Image.memory(img.encodePng(_imgEval.drawing));
+    _resultImg = Image.memory(img.encodePng(_resultData.imgEval.drawing));
     setState(() {
       expState.state = _ExperimentState.finished;
     });
