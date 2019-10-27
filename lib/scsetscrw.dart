@@ -1,20 +1,21 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:mirrortask/scsetsize.dart';
 import 'package:mirrortask/scstart.dart';
 import 'helper.dart';
 import 'settings.dart';
 
 /*----------------------------------------------------------------------------*/
 
-class InitScreen extends StatefulWidget {
+class SetScreenWidthScreen extends StatefulWidget {
   
   @override
-  State<StatefulWidget> createState() => _InitScreenState();
+  State<StatefulWidget> createState() => _SetScreenWidthScreenState();
 }
 
 /*----------------------------------------------------------------------------*/
 
-class _InitScreenState extends State<InitScreen> {
+class _SetScreenWidthScreenState extends State<SetScreenWidthScreen> {
   Function _onNext;
 
   @override
@@ -57,7 +58,7 @@ class _InitScreenState extends State<InitScreen> {
             await LcSettings().setDouble(LcSettings.SCREEN_WIDTH_CM_DBL, value);
             Navigator.of(context).pushReplacement(
               MaterialPageRoute(
-                builder: (context) => StartScreen(),
+                builder: (context) => SetSizeScreen(),
               )
             );
           };

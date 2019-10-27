@@ -1,10 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'scsettings.dart';
 import 'helper.dart';
 import 'scdraw.dart';
 import 'scsethomepos.dart';
+import 'scstart.dart';
 import 'settings.dart';
 
 /*----------------------------------------------------------------------------*/
@@ -45,7 +45,7 @@ class _SetSizeScreenState extends State<SetSizeScreen> {
       onPrev: () {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
-            builder: (context) => SettingsScreen(),
+            builder: (context) => StartScreen(),
           )
         );
       },

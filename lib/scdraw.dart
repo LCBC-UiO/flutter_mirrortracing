@@ -9,6 +9,9 @@ import 'package:mirrortask/objimgloader.dart';
 import 'package:mirrortask/settings.dart';
 import 'package:provider/provider.dart';
 import 'imgevaluation.dart';
+import 'pentrajectory.dart';
+import 'resultdata.dart';
+import 'scstart.dart';
 import 'uihomearea.dart';
 
 /*----------------------------------------------------------------------------*/
@@ -91,21 +94,28 @@ class ExperimentMain extends StatefulWidget {
 class _ExperimentMainState extends State<ExperimentMain> {
   PainterController _controller;
 
-  ImgEvaluation _imgEval;
+  ResultData _resultData;
   Image _resultImg;
 
   Image _imgBoundary;
-  _HomeAreaHelper _homeArea = _HomeAreaHelper();
-  _PenTrajectory _penTrajectory = _PenTrajectory();
+  _HomeAreaHelper _homeArea= _HomeAreaHelper();
+  PenTrajectory _penTrajectory;
+
+  _ActionState _dataSaved;
+  _ActionState _dataUploaded;
 
 
   @override
   void initState() {
     super.initState();
     _controller = _newController();
-    _imgEval = null;
+    _resultData = null;
     _imgBoundary = Image.memory(img.encodePng(widget.objImg.boundary));
+    _penTrajectory = PenTrajectory();
+    _homeArea = _HomeAreaHelper();
     _homeArea.state = _HomeAreaHelper.stateInit;
+    _dataSaved = _ActionState.init;
+    _dataUploaded = _ActionState.init;
   }
 
   PainterController _newController() {
@@ -212,12 +222,8 @@ class _ExperimentMainState extends State<ExperimentMain> {
     if (Provider.of<_ExperimentState>(context).state != _ExperimentState.finished) {
       return null;
     }
-    final double inside = (_imgEval.numTotalPixels - _imgEval.numOutsidePixels) / _imgEval.numTotalPixels * 100;
-    final double outside = _imgEval.numOutsidePixels / _imgEval.numTotalPixels * 100;
-    final double canvasWidth = (
-      LcSettings().getDouble(LcSettings.SCREEN_WIDTH_CM_DBL)
-      * LcSettings().getDouble(LcSettings.RELATIVE_BOX_SIZE_DBL)
-    );
+    final double inside = (_resultData.imgEval.numTotalSamples - _resultData.imgEval.numOutsideSamples) / _resultData.imgEval.numTotalSamples * 100;
+    final double outside = _resultData.imgEval.numOutsideSamples / _resultData.imgEval.numTotalSamples * 100;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: <Widget>[
@@ -225,22 +231,22 @@ class _ExperimentMainState extends State<ExperimentMain> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
-            Text("${DateTime.now().toString().split(".")[0]}"),
-            Text("user ID: ${widget.userId}"),
-            Text("num. strokes: ${_penTrajectory.numStrokes}"),
-            Text("total time (ms): ${_penTrajectory.totalTime}"),
-            Text("drawing time (ms): ${_penTrajectory.drawingTime}"),
+            Text("${_resultData.date.toString().split(".")[0]}"),
+            Text("user ID: ${_resultData.userId}"),
+            Text("num. continuous lines: ${_resultData.trajectory.numContinuousLines}"),
+            Text("total time (ms): ${_resultData.trajectory.totalTime}"),
+            Text("pen drawing time (ms): ${_resultData.trajectory.drawingTime}"),
           ],
         ),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
-            Text(""),
-            Text("num. pixel: ${_imgEval.numTotalPixels}"),
+            Text("number of samples: ${_resultData.imgEval.numTotalSamples}"),
             Text("inside object: ${inside.toStringAsFixed(1)}%"),
             Text("outside object: ${outside.toStringAsFixed(1)}%"),
-            Text("displ. canvas width (cm): ${canvasWidth.toStringAsFixed(1)}"),
+            Text("num. boundary crossings ${_resultData.imgEval.numBoundaryCrossings}"),
+            Text("displ. canvas width (cm): ${_resultData.canvasWidth.toStringAsFixed(1)}"),
           ],
         ),
       ],
@@ -277,6 +283,7 @@ class _ExperimentMainState extends State<ExperimentMain> {
 
   Widget _getButtonRow() {
     final expState = Provider.of<_ExperimentState>(context);
+    // getting started?
     if (expState.state != _ExperimentState.finished) {
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -291,21 +298,67 @@ class _ExperimentMainState extends State<ExperimentMain> {
           ),
         ]
       );
-    } else 
+    }
+    // are we done?
+    if (_dataSaved == _ActionState.done && _dataUploaded == _ActionState.done) {
+      return Center(
+        child: CupertinoButton(
+          onPressed: () async {
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(
+                  builder: (context) => StartScreen(),
+                )
+              );
+            },
+          child: Text("Close"),
+        )
+      );
+    }
     return Center(child: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        CupertinoButton(
-          onPressed: expState.state == _ExperimentState.init ? null : _actionReset,
-          child: Text("Reset"),
+        Expanded(
+          child: CupertinoButton(
+            onPressed: expState.state == _ExperimentState.init ? null : _actionReset,
+            child: Text("Reset"),
+          )
         ),
-        CupertinoButton(
-          onPressed: _actionReset,
-          child: Text("Save"),
+        Expanded(
+            child: CupertinoButton(
+            onPressed: _dataSaved != _ActionState.init ? null : _actionSave,
+            child: () {
+              switch (_dataSaved) {
+                case _ActionState.init:
+                  return Text("Save");
+                  break;
+                case _ActionState.inprogress:
+                  return Text("Saving");
+                  break;
+                case _ActionState.done:
+                  return Text("Saved");
+                  break;
+              }
+              throw "err";
+            }()
+          ),
         ),
-        CupertinoButton(
-          onPressed: _actionDone,
-          child: Text("Upload"),
+        Expanded(
+            child: CupertinoButton(
+            onPressed: _dataUploaded != _ActionState.init ? null : _actionUpload,
+            child: () {
+              switch (_dataUploaded) {
+                case _ActionState.init:
+                  return Text("Upload");
+                  break;
+                case _ActionState.inprogress:
+                  return Text("Uploading");
+                  break;
+                case _ActionState.done:
+                  return Text("Uploaded");
+                  break;
+              }
+              throw "err";
+            }()
+          ),
         ),
       ]
     ));
@@ -316,12 +369,20 @@ class _ExperimentMainState extends State<ExperimentMain> {
     setState(() {
       expState.state = _ExperimentState.finishing;
     });
-    _imgEval = await ImgEvaluation.calculate(
-      drawing: _controller.finish(),
-      objMask: widget.objImg.mask,
-      objBoudary: widget.objImg.boundary,
+    _resultData = ResultData(
+      userId: widget.userId,
+      imgEval: await ImgEvaluation.calculate(
+        drawing: _controller.finish(),
+        objMask: widget.objImg.mask,
+        objBoudary: widget.objImg.boundary,
+        trajectory: _penTrajectory,
+      ),
+      date: DateTime.now(),
+      trajectory: _penTrajectory,
+      canvasWidth: LcSettings().getDouble(LcSettings.SCREEN_WIDTH_CM_DBL)
+        * LcSettings().getDouble(LcSettings.RELATIVE_BOX_SIZE_DBL),
     );
-    _resultImg = Image.memory(img.encodePng(_imgEval.drawing));
+    _resultImg = Image.memory(img.encodePng(_resultData.imgEval.drawing));
     setState(() {
       expState.state = _ExperimentState.finished;
     });
@@ -334,7 +395,7 @@ class _ExperimentMainState extends State<ExperimentMain> {
         title: Text("Reset drawing?"),
         actions: [
           CupertinoDialogAction(
-            isDefaultAction: true, 
+            isDefaultAction: false, 
             child: Text("Reset"),
             isDestructiveAction: true,
             onPressed: () async {
@@ -358,8 +419,47 @@ class _ExperimentMainState extends State<ExperimentMain> {
       ),
     );
   }
-}
 
+  Future<void> _actionSave() async {
+    setState(() {
+      _dataSaved = _ActionState.inprogress;
+    });
+    try {
+      await _resultData.saveLocally(context);
+      setState(() {
+        _dataSaved = _ActionState.done;
+      });
+      final snackBar = SnackBar(content: Text("Data saved"));
+      Scaffold.of(context).showSnackBar(snackBar);
+    } catch (e) {
+      setState(() {
+        _dataSaved = _ActionState.init;
+      });
+      final snackBar = SnackBar(content: Text("Error: data not saved!"));
+      Scaffold.of(context).showSnackBar(snackBar);
+    }
+  }
+
+  Future<void> _actionUpload() async {
+    setState(() {
+      _dataUploaded = _ActionState.init;
+    });
+    try {
+      await _resultData.uploadNettskjema();
+      setState(() {
+        _dataUploaded = _ActionState.done;
+      });
+      final snackBar = SnackBar(content: Text("Data uploaded"));
+      Scaffold.of(context).showSnackBar(snackBar);
+    } catch (e) {
+      setState(() {
+        _dataUploaded = _ActionState.init;
+      });
+      final snackBar = SnackBar(content: Text("Error: ${e.toString()}"));
+      Scaffold.of(context).showSnackBar(snackBar);
+    }
+  }
+}
 
 enum _ExpState {
   Init,
@@ -384,7 +484,11 @@ class _ExperimentState with ChangeNotifier {
 }
 
 
-
+enum _ActionState {
+  init,
+  inprogress,
+  done
+}
 
 
 
@@ -441,64 +545,6 @@ class _HomeAreaHelper {
 
 }
 
-
-/*----------------------------------------------------------------------------*/
-class _PenTrajectory {
-  List<List<_PenTrajectoryElement>> _t = [];
-  DateTime _startTime;
-
-  void newLine() => _t.add([]);
-
-  void add(double x, double y) {
-    final now = DateTime.now();
-    _startTime ??= now;
-    _t.last.add(
-      _PenTrajectoryElement(
-        posX: x.round(), 
-        posY: y.round(), 
-        timeMs: now.difference(_startTime).inMilliseconds,
-      )
-    );
-  }
-
-  int get numStrokes => _t.length;
-  int get totalTime => _t.last.last.timeMs;
-  int get drawingTime {
-    int sum = 0;
-    _t.forEach( (e) {
-       sum += e.last.timeMs - e.first.timeMs;
-    });
-    return sum;
-  }
-  String toJsonStr() {
-    var r = new StringBuffer();
-    r.write("[");
-    for (int i = 0; i < _t.length; i++) {
-      i == 0 ? r.write("[") : r.write(",[");
-      for (int j = 0; j < _t[i].length; j++) {
-        if (j > 0) {
-          r.write(",");
-        }
-        r.write("[${_t[i][j].posX},${_t[i][j].posY},${_t[i][j].timeMs}]");
-      }
-      r.write("]");
-    }
-    r.write("]");
-    return r.toString();
-  }
-}
-
-class _PenTrajectoryElement{
-  final int posX;
-  final int posY;
-  final int timeMs;
-
-  _PenTrajectoryElement({
-    @required this.posX,
-    @required this.posY,
-    @required this.timeMs,
-  });
-}
 
 /*----------------------------------------------------------------------------*/
 

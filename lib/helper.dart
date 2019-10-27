@@ -23,6 +23,10 @@ const coldef_lcbcblue1  = Color(0xFF00B2EC);
 
 /*----------------------------------------------------------------------------*/
 
+String enumToString(final o) => o.toString().split('.').last;
+
+/*----------------------------------------------------------------------------*/
+
 class LcScaffold extends StatelessWidget {
   final Widget body;
   final List<Widget> actions;
@@ -52,19 +56,6 @@ class LcScaffold extends StatelessWidget {
     );
   }
 
-  static Widget getActionSettings(context) {
-    return IconButton(
-      icon: Icon(Icons.settings,),
-      onPressed: () {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => SettingsScreen(),
-          )
-        );
-      },
-    );
-  }
-
   static Widget getActionReset(context) {
   return IconButton(
     icon: Icon(Icons.cancel,),
@@ -88,7 +79,7 @@ class LcScaffold extends StatelessWidget {
                 },
               ),
               CupertinoDialogAction(
-                isDefaultAction: true, 
+                isDefaultAction: false, 
                 child: Text("Back"),
                 isDestructiveAction: false,
                 onPressed: () {

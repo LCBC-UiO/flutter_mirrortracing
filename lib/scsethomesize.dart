@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'helper.dart';
 import 'scdraw.dart';
+import 'scstart.dart';
 import 'settings.dart';
-import 'scsettings.dart';
 import 'uihomearea.dart';
 
 /*----------------------------------------------------------------------------*/
@@ -45,7 +45,7 @@ class _SetHomeAreaSizeScreenState extends State<SetHomeAreaSizeScreen> {
         await LcSettings().setInt(LcSettings.HOME_OUTER_RADIUS_INT, _homeOuterRadius.round());
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
-            builder: (context) => SettingsScreen(),
+            builder: (context) => StartScreen(),
           )
         );
       },
@@ -53,7 +53,7 @@ class _SetHomeAreaSizeScreenState extends State<SetHomeAreaSizeScreen> {
       onPrev: () {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
-            builder: (context) => SettingsScreen(),
+            builder: (context) => StartScreen(),
           )
         );
       },
@@ -82,7 +82,6 @@ class _SetHomeAreaSizeScreenState extends State<SetHomeAreaSizeScreen> {
                 )
               ]
             ),
-            bottom: Center(child: Text("Tap screen to change position")),
           ),
           Align(
             alignment: Alignment.topCenter,

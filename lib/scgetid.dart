@@ -12,7 +12,7 @@ class GetIdScreen extends StatefulWidget {
   final Future<ObjImg> _fLoadObjImg;
 
   GetIdScreen({
-    this.screenWidth
+    @required this.screenWidth
   }) : _fLoadObjImg = _getFLoadObjImg(screenWidth);
 
 
@@ -34,6 +34,7 @@ class GetIdScreen extends StatefulWidget {
 class _GetIdScreenState extends State<GetIdScreen> {
   Function _onNext;
   bool _showTextField;
+  static final validUserIdChars = RegExp(r'^[a-zA-Z0-9]+$');
 
   @override
   void initState() {
@@ -68,10 +69,12 @@ class _GetIdScreenState extends State<GetIdScreen> {
         hintText:  "enter participant ID",
       ),
       textAlign: TextAlign.center,
-      //maxLengthEnforced: true,
       style: Theme.of(context).textTheme.display1,
       autofocus: true,
       onSubmitted: (v) async {
+        if (!validUserIdChars.hasMatch(v)) {
+          return;
+        }
         setState(() {
           _onNext = () async {
             setState(() {

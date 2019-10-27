@@ -4,8 +4,8 @@ import 'package:flutter/widgets.dart';
 import 'package:mirrortask/scsethomesize.dart';
 import 'helper.dart';
 import 'scdraw.dart';
+import 'scstart.dart';
 import 'settings.dart';
-import 'scsettings.dart';
 import 'uihomearea.dart';
 
 /*----------------------------------------------------------------------------*/
@@ -53,7 +53,7 @@ class _SetHomeAreaPositionScreenState extends State<SetHomeAreaPositionScreen> {
       onPrev: () {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
-            builder: (context) => SettingsScreen(),
+            builder: (context) => StartScreen(),
           )
         );
       },
