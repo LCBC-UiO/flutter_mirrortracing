@@ -3,7 +3,6 @@ import 'dart:typed_data';
 import 'package:image/image.dart' as img;
 import 'package:flutter/material.dart';
 import 'package:mirrortask/scdraw.dart';
-
 import 'pentrajectory.dart';
 
 /*----------------------------------------------------------------------------*/

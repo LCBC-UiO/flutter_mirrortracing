@@ -97,8 +97,11 @@ class _ExperimentMainState extends State<ExperimentMain> {
   Image _resultImg;
 
   Image _imgBoundary;
-  _HomeAreaHelper _homeArea = _HomeAreaHelper();
-  PenTrajectory _penTrajectory = PenTrajectory();
+  _HomeAreaHelper _homeArea= _HomeAreaHelper();
+  PenTrajectory _penTrajectory;
+
+  bool _dataSaved;
+  bool _dataUploaded;
 
 
   @override
@@ -107,7 +110,11 @@ class _ExperimentMainState extends State<ExperimentMain> {
     _controller = _newController();
     _resultData = null;
     _imgBoundary = Image.memory(img.encodePng(widget.objImg.boundary));
+    _penTrajectory = PenTrajectory();
+    _homeArea = _HomeAreaHelper();
     _homeArea.state = _HomeAreaHelper.stateInit;
+    _dataSaved = false;
+    _dataUploaded = false;
   }
 
   PainterController _newController() {
@@ -225,9 +232,9 @@ class _ExperimentMainState extends State<ExperimentMain> {
           children: <Widget>[
             Text("${_resultData.date.toString().split(".")[0]}"),
             Text("user ID: ${_resultData.userId}"),
-            Text("num. continuous lines: ${_resultData.trajectory.numStrokes}"),
+            Text("num. continuous lines: ${_resultData.trajectory.numContinuousLines}"),
             Text("total time (ms): ${_resultData.trajectory.totalTime}"),
-            Text("time pen drawing (ms): ${_resultData.trajectory.drawingTime}"),
+            Text("pen drawing time (ms): ${_resultData.trajectory.drawingTime}"),
           ],
         ),
         Column(
@@ -298,8 +305,8 @@ class _ExperimentMainState extends State<ExperimentMain> {
           child: Text("Reset"),
         ),
         CupertinoButton(
-          onPressed: _actionReset,
-          child: Text("Save"),
+          onPressed: _dataSaved ? null : _actionSave,
+          child: _dataSaved ? Text("Saved") : Text("Save"),
         ),
         CupertinoButton(
           onPressed: _actionDone,
@@ -364,8 +371,21 @@ class _ExperimentMainState extends State<ExperimentMain> {
       ),
     );
   }
-}
 
+  Future<void> _actionSave() async {
+    try {
+      await _resultData.saveLocally(context);
+      final snackBar = SnackBar(content: Text("Data saved"));
+      Scaffold.of(context).showSnackBar(snackBar);
+      setState(() {
+        _dataSaved = true;
+      });
+    } catch (e) {
+      final snackBar = SnackBar(content: Text("Warning: data not saved!"));
+      Scaffold.of(context).showSnackBar(snackBar);
+    }
+  }
+}
 
 enum _ExpState {
   Init,

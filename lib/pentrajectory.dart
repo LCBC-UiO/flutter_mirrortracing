@@ -22,7 +22,7 @@ class PenTrajectory {
 
   List<List<_PenTrajectoryElement>> get trajectory => _t;
 
-  int get numStrokes => _t.length;
+  int get numContinuousLines => _t.length;
   int get totalTime => _t.last.last.timeMs;
   int get drawingTime {
     int sum = 0;
