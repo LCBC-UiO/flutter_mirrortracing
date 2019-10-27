@@ -9,6 +9,7 @@ import 'package:mirrortask/objimgloader.dart';
 import 'package:mirrortask/settings.dart';
 import 'package:provider/provider.dart';
 import 'imgevaluation.dart';
+import 'pentrajectory.dart';
 import 'uihomearea.dart';
 
 /*----------------------------------------------------------------------------*/
@@ -96,7 +97,7 @@ class _ExperimentMainState extends State<ExperimentMain> {
 
   Image _imgBoundary;
   _HomeAreaHelper _homeArea = _HomeAreaHelper();
-  _PenTrajectory _penTrajectory = _PenTrajectory();
+  PenTrajectory _penTrajectory = PenTrajectory();
 
 
   @override
@@ -212,8 +213,8 @@ class _ExperimentMainState extends State<ExperimentMain> {
     if (Provider.of<_ExperimentState>(context).state != _ExperimentState.finished) {
       return null;
     }
-    final double inside = (_imgEval.numTotalPixels - _imgEval.numOutsidePixels) / _imgEval.numTotalPixels * 100;
-    final double outside = _imgEval.numOutsidePixels / _imgEval.numTotalPixels * 100;
+    final double inside = (_imgEval.numTotalSamples - _imgEval.numOutsideSamples) / _imgEval.numTotalSamples * 100;
+    final double outside = _imgEval.numOutsideSamples / _imgEval.numTotalSamples * 100;
     final double canvasWidth = (
       LcSettings().getDouble(LcSettings.SCREEN_WIDTH_CM_DBL)
       * LcSettings().getDouble(LcSettings.RELATIVE_BOX_SIZE_DBL)
@@ -227,9 +228,9 @@ class _ExperimentMainState extends State<ExperimentMain> {
           children: <Widget>[
             Text("${DateTime.now().toString().split(".")[0]}"),
             Text("user ID: ${widget.userId}"),
-            Text("num. strokes: ${_penTrajectory.numStrokes}"),
+            Text("num. continuous lines: ${_penTrajectory.numStrokes}"),
             Text("total time (ms): ${_penTrajectory.totalTime}"),
-            Text("drawing time (ms): ${_penTrajectory.drawingTime}"),
+            Text("time pen drawing (ms): ${_penTrajectory.drawingTime}"),
           ],
         ),
         Column(
@@ -237,7 +238,7 @@ class _ExperimentMainState extends State<ExperimentMain> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
             Text(""),
-            Text("num. pixel: ${_imgEval.numTotalPixels}"),
+            Text("number of samples: ${_imgEval.numTotalSamples}"),
             Text("inside object: ${inside.toStringAsFixed(1)}%"),
             Text("outside object: ${outside.toStringAsFixed(1)}%"),
             Text("displ. canvas width (cm): ${canvasWidth.toStringAsFixed(1)}"),
@@ -320,6 +321,7 @@ class _ExperimentMainState extends State<ExperimentMain> {
       drawing: _controller.finish(),
       objMask: widget.objImg.mask,
       objBoudary: widget.objImg.boundary,
+      trajectory: _penTrajectory,
     );
     _resultImg = Image.memory(img.encodePng(_imgEval.drawing));
     setState(() {
@@ -441,64 +443,6 @@ class _HomeAreaHelper {
 
 }
 
-
-/*----------------------------------------------------------------------------*/
-class _PenTrajectory {
-  List<List<_PenTrajectoryElement>> _t = [];
-  DateTime _startTime;
-
-  void newLine() => _t.add([]);
-
-  void add(double x, double y) {
-    final now = DateTime.now();
-    _startTime ??= now;
-    _t.last.add(
-      _PenTrajectoryElement(
-        posX: x.round(), 
-        posY: y.round(), 
-        timeMs: now.difference(_startTime).inMilliseconds,
-      )
-    );
-  }
-
-  int get numStrokes => _t.length;
-  int get totalTime => _t.last.last.timeMs;
-  int get drawingTime {
-    int sum = 0;
-    _t.forEach( (e) {
-       sum += e.last.timeMs - e.first.timeMs;
-    });
-    return sum;
-  }
-  String toJsonStr() {
-    var r = new StringBuffer();
-    r.write("[");
-    for (int i = 0; i < _t.length; i++) {
-      i == 0 ? r.write("[") : r.write(",[");
-      for (int j = 0; j < _t[i].length; j++) {
-        if (j > 0) {
-          r.write(",");
-        }
-        r.write("[${_t[i][j].posX},${_t[i][j].posY},${_t[i][j].timeMs}]");
-      }
-      r.write("]");
-    }
-    r.write("]");
-    return r.toString();
-  }
-}
-
-class _PenTrajectoryElement{
-  final int posX;
-  final int posY;
-  final int timeMs;
-
-  _PenTrajectoryElement({
-    @required this.posX,
-    @required this.posY,
-    @required this.timeMs,
-  });
-}
 
 /*----------------------------------------------------------------------------*/
 
