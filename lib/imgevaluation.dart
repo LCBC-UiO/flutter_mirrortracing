@@ -12,11 +12,13 @@ class ImgEvaluation {
   final img.Image drawing;
   final int numTotalSamples;
   final int numOutsideSamples;
+  final int numBoundaryCrossings;
 
   ImgEvaluation({
     @required this.drawing,
     @required this.numTotalSamples,
     @required this.numOutsideSamples,
+    @required this.numBoundaryCrossings,
   });
 
   static Future<ImgEvaluation> calculate({
@@ -69,8 +71,6 @@ void _calcResultImage(_IsolateParam param) {
   assert(param.objMask.height == dimg.height);
   assert(param.objMask.width == param.objBoudary.width);
   assert(param.objMask.height == param.objBoudary.height);
-  int numTotalSamples = 0;
-  int numOutsideSamples = 0;
   for (int j = 0; j < dimg.height; j++) {
     for (int i = 0; i < dimg.width; i++) {
       final bool isInside   = img.getAlpha(param.objMask.getPixel(i, j)) > 0;
@@ -84,6 +84,10 @@ void _calcResultImage(_IsolateParam param) {
     }
   }
   final t = param.trajectory.trajectory;
+  int numTotalSamples = 0;
+  int numOutsideSamples = 0;
+  int numBoundaryCrossings = 0;
+  bool lastIsInside;
   for (int k = 0; k < t.length; k++) {
     for (int l = 0; l < t[k].length; l++) {
       final i = t[k][l].posX;
@@ -92,6 +96,13 @@ void _calcResultImage(_IsolateParam param) {
       final bool isBoundary = img.getAlpha(param.objBoudary.getPixel(i, j)) > 0;
       numTotalSamples++;
       numOutsideSamples += isInside || isBoundary ? 0 : 1;
+      // calc boundary crossing only when not on boundary
+      if (! isBoundary) {
+        if (lastIsInside != null && lastIsInside != isInside) {
+          numBoundaryCrossings++;
+        }
+        lastIsInside = isInside;
+      }
     }
   }
   param.sendPort.send(
@@ -99,6 +110,7 @@ void _calcResultImage(_IsolateParam param) {
       drawing: dimg,
       numOutsideSamples: numOutsideSamples,
       numTotalSamples: numTotalSamples,
+      numBoundaryCrossings: numBoundaryCrossings,
     )
   );
 }

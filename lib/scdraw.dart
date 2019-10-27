@@ -237,10 +237,10 @@ class _ExperimentMainState extends State<ExperimentMain> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
-            Text(""),
             Text("number of samples: ${_imgEval.numTotalSamples}"),
             Text("inside object: ${inside.toStringAsFixed(1)}%"),
             Text("outside object: ${outside.toStringAsFixed(1)}%"),
+            Text("num. boundary crossings ${_imgEval.numBoundaryCrossings}"),
             Text("displ. canvas width (cm): ${canvasWidth.toStringAsFixed(1)}"),
           ],
         ),
