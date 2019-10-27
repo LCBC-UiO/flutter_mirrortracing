@@ -12,13 +12,9 @@
 
 ## TODO
 
-- project settings
-  - use db instead of shared_preferences
-  - db entry: [project, key, value] text only
-  - store values for read access in Map<String,String>
-  - save settings async
-- test max upload size / big trajectories
+- save path to start as settings
 
+- test max upload size / big trajectories
 - recalc line from trajectory
 - local JSON + image - not accessible on ios`
 - also save to local DB?
