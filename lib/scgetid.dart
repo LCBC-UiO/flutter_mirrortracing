@@ -34,6 +34,7 @@ class GetIdScreen extends StatefulWidget {
 class _GetIdScreenState extends State<GetIdScreen> {
   Function _onNext;
   bool _showTextField;
+  static final validUserIdChars = RegExp(r'^[a-zA-Z0-9]+$');
 
   @override
   void initState() {
@@ -72,6 +73,9 @@ class _GetIdScreenState extends State<GetIdScreen> {
       style: Theme.of(context).textTheme.display1,
       autofocus: true,
       onSubmitted: (v) async {
+        if (!validUserIdChars.hasMatch(v)) {
+          return;
+        }
         setState(() {
           _onNext = () async {
             setState(() {
