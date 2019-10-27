@@ -97,6 +97,7 @@ class _ExperimentMainState extends State<ExperimentMain> {
   Duration _drawingTime;
   DateTime _strokeStart;
   ImgEvaluation _imgEval;
+  Image _resultImg;
 
   Image _imgBoundary;
   _HomeAreaHelper _homeArea = _HomeAreaHelper();
@@ -164,7 +165,15 @@ class _ExperimentMainState extends State<ExperimentMain> {
   Widget build(BuildContext context) {
     return ExperimentMain.getDrawScreenLayout(
       top: _getTop(context),
-      center: _getCenter(),
+      center: AnimatedSwitcher(
+        switchInCurve: Curves.easeInOutSine,
+        switchOutCurve: Curves.easeInOutSine,
+        duration: const Duration(milliseconds: 500),
+        transitionBuilder: (Widget child, Animation<double> animation) {
+          return ScaleTransition(child: child, scale: animation);
+        },
+        child: _getCenter(),
+      ),
       bottom: _getBottom(),
       centerSize: widget.objImg.boundary.width,
     );
@@ -257,7 +266,7 @@ class _ExperimentMainState extends State<ExperimentMain> {
     }
     if (expState.state == _ExperimentState.finished) {
       return Center(
-        child: Image.memory(img.encodePng(_imgEval.drawing)) //TODO: cache
+        child: _resultImg //TODO: cache
       );
     }
     return Stack(
@@ -320,6 +329,7 @@ class _ExperimentMainState extends State<ExperimentMain> {
       objMask: widget.objImg.mask,
       objBoudary: widget.objImg.boundary,
     );
+    _resultImg = Image.memory(img.encodePng(_imgEval.drawing));
     setState(() {
       expState.state = _ExperimentState.finished;
     });
@@ -505,9 +515,11 @@ class _PainterState extends State<Painter> {
   void _onPanStart(DragStartDetails start) {
     Offset pos = (context.findRenderObject() as RenderBox)
         .globalToLocal(start.globalPosition);
-    widget.painterController._pathHistory.add(pos);
-    widget.painterController._notifyListeners();
     widget.onPanStart(pos);
+    if (Provider.of<_ExperimentState>(context).state == _ExperimentState.recording) {
+      widget.painterController._pathHistory.add(pos);
+      widget.painterController._notifyListeners();
+    }
   }
 
   void _onPanUpdate(DragUpdateDetails update) {

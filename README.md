@@ -13,9 +13,9 @@
 ## Getting Started
 
 todo:
-- start drawing on state == recording
 - save trajectory of pen as vectors - List<List<x,y,timeMs>>
 - upload to nettskjema
+- test max upload size / big trajectories
 - recalc line from trajectory
 - save autocomplete info in results?
 - project settings
