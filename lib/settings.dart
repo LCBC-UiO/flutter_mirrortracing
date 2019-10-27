@@ -7,7 +7,7 @@ import 'db.dart';
 
 class LcSettings implements DbListener {
   Set<String> _keys = Set();
-  String projectName;
+  String _projectName;
   Map<String, String> _projectSettings;
 
   static const String RANDOM_32_STR            = "RANDOM_32_STR";
@@ -21,7 +21,7 @@ class LcSettings implements DbListener {
   static const String HOME_OUTER_RADIUS_INT    = "HOME_OUTER_RADIUS_INT";
 
   Future<void> init(String projectName) async {
-    this.projectName = projectName;
+    this._projectName = projectName;
     _keys.clear();
     _projectSettings = await _readFromDb(projectName);
     await _initValueStr(RANDOM_32_STR, await _generateRandom32());
@@ -33,6 +33,7 @@ class LcSettings implements DbListener {
     await _initValueInt(HOME_INNER_RADIUS_INT,  20);
     await _initValueInt(HOME_OUTER_RADIUS_INT,  50);
     _keys.add(RANDOM_32_STR);
+    _keys.add(SCREEN_WIDTH_CM_DBL);
   }
 
   @override
@@ -41,7 +42,10 @@ class LcSettings implements DbListener {
   }
 
 
-  bool isDef(key) => _projectSettings.containsKey(key);
+  //bool isDef(key) => _projectSettings.containsKey(key);
+  bool isDef(key) { 
+    return  _projectSettings.containsKey(key);
+  }
 
   Future<void> _initValueStr(String key, String v) async {
     _keys.add(key);
@@ -71,14 +75,14 @@ class LcSettings implements DbListener {
     final int r = await LcDb().db().insert(
       _kTableNameSettings,
       {
-        "project": this.projectName,
+        "project": _projectName,
         "key": key,
         "value": v,
       },
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
     // update cache
-    _projectSettings = await _readFromDb(projectName);
+    _projectSettings = await _readFromDb(_projectName);
     return r;
   }
 
@@ -96,6 +100,9 @@ class LcSettings implements DbListener {
     return int.tryParse(_projectSettings[key]);
   }
   double getDouble(String key) {
+    print("getDouble $key");
+    print("getDouble ${_projectSettings[key]}");
+    print("getDouble ${double.tryParse(_projectSettings[key]).toString()}");
     return double.tryParse(_projectSettings[key]);
   }
 
@@ -116,8 +123,20 @@ class LcSettings implements DbListener {
     List<Map> q = await LcDb().db().rawQuery(
       'SELECT DISTINCT project FROM $_kTableNameSettings;'
     );
-    return q.map((e) => e["project"]).toList();
+    List<String> c = [];
+    q.forEach( (e) => c.add(e["project"]) );
+    return c;
   }
+
+  Future<int> delete(String projectName) async {
+    return await LcDb().db().delete(
+      _kTableNameSettings,
+      where: "project = ?",
+      whereArgs: [ projectName ],
+    );
+  }
+
+  get activeConfigName => _projectName;
 
   static final LcSettings _singleton = new LcSettings._internal();
 

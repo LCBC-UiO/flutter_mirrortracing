@@ -12,7 +12,7 @@ class GetIdScreen extends StatefulWidget {
   final Future<ObjImg> _fLoadObjImg;
 
   GetIdScreen({
-    this.screenWidth
+    @required this.screenWidth
   }) : _fLoadObjImg = _getFLoadObjImg(screenWidth);
 
 

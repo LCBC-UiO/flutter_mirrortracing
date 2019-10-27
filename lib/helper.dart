@@ -56,43 +56,6 @@ class LcScaffold extends StatelessWidget {
     );
   }
 
-  static Widget getActionSettings(context) {
-    return IconButton(
-      icon: Icon(Icons.settings,),
-      onPressed: () {
-        showDialog(
-          context: context,
-          builder: (BuildContext context) => CupertinoAlertDialog(
-            title: Text("Warning!"),
-            content: Text("Changes in the settings might make new results uncomparable with previous ones."),
-            actions: [
-              CupertinoDialogAction(
-                isDefaultAction: false, 
-                child: Text("Back"),
-                onPressed: () async {
-                  Navigator.of(context).pop();
-                },
-              ),
-              CupertinoDialogAction(
-                isDefaultAction: true, 
-                child: Text("Ok"),
-                isDestructiveAction: false,
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => SettingsScreen(),
-                    )
-                  );
-                },
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
   static Widget getActionReset(context) {
   return IconButton(
     icon: Icon(Icons.cancel,),

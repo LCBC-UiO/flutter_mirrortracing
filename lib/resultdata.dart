@@ -50,7 +50,7 @@ class ResultData {
   Future<void> uploadNettskjema() async {
     final int nettskjemaId = LcSettings().getInt(LcSettings.NETTSKJEMA_ID_INT);
     NettskjemaPublic n = NettskjemaPublic(nettskjemaId: nettskjemaId);
-    n.upload(_toNettskjemaMap());
+    await n.upload(_toNettskjemaMap());
   }
 
   static Future<void> testNettskjema(nettskjemaId) async {
