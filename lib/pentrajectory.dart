@@ -14,7 +14,7 @@ class PenTrajectory {
     _t.last.add(
       _PenTrajectoryElement(
         posX: x.round(), 
-        posY: y.round(), 
+        posY: y.round(),
         timeMs: now.difference(_startTime).inMilliseconds,
       )
     );

@@ -395,7 +395,7 @@ class _ExperimentMainState extends State<ExperimentMain> {
         title: Text("Reset drawing?"),
         actions: [
           CupertinoDialogAction(
-            isDefaultAction: true, 
+            isDefaultAction: false, 
             child: Text("Reset"),
             isDestructiveAction: true,
             onPressed: () async {
