@@ -69,7 +69,6 @@ class _GetIdScreenState extends State<GetIdScreen> {
         hintText:  "enter participant ID",
       ),
       textAlign: TextAlign.center,
-      //maxLengthEnforced: true,
       style: Theme.of(context).textTheme.display1,
       autofocus: true,
       onSubmitted: (v) async {

@@ -23,6 +23,10 @@ const coldef_lcbcblue1  = Color(0xFF00B2EC);
 
 /*----------------------------------------------------------------------------*/
 
+String enumToString(final o) => o.toString().split('.').last;
+
+/*----------------------------------------------------------------------------*/
+
 class LcScaffold extends StatelessWidget {
   final Widget body;
   final List<Widget> actions;

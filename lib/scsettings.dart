@@ -4,6 +4,7 @@ import 'package:mirrortask/helper.dart';
 import 'package:mirrortask/scsethomepos.dart';
 import 'package:mirrortask/settings.dart';
 
+import 'resultdata.dart';
 import 'scsetsize.dart';
 
 /*----------------------------------------------------------------------------*/
@@ -23,53 +24,70 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return LcScaffold(
       body:  DefaultTextStyle(
         style: theme.primaryTextTheme.subhead,
-        child: ListView(
-          padding: const EdgeInsets.only(bottom: 124.0),
-          children: <Widget>[
-            const _Heading('Options'),
-            _ActionItem(
-              "Configure size of shape",
-              () {
-                Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(
-                    builder: (context) => SetSizeScreen(),
-                  )
-                );
-              }
-            ),
-            _ActionItem(
-              "Configure home area",
-              () {
-                Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(
-                    builder: (context) => SetHomeAreaPositionScreen(),
-                  )
-                );
-              }
-            ),
-            _ActionItem(
-              "Set nettskjema ID (public form)",
-              () {
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) => CupertinoAlertDialog(
-                    title: Text("Nettskjema ID"),
-                    content: CupertinoTextField(
-                      controller: TextEditingController(text: LcSettings().getInt(LcSettings.NETTSKJEMA_ID_INT).toString()),
-                      autofocus: true,
-                      onSubmitted: (v) async {
-                        await LcSettings().setInt(LcSettings.NETTSKJEMA_ID_INT, int.tryParse(v));
-                        Navigator.pop(context);
-                      },
-                    ),
-                  )
-                );
-              }
-            )
-            //const Divider(),
-          ]
-        )
+        child: _SettingsList(),
       )
+    );
+  }
+}
+
+class _SettingsList  extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      padding: const EdgeInsets.only(bottom: 124.0),
+      children: <Widget>[
+        const _Heading('Options'),
+        _ActionItem(
+          "Configure size of shape",
+          () {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (context) => SetSizeScreen(),
+              )
+            );
+          }
+        ),
+        _ActionItem(
+          "Configure home area",
+          () {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (context) => SetHomeAreaPositionScreen(),
+              )
+            );
+          }
+        ),
+        _ActionItem(
+          "Set nettskjema ID (public form)",
+          () async {
+            String msg = "Nettskjema ID tested successfully";
+            await showDialog(
+              context: context,
+              builder: (BuildContext context) => CupertinoAlertDialog(
+                title: Text("Nettskjema ID"),
+                content: CupertinoTextField(
+                  controller: TextEditingController(text: LcSettings().getInt(LcSettings.NETTSKJEMA_ID_INT).toString()),
+                  autofocus: true,
+                  onSubmitted: (v) async {
+                    final nettskjemaId = int.tryParse(v);
+                    try {
+                      await ResultData.testNettskjema(nettskjemaId);
+                    } catch (e) {
+                      msg = "Error: ${e.toString()}";
+                    }
+                    await LcSettings().setInt(LcSettings.NETTSKJEMA_ID_INT, int.tryParse(v));
+                    Navigator.pop(context);
+                  },
+                ),
+              )
+            );
+            final snackBar = SnackBar(content: Text(msg));
+            Scaffold.of(context).showSnackBar(snackBar);
+            print(msg);
+          }
+        )
+        //const Divider(),
+      ]
     );
   }
 }
