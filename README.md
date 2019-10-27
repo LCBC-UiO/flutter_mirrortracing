@@ -10,26 +10,22 @@
 * high resolution (will be downscaled within the app)
 
 
-## Getting Started
+## TODO
 
-todo:
-- upload to nettskjema
-- also save to local DB
-
-- test max upload size / big trajectories
-
-- save autocomplete info in results?
 - project settings
   - use db instead of shared_preferences
   - db entry: [project, key, value] text only
   - store values for read access in Map<String,String>
   - save settings async
+- test max upload size / big trajectories
 
 - recalc line from trajectory
-- local JSON + image - not accessible on ios
+- local JSON + image - not accessible on ios`
+- also save to local DB?
+- save autocomplete info in results?
 
 
-##
+## locally saved files (iOS)
 "To make the directory available to the user you need to open the Xcode project under 'your_app/ios/Runner.xcworkspace'. Then open the Info.plist file in the Runner directory and add two rows with the key UIFileSharingEnabled and LSSupportsOpeningDocumentsInPlace. Set the value of both keys to YES.
 If you now open the Files app and click on 'On My iPhone' you should see a folder with the name of your application."
 
