@@ -3,43 +3,27 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:mirrortask/scinit.dart';
 import 'package:mirrortask/settings.dart';
+import 'db.dart';
 import 'scstart.dart';
 
 /*----------------------------------------------------------------------------*/
 
-// start
-// - paint
-// - config
-
-// config
-// - box/obj sizes
-// - nettskjema
-
-// paint
-// - paint-done
-// - reset -> confirm -> start
-
-// paint-done
-// - reset -> confirm -> start
-// - upload
-// - save
-
-/*----------------------------------------------------------------------------*/
-
 void main() async {
-  await LcSettings().init();
+  LcDb().addListener(LcSettings());
+  await LcDb().init();
+  await LcSettings().init("Test");
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
   runApp(
-    MyApp()
+    MirrorTracingApp()
   );
 }
 
 /*----------------------------------------------------------------------------*/
 
-class MyApp extends StatelessWidget {
+class MirrorTracingApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool hasInit = LcSettings().isDef(LcSettings.SCREEN_WIDTH_CM_DBL);

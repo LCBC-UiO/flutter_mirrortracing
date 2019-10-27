@@ -1,11 +1,15 @@
 import 'dart:convert';
 import 'dart:math';
-import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sqflite/sqflite.dart';
+import 'db.dart';
 
 /*----------------------------------------------------------------------------*/
 
-class LcSettings {
+class LcSettings implements DbListener {
+  Set<String> _keys = Set();
+  String projectName;
+  Map<String, String> _projectSettings;
+
   static const String RANDOM_32_STR            = "RANDOM_32_STR";
   static const String RELATIVE_OBJECT_SIZE_DBL = "RELATIVE_OBJECT_SIZE_DBL";
   static const String RELATIVE_BOX_SIZE_DBL    = "RELATIVE_BOX_SIZE_DBL";
@@ -15,16 +19,12 @@ class LcSettings {
   static const String HOME_POS_Y_INT           = "HOME_POS_Y_INT";
   static const String HOME_INNER_RADIUS_INT    = "HOME_INNER_RADIUS_INT";
   static const String HOME_OUTER_RADIUS_INT    = "HOME_OUTER_RADIUS_INT";
-  
 
-  SharedPreferences _prefs;
-
-  Set<String> _keys = Set();
-
-  Future<void> init() async {
+  Future<void> init(String projectName) async {
+    this.projectName = projectName;
     _keys.clear();
-    _prefs = await SharedPreferences.getInstance();
-    await _initValueStr(RANDOM_32_STR, await _generateRAndom32());
+    _projectSettings = await _readFromDb(projectName);
+    await _initValueStr(RANDOM_32_STR, await _generateRandom32());
     await _initValueDouble(RELATIVE_OBJECT_SIZE_DBL, 0.9);
     await _initValueDouble(RELATIVE_BOX_SIZE_DBL,    0.9);
     await _initValueInt(NETTSKJEMA_ID_INT,   -1);
@@ -32,13 +32,23 @@ class LcSettings {
     await _initValueInt(HOME_POS_Y_INT,   100);
     await _initValueInt(HOME_INNER_RADIUS_INT,  20);
     await _initValueInt(HOME_OUTER_RADIUS_INT,  50);
-    _keys.add(SCREEN_WIDTH_CM_DBL);
+    _keys.add(RANDOM_32_STR);
   }
 
-  Future<void> clear() async {
-    for (var key in _keys) {
-      await _prefs.remove(key);
+  @override
+  Future<void> onInit() async {
+    await LcDb().db().rawQuery(_kCreateTableSettings);
+  }
+
+
+  bool isDef(key) => _projectSettings.containsKey(key);
+
+  Future<void> _initValueStr(String key, String v) async {
+    _keys.add(key);
+    if (isDef(key)) {
+      return;
     }
+    await setStr(key, v);
   }
 
   Future<void> _initValueInt(String key, int v) async {
@@ -49,14 +59,6 @@ class LcSettings {
     await setInt(key, v);
   }
 
-  Future<void> _initValueBool(String key, bool v) async {
-    _keys.add(key);
-    if (isDef(key)) {
-      return;
-    }
-    await setBool(key, v);
-  }
-
   Future<void> _initValueDouble(String key, double v) async {
     _keys.add(key);
     if (isDef(key)) {
@@ -64,83 +66,57 @@ class LcSettings {
     }
     await setDouble(key, v);
   }
-  
-  Future<void> _initValueStr(String key, String v) async {
-    _keys.add(key);
-    if (isDef(key)) {
-      return;
-    }
-    await setStr(key, v);
-  }
 
-  bool isDef(key) => _prefs.containsKey(key);
-
-  dynamic get(key) => _prefs.get(key);
-
-  int getInt(String key) {
-    return _prefs.getInt(key);
-  }
-
-  bool getBool(String key) {
-    return _prefs.getBool(key);
-  }
-
-  double getDouble(String key) {
-    return _prefs.getDouble(key);
-  }
-
-  String getStr(String key) {
-    return _prefs.getString(key);
-  }
-  TimeOfDay getTimeOfDay(String key) {
-    return _str2Tod(_prefs.getString(key));
-  }
-
-  DateTime getDateTime(String key) {
-    return DateTime.parse(_prefs.getString(key));
-  }
-
-  Map<String, String> getAll() {
-    Map<String, String> r = {};
-    _prefs.getKeys().forEach((k){
-      r[k] = _prefs.get(k).toString();
-    });
+  Future<int> setStr(String key, String v) async {
+    final int r = await LcDb().db().insert(
+      _kTableNameSettings,
+      {
+        "project": this.projectName,
+        "key": key,
+        "value": v,
+      },
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+    // update cache
+    _projectSettings = await _readFromDb(projectName);
     return r;
   }
 
-  Future<bool> setInt(String key, int v) async {
-    return _prefs.setInt(key, v);
+  Future<int> setInt(String key, int v) async {
+    return setStr(key, v.toString());
   }
-  Future<bool> setBool(String key, bool v) async {
-    return _prefs.setBool(key, v);
-  }
-  Future<bool> setStr(String key, String v) async {
-    return _prefs.setString(key, v);
-  }
-  Future<bool> setDouble(String key, double v) async {
-    return _prefs.setDouble(key, v);
+  Future<int> setDouble(String key, double v) async {
+    return setStr(key, v.toString());
   }  
-  Future<bool> setTimeofDay(String key, final TimeOfDay v) async {
-    return _prefs.setString(key, _tod2Str(v));
+
+  String getStr(String key) {
+    return _projectSettings[key];
+  }
+  int getInt(String key) {
+    return int.tryParse(_projectSettings[key]);
+  }
+  double getDouble(String key) {
+    return double.tryParse(_projectSettings[key]);
   }
 
-  Future<bool> setDatetime(String key, final DateTime v) async {
-    return _prefs.setString(key, v.toIso8601String());
+  static Future<Map<String, String>> _readFromDb(String projectName) async {
+    List<Map> q = await LcDb().db().query(
+      _kTableNameSettings,
+      columns: ["key","value"],
+      where: "project = ?",
+      whereArgs: [ projectName ],
+      orderBy: "project",
+    );
+    Map<String, String> r = {};
+    q.forEach((e) => r[e["key"]] = e["value"] );
+    return r;
   }
 
-  String _tod2Str(final TimeOfDay t) {
-    return t.hour.toString().padLeft(2, "0") + ":" + t.minute.toString().padLeft(2, "0");
-  }
-
-  TimeOfDay _str2Tod(String s, {String del = ":"}) {
-    List<String> l = s.split(":");
-    return TimeOfDay(hour:int.parse(l[0]), minute: int.parse(l[1]));
-  }
-
-  static Future<String> _generateRAndom32() async {
-    Random rand = Random();
-    final rBytes = List<int>.generate(32, (i) => rand.nextInt(256));
-    return base64Encode(rBytes);
+  Future<List<String>> getConfigs()  async {
+    List<Map> q = await LcDb().db().rawQuery(
+      'SELECT DISTINCT project FROM $_kTableNameSettings;'
+    );
+    return q.map((e) => e["project"]).toList();
   }
 
   static final LcSettings _singleton = new LcSettings._internal();
@@ -150,4 +126,26 @@ class LcSettings {
   }
 
   LcSettings._internal();
+
+  static Future<String> _generateRandom32() async {
+    Random rand = Random();
+    final rBytes = List<int>.generate(32, (i) => rand.nextInt(256));
+    return base64Encode(rBytes);
+  }
 }
+
+/*----------------------------------------------------------------------------*/
+
+const String _kTableNameSettings = "settings";
+
+/*----------------------------------------------------------------------------*/
+
+const String _kCreateTableSettings = """
+-- DROP TABLE IF EXISTS $_kTableNameSettings;
+CREATE TABLE IF NOT EXISTS $_kTableNameSettings(
+  project TEXT,
+  key     TEXT,
+  value   TEXT
+);
+""";
+

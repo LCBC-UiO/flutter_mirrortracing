@@ -23,6 +23,7 @@ dependencies:
   image:
   path_provider:
   provider:
+  sqflite:
   nettskjema:
     git:
       url: https://github.com/LCBC-UiO/flutter_nettskjema
