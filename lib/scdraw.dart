@@ -91,26 +91,20 @@ class ExperimentMain extends StatefulWidget {
 class _ExperimentMainState extends State<ExperimentMain> {
   PainterController _controller;
 
-  DateTime _startTime; 
-  DateTime _endTime;
-  int _numStrokes;
-  Duration _drawingTime;
-  DateTime _strokeStart;
   ImgEvaluation _imgEval;
   Image _resultImg;
 
   Image _imgBoundary;
   _HomeAreaHelper _homeArea = _HomeAreaHelper();
+  _PenTrajectory _penTrajectory = _PenTrajectory();
 
 
   @override
   void initState() {
     super.initState();
     _controller = _newController();
-    _numStrokes = 0;
     _imgEval = null;
     _imgBoundary = Image.memory(img.encodePng(widget.objImg.boundary));
-    _drawingTime = Duration();
     _homeArea.state = _HomeAreaHelper.stateInit;
   }
 
@@ -126,23 +120,23 @@ class _ExperimentMainState extends State<ExperimentMain> {
 
   void _cbOnStrokeStart(Offset o) {
     final expState = Provider.of<_ExperimentState>(context);
-    _strokeStart = DateTime.now();
     if (expState.state == _ExperimentState.init && _homeArea.isInner(o)) {
       setState(() {
         expState.state = _ExperimentState.recording;
         _homeArea.state = _HomeAreaHelper.stateStarted;
-        _startTime = DateTime.now();
-        _numStrokes = 0;
+        _penTrajectory.newLine();
+        _penTrajectory.add(o.dx, o.dy);
       });
-    }
-    if (expState.state == _ExperimentState.recording) {
-      _numStrokes++;
-      _endTime = DateTime.now();
+    } else if (expState.state == _ExperimentState.recording) {
+      _penTrajectory.newLine();
+      _penTrajectory.add(o.dx, o.dy);
     }
   }
 
   void _cbOnStrokeUpdate(Offset o) {
-    print("${_homeArea.state} ${_homeArea.isOuter(o)}");
+    if (Provider.of<_ExperimentState>(context).state == _ExperimentState.recording) {
+      _penTrajectory.add(o.dx, o.dy);
+    }
     if (_homeArea.state == _HomeAreaHelper.stateStarted && ! _homeArea.isOuter(o)) {
       setState(() {
         _homeArea.state = _HomeAreaHelper.stateCompletable;
@@ -151,14 +145,9 @@ class _ExperimentMainState extends State<ExperimentMain> {
       _cbOnStrokeEnd();
       _actionDone();
     }
-    //print("${o.dx} ${o.dy}");
   }
 
   void _cbOnStrokeEnd() {
-    _endTime = DateTime.now();
-    // add time of last stroke to total drawing time
-    Duration strokeDuration = _endTime.difference(_strokeStart);
-    _drawingTime = Duration(milliseconds: _drawingTime.inMilliseconds + strokeDuration.inMilliseconds);
   }
 
   @override
@@ -225,7 +214,10 @@ class _ExperimentMainState extends State<ExperimentMain> {
     }
     final double inside = (_imgEval.numTotalPixels - _imgEval.numOutsidePixels) / _imgEval.numTotalPixels * 100;
     final double outside = _imgEval.numOutsidePixels / _imgEval.numTotalPixels * 100;
-    final double screenWidth = LcSettings().getDouble(LcSettings.SCREEN_WIDTH_CM_DBL);
+    final double canvasWidth = (
+      LcSettings().getDouble(LcSettings.SCREEN_WIDTH_CM_DBL)
+      * LcSettings().getDouble(LcSettings.RELATIVE_BOX_SIZE_DBL)
+    );
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: <Widget>[
@@ -235,9 +227,9 @@ class _ExperimentMainState extends State<ExperimentMain> {
           children: <Widget>[
             Text("${DateTime.now().toString().split(".")[0]}"),
             Text("user ID: ${widget.userId}"),
-            Text("num. strokes: $_numStrokes"),
-            Text("total time (ms): ${_endTime.difference(_startTime).inMilliseconds}"),
-            Text("drawing time (ms): ${_drawingTime.inMilliseconds}"),
+            Text("num. strokes: ${_penTrajectory.numStrokes}"),
+            Text("total time (ms): ${_penTrajectory.totalTime}"),
+            Text("drawing time (ms): ${_penTrajectory.drawingTime}"),
           ],
         ),
         Column(
@@ -248,7 +240,7 @@ class _ExperimentMainState extends State<ExperimentMain> {
             Text("num. pixel: ${_imgEval.numTotalPixels}"),
             Text("inside object: ${inside.toStringAsFixed(1)}%"),
             Text("outside object: ${outside.toStringAsFixed(1)}%"),
-            Text("obj. size on display (cm): ${screenWidth.toStringAsFixed(1)}"),
+            Text("displ. canvas width (cm): ${canvasWidth.toStringAsFixed(1)}"),
           ],
         ),
       ],
@@ -450,7 +442,65 @@ class _HomeAreaHelper {
 }
 
 
+/*----------------------------------------------------------------------------*/
+class _PenTrajectory {
+  List<List<_PenTrajectoryElement>> _t = [];
+  DateTime _startTime;
 
+  void newLine() => _t.add([]);
+
+  void add(double x, double y) {
+    final now = DateTime.now();
+    _startTime ??= now;
+    _t.last.add(
+      _PenTrajectoryElement(
+        posX: x.round(), 
+        posY: y.round(), 
+        timeMs: now.difference(_startTime).inMilliseconds,
+      )
+    );
+  }
+
+  int get numStrokes => _t.length;
+  int get totalTime => _t.last.last.timeMs;
+  int get drawingTime {
+    int sum = 0;
+    _t.forEach( (e) {
+       sum += e.last.timeMs - e.first.timeMs;
+    });
+    return sum;
+  }
+  String toJsonStr() {
+    var r = new StringBuffer();
+    r.write("[");
+    for (int i = 0; i < _t.length; i++) {
+      i == 0 ? r.write("[") : r.write(",[");
+      for (int j = 0; j < _t[i].length; j++) {
+        if (j > 0) {
+          r.write(",");
+        }
+        r.write("[${_t[i][j].posX},${_t[i][j].posY},${_t[i][j].timeMs}]");
+      }
+      r.write("]");
+    }
+    r.write("]");
+    return r.toString();
+  }
+}
+
+class _PenTrajectoryElement{
+  final int posX;
+  final int posY;
+  final int timeMs;
+
+  _PenTrajectoryElement({
+    @required this.posX,
+    @required this.posY,
+    @required this.timeMs,
+  });
+}
+
+/*----------------------------------------------------------------------------*/
 
 
 

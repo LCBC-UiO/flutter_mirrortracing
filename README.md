@@ -13,7 +13,7 @@
 ## Getting Started
 
 todo:
-- save trajectory of pen as vectors - List<List<x,y,timeMs>>
+- save JSON + image locally
 - upload to nettskjema
 - test max upload size / big trajectories
 - recalc line from trajectory
