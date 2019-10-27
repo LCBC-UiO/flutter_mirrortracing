@@ -11,6 +11,7 @@ import 'package:provider/provider.dart';
 import 'imgevaluation.dart';
 import 'pentrajectory.dart';
 import 'resultdata.dart';
+import 'scstart.dart';
 import 'uihomearea.dart';
 
 /*----------------------------------------------------------------------------*/
@@ -282,6 +283,7 @@ class _ExperimentMainState extends State<ExperimentMain> {
 
   Widget _getButtonRow() {
     final expState = Provider.of<_ExperimentState>(context);
+    // getting started?
     if (expState.state != _ExperimentState.finished) {
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -296,7 +298,22 @@ class _ExperimentMainState extends State<ExperimentMain> {
           ),
         ]
       );
-    } else 
+    }
+    // are we done?
+    if (_dataSaved == _ActionState.done && _dataUploaded == _ActionState.done) {
+      return Center(
+        child: CupertinoButton(
+          onPressed: () async {
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(
+                  builder: (context) => StartScreen(),
+                )
+              );
+            },
+          child: Text("Close"),
+        )
+      );
+    }
     return Center(child: Row(
       children: [
         Expanded(
