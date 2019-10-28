@@ -12,6 +12,8 @@
 
 ## TODO
 
+- add android internet permissions
+
 - test max upload size / big trajectories
 - recalc line from trajectory
 - local JSON + image - not accessible on ios`
