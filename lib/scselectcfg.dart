@@ -25,7 +25,7 @@ class _SelectConfigScreenState extends State<SelectConfigScreen> {
         String configName = await showDialog(
           context: context,
           builder: (BuildContext context) => CupertinoAlertDialog(
-            title: Text("Configuration name:"),
+            title: Text("Profile name:"),
             content: CupertinoTextField(
               autofocus: true,
               onSubmitted: (v) async {

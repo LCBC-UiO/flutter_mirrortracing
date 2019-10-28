@@ -42,10 +42,7 @@ class LcSettings implements DbListener {
   }
 
 
-  //bool isDef(key) => _projectSettings.containsKey(key);
-  bool isDef(key) { 
-    return  _projectSettings.containsKey(key);
-  }
+  bool isDef(key) => _projectSettings.containsKey(key);
 
   Future<void> _initValueStr(String key, String v) async {
     _keys.add(key);
@@ -75,7 +72,7 @@ class LcSettings implements DbListener {
     final int r = await LcDb().db().insert(
       _kTableNameSettings,
       {
-        "project": _projectName,
+        "profile": _projectName,
         "key": key,
         "value": v,
       },
@@ -110,9 +107,9 @@ class LcSettings implements DbListener {
     List<Map> q = await LcDb().db().query(
       _kTableNameSettings,
       columns: ["key","value"],
-      where: "project = ?",
+      where: "profile = ?",
       whereArgs: [ projectName ],
-      orderBy: "project",
+      orderBy: "profile",
     );
     Map<String, String> r = {};
     q.forEach((e) => r[e["key"]] = e["value"] );
@@ -121,17 +118,17 @@ class LcSettings implements DbListener {
 
   Future<List<String>> getConfigs()  async {
     List<Map> q = await LcDb().db().rawQuery(
-      'SELECT DISTINCT project FROM $_kTableNameSettings;'
+      'SELECT DISTINCT profile FROM $_kTableNameSettings;'
     );
     List<String> c = [];
-    q.forEach( (e) => c.add(e["project"]) );
+    q.forEach( (e) => c.add(e["profile"]) );
     return c;
   }
 
   Future<int> delete(String projectName) async {
     return await LcDb().db().delete(
       _kTableNameSettings,
-      where: "project = ?",
+      where: "profile = ?",
       whereArgs: [ projectName ],
     );
   }
@@ -162,9 +159,10 @@ const String _kTableNameSettings = "settings";
 const String _kCreateTableSettings = """
 -- DROP TABLE IF EXISTS $_kTableNameSettings;
 CREATE TABLE IF NOT EXISTS $_kTableNameSettings(
-  project TEXT,
+  profile TEXT,
   key     TEXT,
-  value   TEXT
+  value   TEXT,
+  PRIMARY KEY (profile, key)
 );
 """;
 
