@@ -12,8 +12,6 @@
 
 ## TODO
 
-- submit "app id" to nettskjema
-
 - test max upload size / big trajectories
 - recalc line from trajectory
 - local JSON + image - not accessible on ios`

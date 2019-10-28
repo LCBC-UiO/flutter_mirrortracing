@@ -29,6 +29,7 @@ class ResultData {
 
   Map<String,String> _toNettskjemaMap() {
     return {
+      enumToString(_NettskjemaFieldNames.profile_id): LcSettings().getStr(LcSettings.RANDOM_32_STR),
       enumToString(_NettskjemaFieldNames.user_id): userId,
       enumToString(_NettskjemaFieldNames.date): date.toIso8601String(),
       enumToString(_NettskjemaFieldNames.total_time_ms): trajectory.totalTime.toString(),
@@ -95,6 +96,7 @@ class ResultData {
 /*----------------------------------------------------------------------------*/
 
 enum _NettskjemaFieldNames {
+  profile_id,
   user_id,
   date,
   total_time_ms,
