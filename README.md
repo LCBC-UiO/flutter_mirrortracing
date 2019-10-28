@@ -12,8 +12,7 @@
 
 ## TODO
 
-- sumbit "app id" to nettskjema
-- fix settings screen routes
+- submit "app id" to nettskjema
 - hide nettskjema if not configured
 
 - test max upload size / big trajectories

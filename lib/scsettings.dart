@@ -40,7 +40,7 @@ class _SettingsList  extends StatelessWidget {
         _ActionItem(
           "Configure size of shape",
           () {
-            Navigator.of(context).pushReplacement(
+            Navigator.of(context).push(
               MaterialPageRoute(
                 builder: (context) => SetSizeScreen(),
               )
@@ -50,7 +50,7 @@ class _SettingsList  extends StatelessWidget {
         _ActionItem(
           "Configure home area",
           () {
-            Navigator.of(context).pushReplacement(
+            Navigator.of(context).push(
               MaterialPageRoute(
                 builder: (context) => SetHomeAreaPositionScreen(),
               )

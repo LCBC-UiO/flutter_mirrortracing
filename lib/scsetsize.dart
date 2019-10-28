@@ -43,13 +43,9 @@ class _SetSizeScreenState extends State<SetSizeScreen> {
         );
       },
       iconPrev: Icon(Icons.close),
-      onPrev: () {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (context) => StartScreen(),
-          )
-        );
-      },
+      onPrev: Navigator.of(context).canPop() ? () {
+        Navigator.of(context).pop();
+      } : null,
       body: Stack(
         children: <Widget>[
           ExperimentMain.getDrawScreenLayout(

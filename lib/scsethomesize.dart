@@ -44,20 +44,20 @@ class _SetHomeAreaSizeScreenState extends State<SetHomeAreaSizeScreen> {
       onNext: () async {
         await LcSettings().setInt(LcSettings.HOME_INNER_RADIUS_INT, _homeInnerRadius.round());
         await LcSettings().setInt(LcSettings.HOME_OUTER_RADIUS_INT, _homeOuterRadius.round());
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (context) => StartScreen(),
-          )
-        );
+        if (Navigator.of(context).canPop()) {
+          Navigator.of(context).pop();
+        } else {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (context) => StartScreen(),
+            )
+          );
+        }
       },
       iconPrev: Icon(Icons.close),
-      onPrev: () {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (context) => StartScreen(),
-          )
-        );
-      },
+      onPrev: Navigator.of(context).canPop() ? () {
+        Navigator.of(context).pop();
+      } : null,
       body: Stack(
         children: <Widget>[
           ExperimentMain.getDrawScreenLayout(
