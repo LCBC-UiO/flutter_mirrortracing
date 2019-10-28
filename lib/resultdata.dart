@@ -85,7 +85,7 @@ class ResultData {
       'num_samples_outside: ${imgEval.numOutsideSamples.toString()}\n'
       'num_boundary_crossings: ${imgEval.numBoundaryCrossings.toString()}\n'
       'image_width_cm: ${canvasWidth.toStringAsFixed(1)}\n'
-      'comment: $comment}\n'
+      'comment: $comment\n'
     );
     f = File("${dir.path}/mirrortrace_${_fnPrefix}_trajectory.json");
     await f.writeAsString(trajectory.toJsonStr());

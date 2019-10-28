@@ -117,7 +117,6 @@ class _GetIdScreenState extends State<GetIdScreen> {
     return CupertinoTextField(
       textAlign: TextAlign.center,
       style: Theme.of(context).textTheme.display1,
-      autofocus: true,
       onSubmitted: (v) async {
         v = v.replaceAll("\t", " ");
         v = v.replaceAll(";", " ");
