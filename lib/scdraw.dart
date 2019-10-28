@@ -343,7 +343,7 @@ class _ExperimentMainState extends State<ExperimentMain> {
                         userId: widget.userId,
                         comment: widget.comment,
                         objImg: widget.objImg,
-                        trialId: widget.trialId,
+                        trialId: widget.trialId+1,
                       ),
                     )
                   );
