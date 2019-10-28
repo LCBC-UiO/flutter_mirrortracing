@@ -99,7 +99,7 @@ class _GetIdScreenState extends State<GetIdScreen> {
             final ObjImg objImg = await widget._fLoadObjImg;
             Navigator.of(context).pushReplacement(
               MaterialPageRoute(
-                builder: (context) => DrawScreen(userId: _userId, comment: _comment, objImg: objImg),
+                builder: (context) => DrawScreen(userId: _userId, comment: _comment, objImg: objImg, trialId: 1),
               )
             );
           };

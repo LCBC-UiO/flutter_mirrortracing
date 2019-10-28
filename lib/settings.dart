@@ -99,9 +99,6 @@ class LcSettings implements DbListener {
     return int.tryParse(_projectSettings[key]);
   }
   double getDouble(String key) {
-    print("getDouble $key");
-    print("getDouble ${_projectSettings[key]}");
-    print("getDouble ${double.tryParse(_projectSettings[key]).toString()}");
     return double.tryParse(_projectSettings[key]);
   }
 

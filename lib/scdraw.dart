@@ -20,11 +20,13 @@ class DrawScreen extends StatelessWidget {
   final String userId;
   final ObjImg objImg;
   final String comment;
+  final int trialId;
 
   DrawScreen({
     @required this.userId,
     @required this.comment,
     @required this.objImg,
+    @required this.trialId,
   });
 
   @override
@@ -39,6 +41,7 @@ class DrawScreen extends StatelessWidget {
           userId: userId,
           comment: comment,
           objImg: objImg,
+          trialId: trialId,
         )
       )
     );
@@ -51,11 +54,13 @@ class ExperimentMain extends StatefulWidget {
   final String userId;
   final ObjImg objImg;
   final String comment;
+  final int trialId;
 
   ExperimentMain({
     @required this.userId,
     @required this.comment,
     @required this.objImg,
+    @required this.trialId,
   });
 
   static Widget getDrawScreenLayout({
@@ -208,6 +213,15 @@ class _ExperimentMainState extends State<ExperimentMain> {
       );
     }
     l.add(
+      Align(
+        alignment: Alignment.topRight,
+        child: Padding(
+          padding: EdgeInsets.all(10),
+          child: Text("${widget.userId} ${LcSettings().activeConfigName}\n${widget.trialId}", textAlign: TextAlign.end,),
+        )
+      )
+    );
+    l.add(
       Center(
         child: AnimatedSwitcher(
           duration: const Duration(milliseconds: 800),
@@ -306,17 +320,38 @@ class _ExperimentMainState extends State<ExperimentMain> {
     }
     // are we done?
     if (_dataSaved == _ActionState.done && (_dataUploaded == _ActionState.done || ! ResultData.nettskjemaConfigured())) {
-      return Center(
-        child: CupertinoButton(
-          onPressed: () async {
-              Navigator.of(context).pushReplacement(
-                MaterialPageRoute(
-                  builder: (context) => StartScreen(),
-                )
-              );
-            },
-          child: Text("Close"),
-        )
+      return Row(
+        children: [
+          Expanded(
+            child: CupertinoButton(
+              onPressed: () async {
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(
+                      builder: (context) => StartScreen(),
+                    )
+                  );
+                },
+              child: Text("Close"),
+            )
+          ),
+          Expanded(
+            child: CupertinoButton(
+              onPressed: () async {
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(
+                      builder: (context) => DrawScreen(
+                        userId: widget.userId,
+                        comment: widget.comment,
+                        objImg: widget.objImg,
+                        trialId: widget.trialId,
+                      ),
+                    )
+                  );
+                },
+              child: Text("Next trial"),
+            )
+          )
+        ]
       );
     }
     List<Widget> r = [];
@@ -416,7 +451,7 @@ class _ExperimentMainState extends State<ExperimentMain> {
               Navigator.of(context).pop();
               Navigator.of(context).pushReplacement(
                 MaterialPageRoute(
-                  builder: (context) => DrawScreen(userId: widget.userId, comment: widget.comment, objImg: widget.objImg,),
+                  builder: (context) => DrawScreen(userId: widget.userId, comment: widget.comment, objImg: widget.objImg, trialId: widget.trialId,),
                 )
               );
             },
