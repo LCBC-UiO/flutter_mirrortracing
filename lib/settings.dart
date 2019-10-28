@@ -11,6 +11,7 @@ class LcSettings implements DbListener {
   Map<String, String> _projectSettings;
 
   static const String RANDOM_32_STR            = "RANDOM_32_STR";
+  static const String OBJECT_PATH_STR          = "OBJECT_PATH_STR";
   static const String RELATIVE_OBJECT_SIZE_DBL = "RELATIVE_OBJECT_SIZE_DBL";
   static const String RELATIVE_BOX_SIZE_DBL    = "RELATIVE_BOX_SIZE_DBL";
   static const String NETTSKJEMA_ID_INT        = "NETTSKJEMA_ID_INT";
@@ -25,6 +26,7 @@ class LcSettings implements DbListener {
     _keys.clear();
     _projectSettings = await _readFromDb(projectName);
     await _initValueStr(RANDOM_32_STR, await _generateRandom32());
+    await _initValueStr(OBJECT_PATH_STR, "assets/star.png");
     await _initValueDouble(RELATIVE_OBJECT_SIZE_DBL, 0.9);
     await _initValueDouble(RELATIVE_BOX_SIZE_DBL,    0.9);
     await _initValueInt(NETTSKJEMA_ID_INT,   -1);

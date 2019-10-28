@@ -29,6 +29,7 @@ class _SetSizeScreenState extends State<SetSizeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final String objFn = LcSettings().getStr(LcSettings.OBJECT_PATH_STR);
     final double w = MediaQuery.of(context).size.width;
     return LcScaffold(
       iconNext: Icon(Icons.done),
@@ -56,7 +57,7 @@ class _SetSizeScreenState extends State<SetSizeScreen> {
               child: SizedBox(
                 width:  w * _boxSize * _objSize,
                 height: w * _boxSize * _objSize,
-                child: Image.asset("assets/star.png"),
+                child: Image.asset(objFn),
               )
             ),
             centerSize: (w * _boxSize).round(),

@@ -12,7 +12,9 @@
 
 ## TODO
 
-- save path to start as settings
+- sumbit "app id" to nettskjema
+- fix settings screen routes
+- hide nettskjema if not configured
 
 - test max upload size / big trajectories
 - recalc line from trajectory

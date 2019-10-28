@@ -2,6 +2,7 @@ import 'dart:isolate';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:image/image.dart' as img;
+import 'package:mirrortask/settings.dart';
 
 /*----------------------------------------------------------------------------*/
 
@@ -17,7 +18,8 @@ class ObjImg {
 /*----------------------------------------------------------------------------*/
 
 Future<ObjImg> loadObjImg({int boxWidth, int objWidth}) async {
-  final ByteData assetBytes = (await rootBundle.load('assets/star.png'));
+  final String objFn = LcSettings().getStr(LcSettings.OBJECT_PATH_STR);
+  final ByteData assetBytes = (await rootBundle.load(objFn));
   ReceivePort receivePort = ReceivePort();
   final param = _IsolateParam(
     receivePort.sendPort,

@@ -38,6 +38,7 @@ class _SetHomeAreaPositionScreenState extends State<SetHomeAreaPositionScreen> {
   @override
   Widget build(BuildContext context) {
     final double w = MediaQuery.of(context).size.width;
+    final String objFn = LcSettings().getStr(LcSettings.OBJECT_PATH_STR);
     return LcScaffold(
       iconNext: Icon(Icons.done),
       onNext: () async {
@@ -76,7 +77,7 @@ class _SetHomeAreaPositionScreenState extends State<SetHomeAreaPositionScreen> {
                     child: SizedBox(
                       width:  w * _boxSize * _objSize,
                       height: w * _boxSize * _objSize,
-                      child: Image.asset("assets/star.png"),
+                      child: Image.asset(objFn),
                     )
                   ),
                   Positioned(
