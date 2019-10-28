@@ -85,6 +85,11 @@ class ResultData {
     f = File("${dir.path}/mirrortrace_${_fnPrefix}_trajectory.json");
     await f.writeAsString(trajectory.toJsonStr());
   }
+
+
+  static bool nettskjemaConfigured() {
+    return LcSettings().getInt(LcSettings.NETTSKJEMA_ID_INT) > 0;
+  }
 }
 
 /*----------------------------------------------------------------------------*/

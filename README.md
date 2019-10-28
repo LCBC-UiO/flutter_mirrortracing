@@ -13,7 +13,6 @@
 ## TODO
 
 - submit "app id" to nettskjema
-- hide nettskjema if not configured
 
 - test max upload size / big trajectories
 - recalc line from trajectory

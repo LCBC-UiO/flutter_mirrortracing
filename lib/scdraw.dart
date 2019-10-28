@@ -300,7 +300,7 @@ class _ExperimentMainState extends State<ExperimentMain> {
       );
     }
     // are we done?
-    if (_dataSaved == _ActionState.done && _dataUploaded == _ActionState.done) {
+    if (_dataSaved == _ActionState.done && (_dataUploaded == _ActionState.done || ! ResultData.nettskjemaConfigured())) {
       return Center(
         child: CupertinoButton(
           onPressed: () async {
@@ -314,35 +314,40 @@ class _ExperimentMainState extends State<ExperimentMain> {
         )
       );
     }
-    return Center(child: Row(
-      children: [
+    List<Widget> r = [];
+    r.add(
+      Expanded(
+        child: CupertinoButton(
+          onPressed: expState.state == _ExperimentState.init ? null : _actionReset,
+          child: Text("Reset"),
+        )
+      )
+    );
+    r.add(
+      Expanded(
+        child: CupertinoButton(
+          onPressed: _dataSaved != _ActionState.init ? null : _actionSave,
+          child: () {
+            switch (_dataSaved) {
+              case _ActionState.init:
+                return Text("Save");
+                break;
+              case _ActionState.inprogress:
+                return Text("Saving");
+                break;
+              case _ActionState.done:
+                return Text("Saved");
+                break;
+            }
+            throw "err";
+          }()
+        ),
+      ),
+    );
+    if (ResultData.nettskjemaConfigured()) {
+      r.add(
         Expanded(
           child: CupertinoButton(
-            onPressed: expState.state == _ExperimentState.init ? null : _actionReset,
-            child: Text("Reset"),
-          )
-        ),
-        Expanded(
-            child: CupertinoButton(
-            onPressed: _dataSaved != _ActionState.init ? null : _actionSave,
-            child: () {
-              switch (_dataSaved) {
-                case _ActionState.init:
-                  return Text("Save");
-                  break;
-                case _ActionState.inprogress:
-                  return Text("Saving");
-                  break;
-                case _ActionState.done:
-                  return Text("Saved");
-                  break;
-              }
-              throw "err";
-            }()
-          ),
-        ),
-        Expanded(
-            child: CupertinoButton(
             onPressed: _dataUploaded != _ActionState.init ? null : _actionUpload,
             child: () {
               switch (_dataUploaded) {
@@ -360,8 +365,11 @@ class _ExperimentMainState extends State<ExperimentMain> {
             }()
           ),
         ),
-      ]
-    ));
+      );
+    }
+    return Center(
+      child: Row(children: r)
+    );
   }
 
   void _actionDone() async {
