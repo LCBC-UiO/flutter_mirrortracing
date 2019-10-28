@@ -34,6 +34,8 @@ class GetIdScreen extends StatefulWidget {
 class _GetIdScreenState extends State<GetIdScreen> {
   Function _onNext;
   bool _showTextField;
+  String _userId = "";
+  String _comment = "";
   static final validUserIdChars = RegExp(r'^[a-zA-Z0-9]+$');
 
   @override
@@ -57,17 +59,26 @@ class _GetIdScreenState extends State<GetIdScreen> {
           transitionBuilder: (Widget child, Animation<double> animation) {
             return ScaleTransition(child: child, scale: animation);
           },
-          child: _showTextField ? _getTextField() : CupertinoActivityIndicator(),
+          child: _showTextField ? Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text("Enter participant ID:", style:  Theme.of(context).textTheme.subhead,),
+              divy_1,
+              _getUserIdTextField(),
+              divy_2,
+              Text("Comment:", style:  Theme.of(context).textTheme.subhead,),
+              divy_1,
+              _getCommentTextField(),
+              divy_3,
+            ]
+          ) : CupertinoActivityIndicator()
         )
       )
     );
   }
 
-  Widget _getTextField() {
-    return TextField(
-      decoration: InputDecoration(
-        hintText:  "enter participant ID",
-      ),
+  Widget _getUserIdTextField() {
+    return CupertinoTextField(
       textAlign: TextAlign.center,
       style: Theme.of(context).textTheme.display1,
       autofocus: true,
@@ -75,7 +86,11 @@ class _GetIdScreenState extends State<GetIdScreen> {
         if (!validUserIdChars.hasMatch(v)) {
           return;
         }
+        if (v == "") {
+          return;
+        }
         setState(() {
+          _userId = v;
           _onNext = () async {
             setState(() {
               _onNext = null;
@@ -84,7 +99,7 @@ class _GetIdScreenState extends State<GetIdScreen> {
             final ObjImg objImg = await widget._fLoadObjImg;
             Navigator.of(context).pushReplacement(
               MaterialPageRoute(
-                builder: (context) => DrawScreen(userId: v, objImg: objImg),
+                builder: (context) => DrawScreen(userId: _userId, comment: _comment, objImg: objImg),
               )
             );
           };
@@ -97,7 +112,21 @@ class _GetIdScreenState extends State<GetIdScreen> {
       },
     );
   }
-}
 
+  Widget _getCommentTextField() {
+    return CupertinoTextField(
+      textAlign: TextAlign.center,
+      style: Theme.of(context).textTheme.display1,
+      autofocus: true,
+      onSubmitted: (v) async {
+        v = v.replaceAll("\t", " ");
+        v = v.replaceAll(";", " ");
+        v = v.replaceAll("/", " ");
+        v = v.replaceAll("\\", " ");
+        _comment = v;
+      },
+    );
+  }
+}
 
 

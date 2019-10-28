@@ -4,7 +4,6 @@ import 'package:flutter/widgets.dart';
 import 'package:mirrortask/scsethomesize.dart';
 import 'helper.dart';
 import 'scdraw.dart';
-import 'scstart.dart';
 import 'settings.dart';
 import 'uihomearea.dart';
 

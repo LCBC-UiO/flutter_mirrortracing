@@ -15,6 +15,7 @@ import 'helper.dart';
 class ResultData {
   final String userId;
   final DateTime date;
+  final String comment;
   final ImgEvaluation imgEval;
   final PenTrajectory trajectory;
   final double canvasWidth;
@@ -22,6 +23,7 @@ class ResultData {
   ResultData({
     @required this.userId,
     @required this.date,
+    @required this.comment,
     @required this.imgEval,
     @required this.trajectory,
     @required this.canvasWidth,
@@ -32,6 +34,7 @@ class ResultData {
       enumToString(_NettskjemaFieldNames.profile_id): LcSettings().getStr(LcSettings.RANDOM_32_STR),
       enumToString(_NettskjemaFieldNames.user_id): userId,
       enumToString(_NettskjemaFieldNames.date): date.toIso8601String(),
+      enumToString(_NettskjemaFieldNames.comment): comment,
       enumToString(_NettskjemaFieldNames.total_time_ms): trajectory.totalTime.toString(),
       enumToString(_NettskjemaFieldNames.num_continuous_lines): trajectory.numContinuousLines.toString(),
       enumToString(_NettskjemaFieldNames.num_samples): imgEval.numTotalSamples.toString(),
@@ -82,6 +85,7 @@ class ResultData {
       'num_samples_outside: ${imgEval.numOutsideSamples.toString()}\n'
       'num_boundary_crossings: ${imgEval.numBoundaryCrossings.toString()}\n'
       'image_width_cm: ${canvasWidth.toStringAsFixed(1)}\n'
+      'comment: $comment}\n'
     );
     f = File("${dir.path}/mirrortrace_${_fnPrefix}_trajectory.json");
     await f.writeAsString(trajectory.toJsonStr());
@@ -99,6 +103,7 @@ enum _NettskjemaFieldNames {
   profile_id,
   user_id,
   date,
+  comment,
   total_time_ms,
   num_continuous_lines,
   num_samples,

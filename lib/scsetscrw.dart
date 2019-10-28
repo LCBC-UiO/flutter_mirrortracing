@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mirrortask/scsetsize.dart';
-import 'package:mirrortask/scstart.dart';
 import 'helper.dart';
 import 'settings.dart';
 

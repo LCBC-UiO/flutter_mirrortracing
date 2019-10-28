@@ -4,7 +4,6 @@ import 'package:flutter/widgets.dart';
 import 'helper.dart';
 import 'scdraw.dart';
 import 'scsethomepos.dart';
-import 'scstart.dart';
 import 'settings.dart';
 
 /*----------------------------------------------------------------------------*/

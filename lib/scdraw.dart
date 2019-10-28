@@ -19,9 +19,11 @@ import 'uihomearea.dart';
 class DrawScreen extends StatelessWidget {
   final String userId;
   final ObjImg objImg;
+  final String comment;
 
   DrawScreen({
     @required this.userId,
+    @required this.comment,
     @required this.objImg,
   });
 
@@ -35,6 +37,7 @@ class DrawScreen extends StatelessWidget {
         ],
         body: ExperimentMain(
           userId: userId,
+          comment: comment,
           objImg: objImg,
         )
       )
@@ -47,9 +50,11 @@ class DrawScreen extends StatelessWidget {
 class ExperimentMain extends StatefulWidget {
   final String userId;
   final ObjImg objImg;
+  final String comment;
 
   ExperimentMain({
     @required this.userId,
+    @required this.comment,
     @required this.objImg,
   });
 
@@ -264,7 +269,7 @@ class _ExperimentMainState extends State<ExperimentMain> {
     }
     if (expState.state == _ExperimentState.finished) {
       return Center(
-        child: _resultImg //TODO: cache
+        child: _resultImg
       );
     }
     return Stack(
@@ -379,13 +384,14 @@ class _ExperimentMainState extends State<ExperimentMain> {
     });
     _resultData = ResultData(
       userId: widget.userId,
+      date: DateTime.now(),
+      comment: widget.comment,
       imgEval: await ImgEvaluation.calculate(
         drawing: _controller.finish(),
         objMask: widget.objImg.mask,
         objBoudary: widget.objImg.boundary,
         trajectory: _penTrajectory,
       ),
-      date: DateTime.now(),
       trajectory: _penTrajectory,
       canvasWidth: LcSettings().getDouble(LcSettings.SCREEN_WIDTH_CM_DBL)
         * LcSettings().getDouble(LcSettings.RELATIVE_BOX_SIZE_DBL),
@@ -410,7 +416,7 @@ class _ExperimentMainState extends State<ExperimentMain> {
               Navigator.of(context).pop();
               Navigator.of(context).pushReplacement(
                 MaterialPageRoute(
-                  builder: (context) => DrawScreen(userId: widget.userId, objImg: widget.objImg,),
+                  builder: (context) => DrawScreen(userId: widget.userId, comment: widget.comment, objImg: widget.objImg,),
                 )
               );
             },
