@@ -66,7 +66,7 @@ class _GetIdScreenState extends State<GetIdScreen> {
               divy_1,
               _getUserIdTextField(),
               divy_2,
-              Text("Comment:", style:  Theme.of(context).textTheme.subhead,),
+              Text("Session info (optional):", style:  Theme.of(context).textTheme.subhead,),
               divy_1,
               _getCommentTextField(),
               divy_3,
@@ -82,7 +82,7 @@ class _GetIdScreenState extends State<GetIdScreen> {
       textAlign: TextAlign.center,
       style: Theme.of(context).textTheme.display1,
       autofocus: true,
-      onSubmitted: (v) async {
+      onChanged: (v) async {
         if (!validUserIdChars.hasMatch(v)) {
           return;
         }
@@ -105,11 +105,6 @@ class _GetIdScreenState extends State<GetIdScreen> {
           };
         });
       },
-      onTap: () {
-        setState(() {
-          _onNext = null;
-        });
-      },
     );
   }
 
@@ -117,7 +112,7 @@ class _GetIdScreenState extends State<GetIdScreen> {
     return CupertinoTextField(
       textAlign: TextAlign.center,
       style: Theme.of(context).textTheme.display1,
-      onSubmitted: (v) async {
+      onChanged: (v) async {
         v = v.replaceAll("\t", " ");
         v = v.replaceAll(";", " ");
         v = v.replaceAll("/", " ");
