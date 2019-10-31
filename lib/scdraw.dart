@@ -213,15 +213,6 @@ class _ExperimentMainState extends State<ExperimentMain> {
       );
     }
     l.add(
-      Align(
-        alignment: Alignment.topRight,
-        child: Padding(
-          padding: EdgeInsets.all(10),
-          child: Text("${widget.userId} ${LcSettings().activeConfigName}\n${widget.trialId}", textAlign: TextAlign.end,),
-        )
-      )
-    );
-    l.add(
       Center(
         child: AnimatedSwitcher(
           duration: const Duration(milliseconds: 800),
@@ -239,7 +230,12 @@ class _ExperimentMainState extends State<ExperimentMain> {
 
   Widget _getBottom() {
     if (Provider.of<_ExperimentState>(context).state != _ExperimentState.finished) {
-      return null;
+      return Center(
+        child: Padding(
+          padding: EdgeInsets.all(10),
+          child: Text("ID: ${widget.userId}\ntrial: ${widget.trialId}\n\nprofile: ${LcSettings().activeConfigName}", textAlign: TextAlign.center,),
+        )
+      );
     }
     final double inside = (_resultData.imgEval.numTotalSamples - _resultData.imgEval.numOutsideSamples) / _resultData.imgEval.numTotalSamples * 100;
     final double outside = _resultData.imgEval.numOutsideSamples / _resultData.imgEval.numTotalSamples * 100;
@@ -337,17 +333,17 @@ class _ExperimentMainState extends State<ExperimentMain> {
           Expanded(
             child: CupertinoButton(
               onPressed: () async {
-                  Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(
-                      builder: (context) => DrawScreen(
-                        userId: widget.userId,
-                        comment: widget.comment,
-                        objImg: widget.objImg,
-                        trialId: widget.trialId+1,
-                      ),
-                    )
-                  );
-                },
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(
+                    builder: (context) => DrawScreen(
+                      userId: widget.userId,
+                      comment: widget.comment,
+                      objImg: widget.objImg,
+                      trialId: widget.trialId+1,
+                    ),
+                  )
+                );
+              },
               child: Text("Next trial"),
             )
           )
