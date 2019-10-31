@@ -58,14 +58,12 @@ class ResultData {
   }
 
   static Future<void> testNettskjema(nettskjemaId) async {
-    final Map<String, int> f = await nettskjemaPublicGetFieldNames(nettskjemaId);
+    final Map<String, int> f = await getSchemaFieldsPub(nettskjemaId);
     final List<String> e = _NettskjemaFieldNames.values.map( (e) => enumToString(e) ).toList();
-    if (nettskjemaPublicMatchesExpectedFields(
-        nettskjemaFields: f.keys.toList(),
-        expectedFields: e
-      ) == false) {
-      throw FieldIdMatchException();
-    }
+    matchesExpectedSchemaFieldsPub(
+      nettskjemaFields: f.keys.toList(),
+      expectedFields: e
+    );
   }
   
 
