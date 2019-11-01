@@ -237,8 +237,8 @@ class _ExperimentMainState extends State<ExperimentMain> {
         )
       );
     }
-    final double inside = (_resultData.imgEval.numTotalSamples - _resultData.imgEval.numOutsideSamples) / _resultData.imgEval.numTotalSamples * 100;
-    final double outside = _resultData.imgEval.numOutsideSamples / _resultData.imgEval.numTotalSamples * 100;
+    final double insideSamples = (_resultData.imgEval.numTotalSamples - _resultData.imgEval.numOutsideSamples) / _resultData.imgEval.numTotalSamples * 100;
+    final double insidePixels = (_resultData.imgEval.numTotalPixels - _resultData.imgEval.numOutsidePixels) / _resultData.imgEval.numTotalPixels * 100;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: <Widget>[
@@ -258,8 +258,8 @@ class _ExperimentMainState extends State<ExperimentMain> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
             Text("number of samples: ${_resultData.imgEval.numTotalSamples}"),
-            Text("inside object: ${inside.toStringAsFixed(1)}%"),
-            Text("outside object: ${outside.toStringAsFixed(1)}%"),
+            Text("samples inside object: ${insideSamples.toStringAsFixed(1)}%"),
+            Text("pixels inside object: ${insidePixels.toStringAsFixed(1)}%"),
             Text("num. boundary crossings ${_resultData.imgEval.numBoundaryCrossings}"),
             Text("displ. canvas width (cm): ${_resultData.canvasWidth.toStringAsFixed(1)}"),
           ],

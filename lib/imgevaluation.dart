@@ -11,12 +11,16 @@ class ImgEvaluation {
   final img.Image drawing;
   final int numTotalSamples;
   final int numOutsideSamples;
+  final int numTotalPixels;
+  final int numOutsidePixels;
   final int numBoundaryCrossings;
 
   ImgEvaluation({
     @required this.drawing,
     @required this.numTotalSamples,
     @required this.numOutsideSamples,
+    @required this.numTotalPixels,
+    @required this.numOutsidePixels,
     @required this.numBoundaryCrossings,
   });
 
@@ -70,6 +74,8 @@ void _calcResultImage(_IsolateParam param) {
   assert(param.objMask.height == dimg.height);
   assert(param.objMask.width == param.objBoudary.width);
   assert(param.objMask.height == param.objBoudary.height);
+  int numTotalPixels = 0;
+  int numOutsidePixels = 0;
   for (int j = 0; j < dimg.height; j++) {
     for (int i = 0; i < dimg.width; i++) {
       final bool isInside   = img.getAlpha(param.objMask.getPixelSafe(i, j)) > 0;
@@ -80,6 +86,8 @@ void _calcResultImage(_IsolateParam param) {
       final b = isBoundary ? 255 : 0;
       final a = hasPaint || isInside || isBoundary  ? 255 : 0;
       dimg.setPixelSafe(i, j, img.getColor(r, g, b, a));
+      numTotalPixels += hasPaint ? 1 : 0;
+      numOutsidePixels += hasPaint && (!isInside && !isBoundary) ? 1 : 0;
     }
   }
   final t = param.trajectory.trajectory;
@@ -111,6 +119,8 @@ void _calcResultImage(_IsolateParam param) {
       numOutsideSamples: numOutsideSamples,
       numTotalSamples: numTotalSamples,
       numBoundaryCrossings: numBoundaryCrossings,
+      numOutsidePixels: numOutsidePixels,
+      numTotalPixels: numTotalPixels,
     )
   );
 }
