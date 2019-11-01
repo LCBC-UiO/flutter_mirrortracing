@@ -1,5 +1,5 @@
 name: mirrortask
-description: A new Flutter project.
+description: Record and evaluate a mirror tracing test.
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
@@ -24,6 +24,7 @@ dependencies:
   path_provider:
   provider:
   sqflite:
+  flutter_launcher_icons:
   nettskjema:
     git:
       url: https://github.com/LCBC-UiO/flutter_nettskjema
@@ -79,3 +80,8 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
+
+flutter_icons:
+  android: "launcher_icon" 
+  ios: true
+  image_path: "assets/appicon.png"
