@@ -4,9 +4,9 @@ require(jsonlite) # install.packages("jsonlite")
 require(png)
 
 # NOTE: the path will have to change on TSD
-input_csv_fn <- "data-128893-2019-11-23-1908-utf.txt"
+input_csv_fn <- "~/Downloads/data-128893-2019-11-23-1908-utf.txt"
 
-d_in <- read.csv(input_csv_fn, sep="\t")
+d_in <- read.csv(input_csv_fn, sep="\t", stringsAsFactors=FALSE)
 
 
 
@@ -85,12 +85,43 @@ evaluate_image <- function(l_row_in) {
   l_out
 }
 
+calc_trial_ids <- function(d_tr) {
+  day_fmt <- "%Y-%m-%d"
+  l_currIds    <- list() # will be used as dictionary: "subj_id"->"trial_id"
+  v_ids <- sapply(1:nrow(d_tr), function(i) {
+    curr_subjid <- as.character(d_tr$subj_id[i])
+    curr_day    <- strftime(d_tr$date[i], format=day_fmt)
+    # is first entry or day has changed?
+    if (is.null(l_currIds[[curr_subjid]]) || l_currIds[[curr_subjid]]$date != curr_day) {
+      # init/reset entry
+      l_currIds[[curr_subjid]] <<- list(
+        date=curr_day
+        ,trialid=1
+      )
+    } else {
+      # increase trial ID counter
+      l_currIds[[curr_subjid]]$trialid <<- l_currIds[[curr_subjid]]$trialid + 1
+    }
+    l_currIds[[curr_subjid]]$trialid
+  })
+  v_ids
+}
+
 # copy some values
+date_fmt_in <- "%Y-%m-%dT%H:%M:%S"
 d_out <- data.frame(
-  subj_id  = d_in$user_id
-  ,comment = d_in$comment
-  ,date    = d_in$date
+  subj_id    = d_in$user_id
+  ,comment   = d_in$comment
+  ,date      = strptime(d_in$date, format=date_fmt_in)
+  ,trial_id  = calc_trial_ids(
+                data.frame(
+                  subj_id=d_in$user_id
+                  ,date=strptime(d_in$date, format=date_fmt_in)
+                )
+              )
 )
+
+
 # apply evaluation and append to d_out
 l_tmp <- apply(d_in, 1, function(x) evaluate_image(as.list(x)))
 d_tmp <- data.frame(matrix(unlist(l_tmp), nrow=length(l_tmp), byrow=T), stringsAsFactors=FALSE)
