@@ -9,14 +9,32 @@
 * height=width
 * high resolution (will be downscaled within the app)
 
+## results
+
+### drawing
+
+list of list of tuples:
+* all: list of lines
+* lines: list of samples
+* sample: tuple (x,y,t) with 
+  * x,y are coordinates in result image
+  * t is timestamp in ms
+
+### image
+
+* blue channel: boundaries
+* green channel: inside object
+* red channel: drawing
+* alpha channel: blue|green|red
+* height=width
 
 ## TODO
 
-- add android internet permissions
+- compute trial id from - time stamp
+- user 7 digit ID??
+- project name + wave
 
 - test max upload size / big trajectories
-- recalc line from trajectory
-- local JSON + image - not accessible on ios`
 - also save to local DB?
 - save autocomplete info in results?
 

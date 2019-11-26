@@ -1,11 +1,13 @@
+#!/usr/bin/env Rscript
 
-input_csv_fn <- "~/Downloads/data-128893-2019-11-23-1908-utf.txt"
+require(jsonlite) # install.packages("jsonlite")
+require(png)
+
+# NOTE: the path will have to change on TSD
+input_csv_fn <- "data-128893-2019-11-23-1908-utf.txt"
 
 d_in <- read.csv(input_csv_fn, sep="\t")
 
-# install.packages("jsonlite")
-require(jsonlite)
-require(png)
 
 
 # get image channels rgba 
