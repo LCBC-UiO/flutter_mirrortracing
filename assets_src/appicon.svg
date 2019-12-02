@@ -25,6 +25,22 @@
      id="defs2">
     <linearGradient
        inkscape:collect="always"
+       id="linearGradient8540">
+      <stop
+         style="stop-color:#d6e5a8;stop-opacity:1;"
+         offset="0"
+         id="stop8536" />
+      <stop
+         id="stop8544"
+         offset="0.39312226"
+         style="stop-color:#d6e5a8;stop-opacity:0.26139817" />
+      <stop
+         style="stop-color:#d6e5a8;stop-opacity:0.66565347"
+         offset="1"
+         id="stop8538" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
        id="linearGradient8792">
       <stop
          style="stop-color:#c6da85;stop-opacity:1"
@@ -261,6 +277,15 @@
        y2="63.120956"
        gradientUnits="userSpaceOnUse"
        gradientTransform="matrix(1,0,0,1.053359,0,-0.09589136)" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient8540"
+       id="linearGradient8542"
+       x1="111.99632"
+       y1="85.779327"
+       x2="111.99632"
+       y2="33.189941"
+       gradientUnits="userSpaceOnUse" />
   </defs>
   <sodipodi:namedview
      id="base"
@@ -269,16 +294,16 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.52871705"
-     inkscape:cx="249.18852"
-     inkscape:cy="760.78138"
+     inkscape:zoom="2.2408516"
+     inkscape:cx="397.23514"
+     inkscape:cy="974.0851"
      inkscape:document-units="mm"
      inkscape:current-layer="layer9"
      showgrid="false"
-     inkscape:window-width="855"
-     inkscape:window-height="381"
-     inkscape:window-x="2025"
-     inkscape:window-y="65"
+     inkscape:window-width="1746"
+     inkscape:window-height="1210"
+     inkscape:window-x="2277"
+     inkscape:window-y="113"
      inkscape:window-maximized="0" />
   <metadata
      id="metadata5">
@@ -316,7 +341,7 @@
      inkscape:label="bg_green"
      style="display:inline">
     <rect
-       style="display:inline;fill:#d6e5a8;fill-opacity:0.3577982;stroke:none;stroke-width:3.25463295;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
+       style="display:inline;fill:url(#linearGradient8542);fill-opacity:1;stroke:none;stroke-width:3.25463295;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
        id="rect17519-7"
        width="51.928001"
        height="51.928001"
