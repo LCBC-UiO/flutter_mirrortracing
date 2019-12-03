@@ -8,22 +8,22 @@ import 'package:crypto/crypto.dart';
 
 /*----------------------------------------------------------------------------*/
 
-class ConfigureProjectIdsScreen extends StatefulWidget {
+class ConfigureWaveIdsScreen extends StatefulWidget {
   @override
-  _ConfigureProjectIdsScreenState createState() => _ConfigureProjectIdsScreenState();
+  _ConfigureWaveIdsScreenState createState() => _ConfigureWaveIdsScreenState();
 }
 
 /*----------------------------------------------------------------------------*/
 
-class _ConfigureProjectIdsScreenState extends State<ConfigureProjectIdsScreen> {
+class _ConfigureWaveIdsScreenState extends State<ConfigureWaveIdsScreen> {
   @override
   Widget build(BuildContext context) {
     return LcScaffold(
       onNext: () async {
-        String projectName = await showDialog(
+        String waveId = await showDialog(
           context: context,
           builder: (BuildContext context) => CupertinoAlertDialog(
-            title: Text("new project ID:"),
+            title: Text("new wave ID:"),
             content: CupertinoTextField(
               autofocus: true,
               onSubmitted: (v) async {
@@ -32,10 +32,10 @@ class _ConfigureProjectIdsScreenState extends State<ConfigureProjectIdsScreen> {
             ),
           )
         );
-        if (projectName != null) {
-          Set<String> projects = LcSettings().getStrList(LcSettings.PROJECT_IDS_STRLIST).toSet();
-          projects.add(projectName);
-          await LcSettings().setStrList(LcSettings.PROJECT_IDS_STRLIST, projects.toList());
+        if (waveId != null) {
+          Set<String> waveIds = LcSettings().getStrList(LcSettings.WAVE_IDS_STRLIST).toSet();
+          waveIds.add(waveId);
+          await LcSettings().setStrList(LcSettings.WAVE_IDS_STRLIST, waveIds.toList());
           setState(() {
           });
         }
@@ -43,7 +43,7 @@ class _ConfigureProjectIdsScreenState extends State<ConfigureProjectIdsScreen> {
       iconNext: Icon(Icons.add),
       body: FutureBuilder<List<String>>(
         future: () async {
-          List<String> r = LcSettings().getStrList(LcSettings.PROJECT_IDS_STRLIST);
+          List<String> r = LcSettings().getStrList(LcSettings.WAVE_IDS_STRLIST);
           r.sort();
           return r;
         }(),
@@ -59,7 +59,7 @@ class _ConfigureProjectIdsScreenState extends State<ConfigureProjectIdsScreen> {
                   alignment: Alignment.bottomCenter,
                   child: Padding(
                     padding: EdgeInsets.only(bottom: 20),
-                    child: Text("Configured project IDs",)
+                    child: Text("Configured wave IDs:",)
                   )
                 )
               ),
@@ -72,24 +72,24 @@ class _ConfigureProjectIdsScreenState extends State<ConfigureProjectIdsScreen> {
                       shrinkWrap: true,
                       itemCount: snapshot.data.length,
                       itemBuilder: (_, index) {
-                        final String projectName = snapshot.data[index];
-                        final List<int> bytes = md5.convert(utf8.encode(projectName)).bytes.sublist(0, 4);
+                        final String waveId = snapshot.data[index];
+                        final List<int> bytes = md5.convert(utf8.encode(waveId)).bytes.sublist(0, 4);
                         final int sum = bytes.fold(0, (p, c) => (p + c));
                         return Dismissible(
-                          confirmDismiss: _getConfirmDelete(projectName),
+                          confirmDismiss: _getConfirmDelete(waveId),
                           onDismissed: (e) async {
-                            Set<String> projects = LcSettings().getStrList(LcSettings.PROJECT_IDS_STRLIST).toSet();
-                            projects.remove(projectName);
-                            snapshot.data.remove(projectName);
-                            await LcSettings().setStrList(LcSettings.PROJECT_IDS_STRLIST, projects.toList());
+                            Set<String> waveIds = LcSettings().getStrList(LcSettings.WAVE_IDS_STRLIST).toSet();
+                            waveIds.remove(waveId);
+                            snapshot.data.remove(waveId);
+                            await LcSettings().setStrList(LcSettings.WAVE_IDS_STRLIST, waveIds.toList());
                             setState(() {
                             });
                           },
-                          key: Key(projectName),
+                          key: Key(waveId),
                           child: Card(
                             color: Colors.accents[sum % Colors.accents.length],
                             child: ListTile(
-                              title: Text(projectName, textAlign: TextAlign.center,),
+                              title: Text(waveId, textAlign: TextAlign.center,),
                               enabled: false,
                             ),
                           )
@@ -111,13 +111,13 @@ class _ConfigureProjectIdsScreenState extends State<ConfigureProjectIdsScreen> {
   }
 
 
-  Function _getConfirmDelete(String projName) {
+  Function _getConfirmDelete(String waveId) {
     return (DismissDirection direction) async {
       final bool res = await showDialog(
         context: context,
         builder: (BuildContext context) {
           return CupertinoAlertDialog(
-            title: Text("Are you sure you wish to delete the project ID '$projName'?"),
+            title: Text("Are you sure you wish to delete the wave ID '$waveId'?"),
             actions: [
               CupertinoDialogAction(
                 isDefaultAction: false, 

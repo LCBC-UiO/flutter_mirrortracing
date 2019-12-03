@@ -6,6 +6,7 @@ import 'package:mirrortask/scsethomepos.dart';
 import 'package:mirrortask/settings.dart';
 
 import 'resultdata.dart';
+import 'sccfgwaveid.dart';
 import 'scsetsize.dart';
 
 /*----------------------------------------------------------------------------*/
@@ -92,7 +93,17 @@ class _SettingsList  extends StatelessWidget {
           () {
             Navigator.of(context).push(
               MaterialPageRoute(
-                builder: (context) => ConfigurePjojectIdsScreen(),
+                builder: (context) => ConfigureProjectIdsScreen(),
+              )
+            );
+          }
+        ),
+        _ActionItem(
+          "Configure wave IDs",
+          () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => ConfigureWaveIdsScreen(),
               )
             );
           }
