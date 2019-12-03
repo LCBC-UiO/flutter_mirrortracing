@@ -32,7 +32,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 }
 
-class _SettingsList  extends StatelessWidget {
+class _SettingsList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(

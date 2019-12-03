@@ -6,6 +6,7 @@ import 'package:mirrortask/settings.dart';
 
 import 'scgetid.dart';
 import 'scsettings.dart';
+import 'sctestnettskjema.dart';
 
 /*----------------------------------------------------------------------------*/
 
@@ -79,7 +80,7 @@ class StartScreen extends StatelessWidget {
                     onPressed: () {
                       Navigator.of(context).pushReplacement(
                         MaterialPageRoute(
-                          builder: (context) => GetIdScreen( screenWidth: MediaQuery.of(context).size.width ),
+                          builder: (context) => TestNettskjemaScreen.getRoute( screenWidth: MediaQuery.of(context).size.width ),
                         )
                       );
                     }

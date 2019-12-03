@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mirrortask/objimgloader.dart';
-import 'package:mirrortask/scdraw.dart';
 import 'package:mirrortask/scgetprojectid.dart';
 import 'helper.dart';
 import 'scstart.dart';
