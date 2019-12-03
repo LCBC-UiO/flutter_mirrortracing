@@ -20,6 +20,8 @@ class LcSettings implements DbListener {
   static const String HOME_POS_Y_INT           = "HOME_POS_Y_INT";
   static const String HOME_INNER_RADIUS_INT    = "HOME_INNER_RADIUS_INT";
   static const String HOME_OUTER_RADIUS_INT    = "HOME_OUTER_RADIUS_INT";
+  static const String PROJECT_IDS_STRLIST      = "PROJECT_IDS_STRLIST";
+  static const String WAVE_IDS_STRLIST         = "WAVE_IDS_STRLIST";
 
   Future<void> init(String projectName) async {
     this._projectName = projectName;
@@ -34,6 +36,8 @@ class LcSettings implements DbListener {
     await _initValueInt(HOME_POS_Y_INT,   100);
     await _initValueInt(HOME_INNER_RADIUS_INT,  20);
     await _initValueInt(HOME_OUTER_RADIUS_INT,  50);
+    await _initValueStrList(PROJECT_IDS_STRLIST,  List<String>());
+    await _initValueStrList(WAVE_IDS_STRLIST,     List<String>());
     _keys.add(RANDOM_32_STR);
     _keys.add(SCREEN_WIDTH_CM_DBL);
   }
@@ -70,6 +74,14 @@ class LcSettings implements DbListener {
     await setDouble(key, v);
   }
 
+  Future<void> _initValueStrList(String key, List<String> v) async {
+    _keys.add(key);
+    if (isDef(key)) {
+      return;
+    }
+    await setStr(key, jsonEncode(v));
+  }
+
   Future<int> setStr(String key, String v) async {
     final int r = await LcDb().db().insert(
       _kTableNameSettings,
@@ -90,6 +102,9 @@ class LcSettings implements DbListener {
   }
   Future<int> setDouble(String key, double v) async {
     return setStr(key, v.toString());
+  }
+  Future<int> setStrList(String key, List<String> v) async {
+    return setStr(key, jsonEncode(v));
   }  
 
   String getStr(String key) {
@@ -100,6 +115,9 @@ class LcSettings implements DbListener {
   }
   double getDouble(String key) {
     return double.tryParse(_projectSettings[key]);
+  }
+  List<String> getStrList(String key) {
+    return jsonDecode(_projectSettings[key]).cast<String>();
   }
 
   static Future<Map<String, String>> _readFromDb(String projectName) async {
@@ -164,4 +182,3 @@ CREATE TABLE IF NOT EXISTS $_kTableNameSettings(
   PRIMARY KEY (profile, key)
 );
 """;
-
