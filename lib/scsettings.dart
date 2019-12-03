@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mirrortask/helper.dart';
+import 'package:mirrortask/sccfgprojectid.dart';
 import 'package:mirrortask/scsethomepos.dart';
 import 'package:mirrortask/settings.dart';
 
@@ -85,8 +86,17 @@ class _SettingsList  extends StatelessWidget {
             Scaffold.of(context).showSnackBar(snackBar);
             print(msg);
           }
-        )
-        //const Divider(),
+        ),
+        _ActionItem(
+          "Configure project IDs",
+          () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => ConfigurePjojectIdsScreen(),
+              )
+            );
+          }
+        ),
       ]
     );
   }

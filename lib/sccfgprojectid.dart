@@ -3,30 +3,27 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:mirrortask/helper.dart';
-import 'package:mirrortask/scsetscrw.dart';
 import 'package:mirrortask/settings.dart';
 import 'package:crypto/crypto.dart';
 
-import 'scstart.dart';
-
 /*----------------------------------------------------------------------------*/
 
-class SelectConfigScreen extends StatefulWidget {
+class ConfigurePjojectIdsScreen extends StatefulWidget {
   @override
-  _SelectConfigScreenState createState() => _SelectConfigScreenState();
+  _ConfigurePjojectIdsScreenState createState() => _ConfigurePjojectIdsScreenState();
 }
 
 /*----------------------------------------------------------------------------*/
 
-class _SelectConfigScreenState extends State<SelectConfigScreen> {
+class _ConfigurePjojectIdsScreenState extends State<ConfigurePjojectIdsScreen> {
   @override
   Widget build(BuildContext context) {
     return LcScaffold(
       onNext: () async {
-        String configName = await showDialog(
+        String projectName = await showDialog(
           context: context,
           builder: (BuildContext context) => CupertinoAlertDialog(
-            title: Text("Profile name:"),
+            title: Text("Project name:"),
             content: CupertinoTextField(
               autofocus: true,
               onSubmitted: (v) async {
@@ -35,15 +32,21 @@ class _SelectConfigScreenState extends State<SelectConfigScreen> {
             ),
           )
         );
-        if (configName != null) {
-          await LcSettings().init(configName);
+        if (projectName != null) {
+          Set<String> projects = LcSettings().getStrList(LcSettings.PROJECT_IDS_STRLIST).toSet();
+          projects.add(projectName);
+          await LcSettings().setStrList(LcSettings.PROJECT_IDS_STRLIST, projects.toList());
           setState(() {
           });
         }
       },
       iconNext: Icon(Icons.add),
       body: FutureBuilder<List<String>>(
-        future: LcSettings().getConfigs(),
+        future: () async {
+          List<String> r = LcSettings().getStrList(LcSettings.PROJECT_IDS_STRLIST);
+          r.sort();
+          return r;
+        }(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return Center(child: CupertinoActivityIndicator());
@@ -56,7 +59,7 @@ class _SelectConfigScreenState extends State<SelectConfigScreen> {
                   alignment: Alignment.bottomCenter,
                   child: Padding(
                     padding: EdgeInsets.only(bottom: 20),
-                    child: Text("Select a profile",)
+                    child: Text("Configured project names:",)
                   )
                 )
               ),
@@ -69,32 +72,26 @@ class _SelectConfigScreenState extends State<SelectConfigScreen> {
                       shrinkWrap: true,
                       itemCount: snapshot.data.length,
                       itemBuilder: (_, index) {
-                        final String profileName = snapshot.data[index];
-                        final List<int> bytes = md5.convert(utf8.encode(profileName)).bytes.sublist(0, 4);
+                        final String projectName = snapshot.data[index];
+                        final List<int> bytes = md5.convert(utf8.encode(projectName)).bytes.sublist(0, 4);
                         final int sum = bytes.fold(0, (p, c) => (p + c));
                         return Dismissible(
-                          confirmDismiss: _getConfirmDelete(profileName),
+                          confirmDismiss: _getConfirmDelete(projectName),
                           onDismissed: (e) async {
-                            await LcSettings().delete(profileName);
-                            snapshot.data.remove(profileName);
+                            Set<String> projects = LcSettings().getStrList(LcSettings.PROJECT_IDS_STRLIST).toSet();
+                            projects.remove(projectName);
+                            snapshot.data.remove(projectName);
+                            await LcSettings().setStrList(LcSettings.PROJECT_IDS_STRLIST, projects.toList());
                             setState(() {
                             });
                           },
-                          key: Key(profileName),
+                          key: Key(projectName),
                           child: Card(
                             color: Colors.accents[sum % Colors.accents.length],
                             child: ListTile(
-                              title: Text(profileName, textAlign: TextAlign.center,),
-                              onTap: () async {
-                                await LcSettings().init(profileName);
-                                final bool hasInit = LcSettings().isDef(LcSettings.SCREEN_WIDTH_CM_DBL);
-                                Navigator.of(context).pushReplacement(
-                                  MaterialPageRoute(
-                                    builder: (context) => hasInit ? StartScreen() : SetScreenWidthScreen(),
-                                  )
-                                );
-                              }
-                            )
+                              title: Text(projectName, textAlign: TextAlign.center,),
+                              enabled: false,
+                            ),
                           )
                         );
                       },
@@ -114,13 +111,13 @@ class _SelectConfigScreenState extends State<SelectConfigScreen> {
   }
 
 
-  Function _getConfirmDelete(String profileName) {
+  Function _getConfirmDelete(String projName) {
     return (DismissDirection direction) async {
       final bool res = await showDialog(
         context: context,
         builder: (BuildContext context) {
           return CupertinoAlertDialog(
-            title: Text("Are you sure you wish to delete profile '$profileName'?"),
+            title: Text("Are you sure you wish to delete the project name '$projName'?"),
             actions: [
               CupertinoDialogAction(
                 isDefaultAction: false, 
