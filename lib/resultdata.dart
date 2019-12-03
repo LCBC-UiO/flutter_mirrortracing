@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:mirrortask/imgevaluation.dart';
 import 'package:mirrortask/pentrajectory.dart';
 import 'package:mirrortask/settings.dart';
+import 'visitdata.dart';
 import 'package:nettskjema/nettskjema.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:image/image.dart' as img;
@@ -13,7 +14,7 @@ import 'helper.dart';
 /*----------------------------------------------------------------------------*/
 
 class ResultData {
-  final String userId;
+  final VisitData visitData;
   final DateTime date;
   final String comment;
   final ImgEvaluation imgEval;
@@ -21,9 +22,9 @@ class ResultData {
   final double canvasWidth;
 
   ResultData({
-    @required this.userId,
+    @required this.visitData,
     @required this.date,
-    @required this.comment,
+    this.comment = "",
     @required this.imgEval,
     @required this.trajectory,
     @required this.canvasWidth,
@@ -32,7 +33,7 @@ class ResultData {
   Map<String,String> _toNettskjemaMap() {
     return {
       enumToString(_NettskjemaFieldNames.profile_id): LcSettings().getStr(LcSettings.RANDOM_32_STR),
-      enumToString(_NettskjemaFieldNames.user_id): userId,
+      enumToString(_NettskjemaFieldNames.user_id): visitData.userId,
       enumToString(_NettskjemaFieldNames.date): date.toIso8601String(),
       enumToString(_NettskjemaFieldNames.comment): comment,
       enumToString(_NettskjemaFieldNames.total_time_ms): trajectory.totalTime.toString(),
@@ -48,7 +49,7 @@ class ResultData {
 
   get _fnPrefix {
     final datestr = date.toString().split(".")[0].replaceAll(" ", "_").replaceAll(":", "-");
-    return "${datestr}_$userId";
+    return "${datestr}_${visitData.userId}}";
   }
 
   Future<void> uploadNettskjema() async {

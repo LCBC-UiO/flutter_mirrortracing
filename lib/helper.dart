@@ -130,6 +130,13 @@ class LcScaffold extends StatelessWidget {
           nextButton,
         ],
       );
+    } else if (prevButton != null) {
+      buttonRow = Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          prevButton,
+        ],
+      );
     }
     return buttonRow != null ? Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10),

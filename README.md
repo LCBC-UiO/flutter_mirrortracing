@@ -30,8 +30,7 @@ list of list of tuples:
 
 ## TODO
 
-- compute trial id from - time stamp
-- user 7 digit ID??
+- use 7 digit ID
 - project name + wave
 
 - test max upload size / big trajectories

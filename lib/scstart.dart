@@ -13,13 +13,6 @@ class StartScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return LcScaffold(
-      onPrev: () {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (context) => SelectConfigScreen(),
-          )
-        );
-      },
       body: Column(
         children: <Widget>[
           Expanded(

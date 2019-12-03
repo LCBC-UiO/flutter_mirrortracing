@@ -7,6 +7,7 @@ import 'dart:ui' as ui;
 import 'package:image/image.dart' as img;
 import 'package:mirrortask/objimgloader.dart';
 import 'package:mirrortask/settings.dart';
+import 'package:mirrortask/visitdata.dart';
 import 'package:provider/provider.dart';
 import 'imgevaluation.dart';
 import 'pentrajectory.dart';
@@ -17,14 +18,12 @@ import 'uihomearea.dart';
 /*----------------------------------------------------------------------------*/
 
 class DrawScreen extends StatelessWidget {
-  final String userId;
+  final VisitData visitData;
   final ObjImg objImg;
-  final String comment;
   final int trialId;
 
   DrawScreen({
-    @required this.userId,
-    @required this.comment,
+    @required this.visitData,
     @required this.objImg,
     @required this.trialId,
   });
@@ -38,8 +37,7 @@ class DrawScreen extends StatelessWidget {
           LcScaffold.getActionReset(context)
         ],
         body: ExperimentMain(
-          userId: userId,
-          comment: comment,
+          visitData: visitData,
           objImg: objImg,
           trialId: trialId,
         )
@@ -51,14 +49,12 @@ class DrawScreen extends StatelessWidget {
 /*----------------------------------------------------------------------------*/
 
 class ExperimentMain extends StatefulWidget {
-  final String userId;
+  final VisitData visitData;
   final ObjImg objImg;
-  final String comment;
   final int trialId;
 
   ExperimentMain({
-    @required this.userId,
-    @required this.comment,
+    @required this.visitData,
     @required this.objImg,
     @required this.trialId,
   });
@@ -233,7 +229,7 @@ class _ExperimentMainState extends State<ExperimentMain> {
       return Center(
         child: Padding(
           padding: EdgeInsets.all(10),
-          child: Text("ID: ${widget.userId}\ntrial: ${widget.trialId}\n\nprofile: ${LcSettings().activeConfigName}", textAlign: TextAlign.center,),
+          child: Text("trial: ${widget.trialId}", textAlign: TextAlign.center,),
         )
       );
     }
@@ -246,8 +242,8 @@ class _ExperimentMainState extends State<ExperimentMain> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
+            Text("trial: ${widget.trialId.toString()} completed"),
             Text("${_resultData.date.toString().split(".")[0]}"),
-            Text("user ID: ${_resultData.userId}"),
             Text("num. continuous lines: ${_resultData.trajectory.numContinuousLines}"),
             Text("total time (ms): ${_resultData.trajectory.totalTime}"),
             Text("pen drawing time (ms): ${_resultData.trajectory.drawingTime}"),
@@ -336,8 +332,7 @@ class _ExperimentMainState extends State<ExperimentMain> {
                 Navigator.of(context).pushReplacement(
                   MaterialPageRoute(
                     builder: (context) => DrawScreen(
-                      userId: widget.userId,
-                      comment: widget.comment,
+                      visitData: widget.visitData,
                       objImg: widget.objImg,
                       trialId: widget.trialId+1,
                     ),
@@ -414,9 +409,8 @@ class _ExperimentMainState extends State<ExperimentMain> {
       expState.state = _ExperimentState.finishing;
     });
     _resultData = ResultData(
-      userId: widget.userId,
+      visitData: widget.visitData,
       date: DateTime.now(),
-      comment: widget.comment,
       imgEval: await ImgEvaluation.calculate(
         drawing: _controller.finish(),
         objMask: widget.objImg.mask,
@@ -447,7 +441,7 @@ class _ExperimentMainState extends State<ExperimentMain> {
               Navigator.of(context).pop();
               Navigator.of(context).pushReplacement(
                 MaterialPageRoute(
-                  builder: (context) => DrawScreen(userId: widget.userId, comment: widget.comment, objImg: widget.objImg, trialId: widget.trialId,),
+                  builder: (context) => DrawScreen(visitData: widget.visitData, objImg: widget.objImg, trialId: widget.trialId,),
                 )
               );
             },

@@ -2,8 +2,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mirrortask/objimgloader.dart';
 import 'package:mirrortask/scdraw.dart';
+import 'package:mirrortask/scgetprojectid.dart';
 import 'helper.dart';
+import 'scstart.dart';
 import 'settings.dart';
+import 'visitdata.dart';
 
 /*----------------------------------------------------------------------------*/
 
@@ -35,7 +38,6 @@ class _GetIdScreenState extends State<GetIdScreen> {
   Function _onNext;
   bool _showTextField;
   String _userId = "";
-  String _comment = "";
   static final validUserIdChars = RegExp(r'^[a-zA-Z0-9]+$');
 
   @override
@@ -53,6 +55,14 @@ class _GetIdScreenState extends State<GetIdScreen> {
   Widget build(BuildContext context) {
     return LcScaffold(
       onNext: _onNext,
+      iconPrev: Icon(Icons.close),
+      onPrev: () {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => StartScreen()
+          )
+        );
+      },
       body: Center(
         child: AnimatedSwitcher(
           duration: const Duration(milliseconds: 500),
@@ -65,10 +75,6 @@ class _GetIdScreenState extends State<GetIdScreen> {
               Text("Enter participant ID:", style:  Theme.of(context).textTheme.subhead,),
               divy_1,
               _getUserIdTextField(),
-              divy_2,
-              Text("Session info (optional):", style:  Theme.of(context).textTheme.subhead,),
-              divy_1,
-              _getCommentTextField(),
               divy_3,
             ]
           ) : CupertinoActivityIndicator()
@@ -99,7 +105,9 @@ class _GetIdScreenState extends State<GetIdScreen> {
             final ObjImg objImg = await widget._fLoadObjImg;
             Navigator.of(context).pushReplacement(
               MaterialPageRoute(
-                builder: (context) => DrawScreen(userId: _userId, comment: _comment, objImg: objImg, trialId: 1),
+                builder: (context) => GetProjectIdScreen.getRoute(
+                  visitData: VisitData(userId: _userId), objImg: objImg, trialId: 1
+                ),
               )
             );
           };
@@ -107,20 +115,4 @@ class _GetIdScreenState extends State<GetIdScreen> {
       },
     );
   }
-
-  Widget _getCommentTextField() {
-    return CupertinoTextField(
-      textAlign: TextAlign.center,
-      style: Theme.of(context).textTheme.display1,
-      onChanged: (v) async {
-        v = v.replaceAll("\t", " ");
-        v = v.replaceAll(";", " ");
-        v = v.replaceAll("/", " ");
-        v = v.replaceAll("\\", " ");
-        _comment = v;
-      },
-    );
-  }
 }
-
-
