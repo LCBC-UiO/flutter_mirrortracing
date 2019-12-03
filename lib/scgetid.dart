@@ -38,7 +38,7 @@ class _GetIdScreenState extends State<GetIdScreen> {
   Function _onNext;
   bool _showTextField;
   String _userId = "";
-  static final validUserIdChars = RegExp(r'^[a-zA-Z0-9]+$');
+  static final validUserIdChars = RegExp(LcSettings().getStr(LcSettings.USER_ID_REGEX_STR));
 
   @override
   void initState() {
@@ -90,6 +90,9 @@ class _GetIdScreenState extends State<GetIdScreen> {
       autofocus: true,
       onChanged: (v) async {
         if (!validUserIdChars.hasMatch(v)) {
+          setState(() {
+            _onNext = null;
+          });
           return;
         }
         if (v == "") {
@@ -106,7 +109,9 @@ class _GetIdScreenState extends State<GetIdScreen> {
             Navigator.of(context).pushReplacement(
               MaterialPageRoute(
                 builder: (context) => GetProjectIdScreen.getRoute(
-                  visitData: VisitData(userId: _userId), objImg: objImg, trialId: 1
+                  visitData: VisitData(userId: _userId), 
+                  objImg: objImg, 
+                  trialId: 1,
                 ),
               )
             );

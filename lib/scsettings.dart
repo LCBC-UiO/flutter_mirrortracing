@@ -40,6 +40,26 @@ class _SettingsList  extends StatelessWidget {
       children: <Widget>[
         const _Heading('Options'),
         _ActionItem(
+          "Configure project IDs",
+          () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => ConfigureProjectIdsScreen(),
+              )
+            );
+          }
+        ),
+        _ActionItem(
+          "Configure wave IDs",
+          () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => ConfigureWaveIdsScreen(),
+              )
+            );
+          }
+        ),
+        _ActionItem(
           "Configure size of shape",
           () {
             Navigator.of(context).push(
@@ -89,21 +109,39 @@ class _SettingsList  extends StatelessWidget {
           }
         ),
         _ActionItem(
-          "Configure project IDs",
-          () {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => ConfigureProjectIdsScreen(),
+          "Set subject ID input regular expression",
+          () async {
+            await showDialog(
+              context: context,
+              builder: (BuildContext context) => CupertinoAlertDialog(
+                title: Text("subject ID regex"),
+                content: CupertinoTextField(
+                  controller: TextEditingController(text: LcSettings().getStr(LcSettings.USER_ID_REGEX_STR)),
+                  autofocus: true,
+                  onSubmitted: (v) async {
+                    await LcSettings().setStr(LcSettings.USER_ID_REGEX_STR, v);
+                    Navigator.pop(context);
+                  },
+                ),
               )
             );
           }
         ),
         _ActionItem(
-          "Configure wave IDs",
-          () {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => ConfigureWaveIdsScreen(),
+          "Set subject ID input hint",
+          () async {
+            await showDialog(
+              context: context,
+              builder: (BuildContext context) => CupertinoAlertDialog(
+                title: Text("subject ID input hint"),
+                content: CupertinoTextField(
+                  controller: TextEditingController(text: LcSettings().getStr(LcSettings.USER_ID_HINT_STR)),
+                  autofocus: true,
+                  onSubmitted: (v) async {
+                    await LcSettings().setStr(LcSettings.USER_ID_HINT_STR, v);
+                    Navigator.pop(context);
+                  },
+                ),
               )
             );
           }

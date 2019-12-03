@@ -22,6 +22,9 @@ class LcSettings implements DbListener {
   static const String HOME_OUTER_RADIUS_INT    = "HOME_OUTER_RADIUS_INT";
   static const String PROJECT_IDS_STRLIST      = "PROJECT_IDS_STRLIST";
   static const String WAVE_IDS_STRLIST         = "WAVE_IDS_STRLIST";
+  static const String USER_ID_REGEX_STR        = "USER_ID_REGEX_STR";
+  static const String USER_ID_HINT_STR         = "USER_ID_HINT_STR";
+
 
   Future<void> init(String projectName) async {
     this._projectName = projectName;
@@ -38,6 +41,8 @@ class LcSettings implements DbListener {
     await _initValueInt(HOME_OUTER_RADIUS_INT,  50);
     await _initValueStrList(PROJECT_IDS_STRLIST,  List<String>());
     await _initValueStrList(WAVE_IDS_STRLIST,     List<String>());
+    await _initValueStr(USER_ID_REGEX_STR, r'^[a-zA-Z0-9]+$');
+    await _initValueStr(USER_ID_HINT_STR, "use a-z,A-Z,0-9");
     _keys.add(RANDOM_32_STR);
     _keys.add(SCREEN_WIDTH_CM_DBL);
   }
