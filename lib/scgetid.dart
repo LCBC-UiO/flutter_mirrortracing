@@ -37,7 +37,7 @@ class _GetIdScreenState extends State<GetIdScreen> {
   Function _onNext;
   bool _showTextField;
   String _userId = "";
-  static final validUserIdChars = RegExp(LcSettings().getStr(LcSettings.USER_ID_REGEX_STR));
+  final validUserIdChars = RegExp(LcSettings().getStr(LcSettings.USER_ID_REGEX_STR));
 
   @override
   void initState() {
