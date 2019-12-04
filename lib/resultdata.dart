@@ -32,18 +32,15 @@ class ResultData {
 
   Map<String,String> _toNettskjemaMap() {
     return {
-      enumToString(_NettskjemaFieldNames.profile_id): LcSettings().getStr(LcSettings.RANDOM_32_STR),
-      enumToString(_NettskjemaFieldNames.user_id): visitData.userId,
+      enumToString(_NettskjemaFieldNames.subj_id): visitData.userId,
       enumToString(_NettskjemaFieldNames.date): date.toIso8601String(),
-      enumToString(_NettskjemaFieldNames.comment): comment,
-      enumToString(_NettskjemaFieldNames.total_time_ms): trajectory.totalTime.toString(),
-      enumToString(_NettskjemaFieldNames.num_continuous_lines): trajectory.numContinuousLines.toString(),
-      enumToString(_NettskjemaFieldNames.num_samples): imgEval.numTotalSamples.toString(),
-      enumToString(_NettskjemaFieldNames.num_samples_outside): imgEval.numOutsideSamples.toString(),
-      enumToString(_NettskjemaFieldNames.num_boundary_crossings): imgEval.numBoundaryCrossings.toString(),
-      enumToString(_NettskjemaFieldNames.image_width_cm): canvasWidth.toStringAsFixed(1),
+      enumToString(_NettskjemaFieldNames.project_id): visitData.projectId,
+      enumToString(_NettskjemaFieldNames.wave_id): visitData.waveId,
       enumToString(_NettskjemaFieldNames.image_png): base64Encode(img.encodePng(imgEval.drawing, level: 1)),
+      enumToString(_NettskjemaFieldNames.image_width_cm): canvasWidth.toStringAsFixed(1),
       enumToString(_NettskjemaFieldNames.trajectory): trajectory.toJsonStr(),
+      enumToString(_NettskjemaFieldNames.profile_id): LcSettings().getStr(LcSettings.RANDOM_32_STR),
+      enumToString(_NettskjemaFieldNames.comment): comment,
     };
   }
 
@@ -78,6 +75,8 @@ class ResultData {
     await f.writeAsBytes(img.encodePng(imgEval.drawing, level: 1));
     f = File("${dir.path}/mirrortrace_${_fnPrefix}_info.txt");
     await f.writeAsString(
+      'project_id: ${visitData.projectId}\n'
+      'wave_id: ${visitData.waveId}\n'
       'total_time_ms: ${trajectory.totalTime.toString()}\n'
       'num_continuous_lines: ${trajectory.numContinuousLines.toString()}\n'
       'num_samples: ${imgEval.numTotalSamples.toString()}\n'
@@ -99,16 +98,13 @@ class ResultData {
 /*----------------------------------------------------------------------------*/
 
 enum _NettskjemaFieldNames {
-  profile_id,
-  user_id,
+  subj_id,
   date,
-  comment,
-  total_time_ms,
-  num_continuous_lines,
-  num_samples,
-  num_samples_outside,
-  num_boundary_crossings,
-  image_width_cm,
+  project_id,
+  wave_id,
   image_png,
+  image_width_cm,
   trajectory,
+  profile_id,
+  comment,
 }
