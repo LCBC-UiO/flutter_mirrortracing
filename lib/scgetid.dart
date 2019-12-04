@@ -52,6 +52,7 @@ class _GetIdScreenState extends State<GetIdScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final String hint = LcSettings().getStr(LcSettings.USER_ID_HINT_STR);
     return LcScaffold(
       onNext: _onNext,
       iconPrev: Icon(Icons.close),
@@ -71,7 +72,14 @@ class _GetIdScreenState extends State<GetIdScreen> {
           child: _showTextField ? Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text("Enter participant ID:", style:  Theme.of(context).textTheme.subhead,),
+              Text(
+                (
+                  "Enter participant ID\n"
+                  "${hint != "" ? "(" + hint + ")" : ""}"
+                ), 
+                style:  Theme.of(context).textTheme.subhead,
+                textAlign: TextAlign.center,
+              ),
               divy_1,
               _getUserIdTextField(),
               divy_3,
