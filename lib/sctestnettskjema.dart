@@ -47,6 +47,7 @@ class _TestNettskjemaScreenState extends State<TestNettskjemaScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final int nettskjemaId = LcSettings().getInt(LcSettings.NETTSKJEMA_ID_INT);
     return LcScaffold(
       iconPrev: Icon(Icons.close),
       onPrev: () {
@@ -63,23 +64,20 @@ class _TestNettskjemaScreenState extends State<TestNettskjemaScreen> {
           )
         );
       },
-      body: Column(
-        children: <Widget>[
-          Expanded(
-            child: Text("1"),
-            flex: 1,
-          ),
-          Expanded(
-            child: FutureBuilder(
+      body: Padding(
+        padding: EdgeInsets.all(16),
+         child: FutureBuilder(
               future: () async {
-                final int nettskjemaId = LcSettings().getInt(LcSettings.NETTSKJEMA_ID_INT);
                 try {
                   await ResultData.testNettskjema(nettskjemaId);
                   status = _Status.ok;
                   msg = "OK";
                 } catch (e) {
                   status = _Status.err;
-                  msg = "Error: ${e.toString()}";
+                  msg = "Cannot upload to nettskjema '$nettskjemaId'.\n\n" 
+                        "Make sure you are connected to the internet and restart experiment.\n\n"
+                        "Deatils:\n"
+                        "${e.toString()}";
                 }
               }(),
               builder: (context, snapshot) {
@@ -110,13 +108,6 @@ class _TestNettskjemaScreenState extends State<TestNettskjemaScreen> {
                 );
               },
             ),
-            flex: 4,
-          ),
-          Expanded(
-            child: Text(""),
-            flex: 1,
-          ),
-        ]
       )
     );
   }
