@@ -1,10 +1,10 @@
 #!/usr/bin/env Rscript
 
-require(jsonlite) # install.packages("jsonlite")
+require(jsonlite) # install.packages(c("jsonlite","png"))
 require(png)
 
-# NOTE: the path will have to change on TSD
-input_csv_fn <- "~/Downloads/data-128893-2019-11-23-1908-utf.txt"
+# NOTE: the path will have to change
+input_csv_fn <- "~/Downloads/data-132996-2019-12-05-1018-utf.txt"
 
 d_in <- read.csv(input_csv_fn, sep="\t", stringsAsFactors=FALSE)
 
@@ -110,12 +110,13 @@ calc_trial_ids <- function(d_tr) {
 # copy some values
 date_fmt_in <- "%Y-%m-%dT%H:%M:%S"
 d_out <- data.frame(
-  subj_id    = d_in$user_id
-  ,comment   = d_in$comment
-  ,date      = strptime(d_in$date, format=date_fmt_in)
-  ,trial_id  = calc_trial_ids(
+  subj_id     = d_in$subj_id
+  ,project_id = d_in$project_id
+  ,wave_id    = d_in$wave_id
+  ,date       = strptime(d_in$date, format=date_fmt_in)
+  ,trial_id   = calc_trial_ids(
                 data.frame(
-                  subj_id=d_in$user_id
+                  subj_id=d_in$subj_id
                   ,date=strptime(d_in$date, format=date_fmt_in)
                 )
               )
