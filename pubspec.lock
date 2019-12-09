@@ -102,6 +102,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.1.7"
+  intl:
+    dependency: "direct main"
+    description:
+      name: intl
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.16.0"
   matcher:
     dependency: transitive
     description:
@@ -121,12 +128,12 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "15de45df1029e9d92a8a813ff9d5b37e0388248f"
+      resolved-ref: "7d523c9773eb5f98f09474a830ca48899e9cadf8"
       url: "https://github.com/LCBC-UiO/flutter_nettskjema"
     source: git
     version: "0.0.1"
   path:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: path
       url: "https://pub.dartlang.org"
