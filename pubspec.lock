@@ -129,7 +129,7 @@ packages:
       path: "."
       ref: HEAD
       resolved-ref: "7d523c9773eb5f98f09474a830ca48899e9cadf8"
-      url: "https://github.com/LCBC-UiO/flutter_nettskjema"
+      url: "https://github.com/LCBC-UiO/dart_nettskjema"
     source: git
     version: "0.0.1"
   path:

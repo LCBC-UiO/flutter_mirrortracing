@@ -27,7 +27,7 @@ dependencies:
   flutter_launcher_icons:
   nettskjema:
     git:
-      url: https://github.com/LCBC-UiO/flutter_nettskjema
+      url: https://github.com/LCBC-UiO/dart_nettskjema
   intl:
   path:
 
