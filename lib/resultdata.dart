@@ -46,7 +46,7 @@ class ResultData {
 
   get _fnPrefix {
     final datestr = date.toString().split(".")[0].replaceAll(" ", "_").replaceAll(":", "-");
-    return "${datestr}_${visitData.userId}}";
+    return "${datestr}_${visitData.userId}";
   }
 
   Future<void> uploadNettskjema() async {
