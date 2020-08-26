@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
+import 'package:mirrortask/db.dart';
 import 'package:mirrortask/helper.dart';
 import 'package:mirrortask/scsetscrw.dart';
 import 'package:mirrortask/settings.dart';
@@ -37,8 +39,7 @@ class _SelectConfigScreenState extends State<SelectConfigScreen> {
         );
         if (configName != null) {
           await LcSettings().init(configName);
-          setState(() {
-          });
+          setState(() {});
         }
       },
       iconNext: Icon(Icons.add),
