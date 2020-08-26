@@ -34,9 +34,9 @@ void main(List<String> arguments) async {
 
   argResults = parser.parse(arguments);
 
-  final int nettskjemaId  = int.tryParse(argResults.rest[0]);
-  final String path       = argResults.rest[1];
-  final String fnprefix   = argResults.rest[2]; // mirrortrace_2019-12-09_13-34-07_bob
+  final int nettskjemaId = int.tryParse(argResults.rest[0]);
+  final String path      = argResults.rest[1];
+  final String fnprefix  = argResults.rest[2]; // mirrortrace_2019-12-09_13-34-07_bob
 
 
   print("$path $fnprefix");
@@ -60,30 +60,6 @@ void main(List<String> arguments) async {
   await n.upload(nmap);
 }
 
-Future dcat(List<String> paths, bool showLineNumbers) async {
-  if (paths.isEmpty) {
-    // No files provided as arguments. Read from stdin and print each line.
-    await stdin.pipe(stdout);
-  } else {
-    for (var path in paths) {
-      var lineNumber = 1;
-      final lines = utf8.decoder
-          .bind(File(path).openRead())
-          .transform(const LineSplitter());
-      try {
-        await for (var line in lines) {
-          if (showLineNumbers) {
-            stdout.write('${lineNumber++} ');
-          }
-          stdout.writeln(line);
-        }
-      } catch (_) {
-        await _handleError(path);
-      }
-    }
-  }
-}
-
 String _parseInfo(String key, String dir, String fn) {
   File f = File(join(dir,fn));
   List<String> lines = f.readAsLinesSync();
@@ -93,12 +69,4 @@ String _parseInfo(String key, String dir, String fn) {
     }
   }
   return null;
-}
-
-Future _handleError(String path) async {
-  if (await FileSystemEntity.isDirectory(path)) {
-    stderr.writeln('error: $path is a directory');
-  } else {
-    exitCode = 2;
-  }
 }
