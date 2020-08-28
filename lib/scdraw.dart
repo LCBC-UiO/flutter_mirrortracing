@@ -1,4 +1,3 @@
-
 import 'dart:typed_data';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -33,16 +32,12 @@ class DrawScreen extends StatelessWidget {
     return ChangeNotifierProvider(
         builder: (context) => _ExperimentState(),
         child: LcScaffold(
-        actions: <Widget>[
-          LcScaffold.getActionReset(context)
-        ],
-        body: ExperimentMain(
-          visitData: visitData,
-          objImg: objImg,
-          trialId: trialId,
-        )
-      )
-    );
+            actions: <Widget>[LcScaffold.getActionReset(context)],
+            body: ExperimentMain(
+              visitData: visitData,
+              objImg: objImg,
+              trialId: trialId,
+            )));
   }
 }
 
@@ -65,31 +60,27 @@ class ExperimentMain extends StatefulWidget {
     final Widget bottom,
     final int centerSize,
   }) {
-    return Column(
-      children: [
-        Expanded(
-          child: top ?? Text(""),
-        ), 
-        Center(
-          child: Container(
+    return Column(children: [
+      Expanded(
+        child: top ?? Text(""),
+      ),
+      Center(
+        child: Container(
             decoration: BoxDecoration(
-              border: Border.all(
-                color: Colors.grey,
-                width: 1,
-              )
-            ),
+                border: Border.all(
+              color: Colors.grey,
+              width: 1,
+            )),
             child: SizedBox(
               height: centerSize.toDouble(),
               width: centerSize.toDouble(),
               child: center,
-            )
-          ),
-        ),
-        Expanded(
-          child: bottom ?? Text(""),
-        )
-      ]
-    );
+            )),
+      ),
+      Expanded(
+        child: bottom ?? Text(""),
+      )
+    ]);
   }
 
   @override
@@ -104,12 +95,11 @@ class _ExperimentMainState extends State<ExperimentMain> {
   Image _resultImg;
 
   Image _imgBoundary;
-  _HomeAreaHelper _homeArea= _HomeAreaHelper();
+  _HomeAreaHelper _homeArea = _HomeAreaHelper();
   PenTrajectory _penTrajectory;
 
   _ActionState _dataSaved;
   _ActionState _dataUploaded;
-
 
   @override
   void initState() {
@@ -133,7 +123,6 @@ class _ExperimentMainState extends State<ExperimentMain> {
     return controller;
   }
 
-
   void _cbOnStrokeStart(Offset o) {
     final expState = Provider.of<_ExperimentState>(context);
     if (expState.state == _ExperimentState.init && _homeArea.isInner(o)) {
@@ -150,21 +139,23 @@ class _ExperimentMainState extends State<ExperimentMain> {
   }
 
   void _cbOnStrokeUpdate(Offset o) {
-    if (Provider.of<_ExperimentState>(context).state == _ExperimentState.recording) {
+    if (Provider.of<_ExperimentState>(context).state ==
+        _ExperimentState.recording) {
       _penTrajectory.add(o.dx, o.dy);
     }
-    if (_homeArea.state == _HomeAreaHelper.stateStarted && ! _homeArea.isOuter(o)) {
+    if (_homeArea.state == _HomeAreaHelper.stateStarted &&
+        !_homeArea.isOuter(o)) {
       setState(() {
         _homeArea.state = _HomeAreaHelper.stateCompletable;
       });
-    } else if (_homeArea.state == _HomeAreaHelper.stateCompletable && _homeArea.isInner(o)) {
+    } else if (_homeArea.state == _HomeAreaHelper.stateCompletable &&
+        _homeArea.isInner(o)) {
       _cbOnStrokeEnd();
       _actionDone();
     }
   }
 
-  void _cbOnStrokeEnd() {
-  }
+  void _cbOnStrokeEnd() {}
 
   @override
   Widget build(BuildContext context) {
@@ -186,14 +177,14 @@ class _ExperimentMainState extends State<ExperimentMain> {
 
   Widget _getTop(context) {
     List<Widget> l = [];
-    if (Provider.of<_ExperimentState>(context).state == _ExperimentState.recording) {
+    if (Provider.of<_ExperimentState>(context).state ==
+        _ExperimentState.recording) {
       l.add(
         Align(
-          alignment: Alignment.topLeft,
-          child: Padding(
-            padding: EdgeInsets.all(10),
-            child: Row(
-              children: [
+            alignment: Alignment.topLeft,
+            child: Padding(
+              padding: EdgeInsets.all(10),
+              child: Row(children: [
                 Icon(
                   Icons.fiber_manual_record,
                   color: Colors.red,
@@ -202,39 +193,47 @@ class _ExperimentMainState extends State<ExperimentMain> {
                   "REC",
                   style: TextStyle(color: Colors.red),
                 )
-              ]
-            ),
-          )
-        ),
+              ]),
+            )),
       );
     }
-    l.add(
-      Center(
+    l.add(Center(
         child: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 800),
-          transitionBuilder: (Widget child, Animation<double> animation) {
-            return SlideTransition(child: child, position: Tween<Offset>(begin: Offset(1,0), end: Offset(0,0)).animate(CurvedAnimation(parent: animation, curve: Curves.easeInOutSine)));
-          },
-          child: _getButtonRow()
-        )
-      )
-    );
+            duration: const Duration(milliseconds: 800),
+            transitionBuilder: (Widget child, Animation<double> animation) {
+              return SlideTransition(
+                  child: child,
+                  position:
+                      Tween<Offset>(begin: Offset(1, 0), end: Offset(0, 0))
+                          .animate(CurvedAnimation(
+                              parent: animation, curve: Curves.easeInOutSine)));
+            },
+            child: _getButtonRow())));
     return Stack(
       children: l,
     );
   }
 
   Widget _getBottom() {
-    if (Provider.of<_ExperimentState>(context).state != _ExperimentState.finished) {
+    if (Provider.of<_ExperimentState>(context).state !=
+        _ExperimentState.finished) {
       return Center(
-        child: Padding(
-          padding: EdgeInsets.all(10),
-          child: Text("trial: ${widget.trialId}", textAlign: TextAlign.center,),
-        )
-      );
+          child: Padding(
+        padding: EdgeInsets.all(10),
+        child: Text(
+          "trial: ${widget.trialId}",
+          textAlign: TextAlign.center,
+        ),
+      ));
     }
-    final double insideSamples = (_resultData.imgEval.numTotalSamples - _resultData.imgEval.numOutsideSamples) / _resultData.imgEval.numTotalSamples * 100;
-    final double insidePixels = (_resultData.imgEval.numTotalPixels - _resultData.imgEval.numOutsidePixels) / _resultData.imgEval.numTotalPixels * 100;
+    final double insideSamples = (_resultData.imgEval.numTotalSamples -
+            _resultData.imgEval.numOutsideSamples) /
+        _resultData.imgEval.numTotalSamples *
+        100;
+    final double insidePixels = (_resultData.imgEval.numTotalPixels -
+            _resultData.imgEval.numOutsidePixels) /
+        _resultData.imgEval.numTotalPixels *
+        100;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: <Widget>[
@@ -244,9 +243,11 @@ class _ExperimentMainState extends State<ExperimentMain> {
           children: <Widget>[
             Text("trial: ${widget.trialId.toString()} completed"),
             Text("${_resultData.date.toString().split(".")[0]}"),
-            Text("num. continuous lines: ${_resultData.trajectory.numContinuousLines}"),
+            Text(
+                "num. continuous lines: ${_resultData.trajectory.numContinuousLines}"),
             Text("total time (ms): ${_resultData.trajectory.totalTime}"),
-            Text("pen drawing time (ms): ${_resultData.trajectory.drawingTime}"),
+            Text(
+                "pen drawing time (ms): ${_resultData.trajectory.drawingTime}"),
           ],
         ),
         Column(
@@ -256,15 +257,15 @@ class _ExperimentMainState extends State<ExperimentMain> {
             Text("number of samples: ${_resultData.imgEval.numTotalSamples}"),
             Text("samples inside object: ${insideSamples.toStringAsFixed(1)}%"),
             Text("pixels inside object: ${insidePixels.toStringAsFixed(1)}%"),
-            Text("num. boundary crossings ${_resultData.imgEval.numBoundaryCrossings}"),
-            Text("displ. canvas width (cm): ${_resultData.canvasWidth.toStringAsFixed(1)}"),
+            Text(
+                "num. boundary crossings ${_resultData.imgEval.numBoundaryCrossings}"),
+            Text(
+                "displ. canvas width (cm): ${_resultData.canvasWidth.toStringAsFixed(1)}"),
           ],
         ),
       ],
     );
   }
-
-  
 
   Widget _getCenter() {
     final expState = Provider.of<_ExperimentState>(context);
@@ -274,9 +275,7 @@ class _ExperimentMainState extends State<ExperimentMain> {
       );
     }
     if (expState.state == _ExperimentState.finished) {
-      return Center(
-        child: _resultImg
-      );
+      return Center(child: _resultImg);
     }
     return Stack(
       children: <Widget>[
@@ -296,111 +295,98 @@ class _ExperimentMainState extends State<ExperimentMain> {
     final expState = Provider.of<_ExperimentState>(context);
     // getting started?
     if (expState.state != _ExperimentState.finished) {
-      return Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          CupertinoButton(
-            onPressed: expState.state == _ExperimentState.init ? null : _actionReset,
-            child: Text("Reset"),
-          ),
-          CupertinoButton(
-            onPressed: expState.state != _ExperimentState.recording ? null : _actionDone,
-            child: Text("Done"),
-          ),
-        ]
-      );
+      return Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+        CupertinoButton(
+          onPressed:
+              expState.state == _ExperimentState.init ? null : _actionReset,
+          child: Text("Reset"),
+        ),
+        CupertinoButton(
+          onPressed:
+              expState.state != _ExperimentState.recording ? null : _actionDone,
+          child: Text("Done"),
+        ),
+      ]);
     }
     // are we done?
-    if (_dataSaved == _ActionState.done && (_dataUploaded == _ActionState.done || ! ResultData.nettskjemaConfigured())) {
-      return Row(
-        children: [
-          Expanded(
+    if (_dataSaved == _ActionState.done &&
+        (_dataUploaded == _ActionState.done ||
+            !ResultData.nettskjemaConfigured())) {
+      return Row(children: [
+        Expanded(
             child: CupertinoButton(
-              onPressed: () async {
-                  Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(
-                      builder: (context) => StartScreen(),
-                    )
-                  );
-                },
-              child: Text("Close"),
-            )
-          ),
-          Expanded(
+          onPressed: () async {
+            Navigator.of(context).pushReplacement(MaterialPageRoute(
+              builder: (context) => StartScreen(),
+            ));
+          },
+          child: Text("Close"),
+        )),
+        Expanded(
             child: CupertinoButton(
-              onPressed: () async {
-                Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(
-                    builder: (context) => DrawScreen(
-                      visitData: widget.visitData,
-                      objImg: widget.objImg,
-                      trialId: widget.trialId+1,
-                    ),
-                  )
-                );
-              },
-              child: Text("Next trial"),
-            )
-          )
-        ]
-      );
+          onPressed: () async {
+            Navigator.of(context).pushReplacement(MaterialPageRoute(
+              builder: (context) => DrawScreen(
+                visitData: widget.visitData,
+                objImg: widget.objImg,
+                trialId: widget.trialId + 1,
+              ),
+            ));
+          },
+          child: Text("Next trial"),
+        ))
+      ]);
     }
     List<Widget> r = [];
+    r.add(Expanded(
+        child: CupertinoButton(
+      onPressed: expState.state == _ExperimentState.init ? null : _actionReset,
+      child: Text("Reset"),
+    )));
     r.add(
       Expanded(
         child: CupertinoButton(
-          onPressed: expState.state == _ExperimentState.init ? null : _actionReset,
-          child: Text("Reset"),
-        )
-      )
-    );
-    r.add(
-      Expanded(
-        child: CupertinoButton(
-          onPressed: _dataSaved != _ActionState.init ? null : _actionSave,
-          child: () {
-            switch (_dataSaved) {
-              case _ActionState.init:
-                return Text("Save");
-                break;
-              case _ActionState.inprogress:
-                return Text("Saving");
-                break;
-              case _ActionState.done:
-                return Text("Saved");
-                break;
-            }
-            throw "err";
-          }()
-        ),
+            onPressed: _dataSaved != _ActionState.init ? null : _actionSave,
+            child: () {
+              switch (_dataSaved) {
+                case _ActionState.init:
+                  return Text("Save");
+                  break;
+                case _ActionState.inprogress:
+                  return Text("Saving");
+                  break;
+                case _ActionState.done:
+                  return Text("Saved");
+                  break;
+              }
+              throw "err";
+            }()),
       ),
     );
     if (ResultData.nettskjemaConfigured()) {
       r.add(
         Expanded(
           child: CupertinoButton(
-            onPressed: _dataUploaded != _ActionState.init ? null : _actionUpload,
-            child: () {
-              switch (_dataUploaded) {
-                case _ActionState.init:
-                  return Text("Upload");
-                  break;
-                case _ActionState.inprogress:
-                  return Text("Uploading");
-                  break;
-                case _ActionState.done:
-                  return Text("Uploaded");
-                  break;
-              }
-              throw "err";
-            }()
-          ),
+              onPressed:
+                  _dataUploaded != _ActionState.init ? null : _actionUpload,
+              child: () {
+                switch (_dataUploaded) {
+                  case _ActionState.init:
+                    return Text("Upload");
+                    break;
+                  case _ActionState.inprogress:
+                    return Text("Uploading");
+                    break;
+                  case _ActionState.done:
+                    return Text("Uploaded");
+                    break;
+                }
+                throw "err";
+              }()),
         ),
       );
     }
-    return Center(
-      child: Row(children: r)
-    );
+    return Center(child: Row(children: r));
   }
 
   void _actionDone() async {
@@ -418,8 +404,8 @@ class _ExperimentMainState extends State<ExperimentMain> {
         trajectory: _penTrajectory,
       ),
       trajectory: _penTrajectory,
-      canvasWidth: LcSettings().getDouble(LcSettings.SCREEN_WIDTH_CM_DBL)
-        * LcSettings().getDouble(LcSettings.RELATIVE_BOX_SIZE_DBL),
+      canvasWidth: LcSettings().getDouble(LcSettings.SCREEN_WIDTH_CM_DBL) *
+          LcSettings().getDouble(LcSettings.RELATIVE_BOX_SIZE_DBL),
     );
     _resultImg = Image.memory(img.encodePng(_resultData.imgEval.drawing));
     setState(() {
@@ -434,20 +420,22 @@ class _ExperimentMainState extends State<ExperimentMain> {
         title: Text("Reset drawing?"),
         actions: [
           CupertinoDialogAction(
-            isDefaultAction: false, 
+            isDefaultAction: false,
             child: Text("Reset"),
             isDestructiveAction: true,
             onPressed: () async {
               Navigator.of(context).pop();
-              Navigator.of(context).pushReplacement(
-                MaterialPageRoute(
-                  builder: (context) => DrawScreen(visitData: widget.visitData, objImg: widget.objImg, trialId: widget.trialId,),
-                )
-              );
+              Navigator.of(context).pushReplacement(MaterialPageRoute(
+                builder: (context) => DrawScreen(
+                  visitData: widget.visitData,
+                  objImg: widget.objImg,
+                  trialId: widget.trialId,
+                ),
+              ));
             },
           ),
           CupertinoDialogAction(
-            isDefaultAction: true, 
+            isDefaultAction: true,
             child: Text("Back"),
             isDestructiveAction: false,
             onPressed: () {
@@ -506,6 +494,7 @@ enum _ExpState {
   Finishing,
   Finished,
 }
+
 class _ExperimentState with ChangeNotifier {
   _ExpState _state = _ExpState.Init;
 
@@ -516,31 +505,23 @@ class _ExperimentState with ChangeNotifier {
     notifyListeners();
   }
 
-  static const _ExpState init      = _ExpState.Init;
+  static const _ExpState init = _ExpState.Init;
   static const _ExpState recording = _ExpState.Recording;
   static const _ExpState finishing = _ExpState.Finishing;
-  static const _ExpState finished  = _ExpState.Finished;
+  static const _ExpState finished = _ExpState.Finished;
 }
 
-
-enum _ActionState {
-  init,
-  inprogress,
-  done
-}
-
-
-
-
-
+enum _ActionState { init, inprogress, done }
 
 class _HomeAreaHelper {
   final Offset pos = Offset(
-     LcSettings().getInt(LcSettings.HOME_POS_X_INT).toDouble(),
-     LcSettings().getInt(LcSettings.HOME_POS_Y_INT).toDouble(),
+    LcSettings().getInt(LcSettings.HOME_POS_X_INT).toDouble(),
+    LcSettings().getInt(LcSettings.HOME_POS_Y_INT).toDouble(),
   );
-  final double innerRadius = LcSettings().getInt(LcSettings.HOME_INNER_RADIUS_INT).toDouble();
-  final double outerRadius = LcSettings().getInt(LcSettings.HOME_OUTER_RADIUS_INT).toDouble();
+  final double innerRadius =
+      LcSettings().getInt(LcSettings.HOME_INNER_RADIUS_INT).toDouble();
+  final double outerRadius =
+      LcSettings().getInt(LcSettings.HOME_OUTER_RADIUS_INT).toDouble();
 
   static const int stateInit = 0;
   static const int stateStarted = 1;
@@ -550,28 +531,26 @@ class _HomeAreaHelper {
 
   Widget getVis() {
     final color = () {
-      if (state == stateInit)        return Colors.red.withAlpha(64);
+      if (state == stateInit) return Colors.red.withAlpha(64);
       if (state == stateCompletable) return Colors.green.withAlpha(64);
       return Colors.transparent;
     }();
     return Positioned(
-      left: pos.dx,
-      top: pos.dy,
-      child: AnimatedSwitcher(
-        switchInCurve: Curves.easeInOutSine,
-        switchOutCurve: Curves.easeInOutSine,
-        duration: const Duration(milliseconds: 500),
-        transitionBuilder: (Widget child, Animation<double> animation) {
-          return ScaleTransition(child: child, scale: animation);
-        },
-        child: HomeArea(
-          key: ValueKey(state),
-          innerColor: color,
-          innerRadius: innerRadius,
-          outerRadius: outerRadius,
-        )
-      )
-    );
+        left: pos.dx,
+        top: pos.dy,
+        child: AnimatedSwitcher(
+            switchInCurve: Curves.easeInOutSine,
+            switchOutCurve: Curves.easeInOutSine,
+            duration: const Duration(milliseconds: 500),
+            transitionBuilder: (Widget child, Animation<double> animation) {
+              return ScaleTransition(child: child, scale: animation);
+            },
+            child: HomeArea(
+              key: ValueKey(state),
+              innerColor: color,
+              innerRadius: innerRadius,
+              outerRadius: outerRadius,
+            )));
   }
 
   bool isInner(final Offset o) {
@@ -581,13 +560,9 @@ class _HomeAreaHelper {
   bool isOuter(final Offset o) {
     return ((pos - o).distance < outerRadius);
   }
-
 }
 
-
 /*----------------------------------------------------------------------------*/
-
-
 
 class Painter extends StatefulWidget {
   final PainterController painterController;
@@ -595,12 +570,12 @@ class Painter extends StatefulWidget {
   final Function onPanUpdate;
   final Function onPanEnd;
 
-  Painter(PainterController painterController, {
+  Painter(
+    PainterController painterController, {
     @required this.onPanStart,
     @required this.onPanUpdate,
     @required this.onPanEnd,
-  })
-      : this.painterController = painterController,
+  })  : this.painterController = painterController,
         super(key: new ValueKey<PainterController>(painterController));
 
   @override
@@ -651,7 +626,8 @@ class _PainterState extends State<Painter> {
     Offset pos = (context.findRenderObject() as RenderBox)
         .globalToLocal(start.globalPosition);
     widget.onPanStart(pos);
-    if (Provider.of<_ExperimentState>(context).state == _ExperimentState.recording) {
+    if (Provider.of<_ExperimentState>(context).state ==
+        _ExperimentState.recording) {
       widget.painterController._pathHistory.add(pos);
       widget.painterController._notifyListeners();
     }
@@ -688,14 +664,6 @@ class _PainterPainter extends CustomPainter {
   }
 }
 
-
-
-
-
-
-
-
-
 class PictureDetails {
   final ui.Picture picture;
   final int width;
@@ -714,13 +682,11 @@ class PictureDetails {
   }
 }
 
-
 class _PathHistory {
   List<MapEntry<Path, Paint>> _paths;
   Paint currentPaint;
   Paint _backgroundPaint;
   bool _inDrag;
-
 
   _PathHistory() {
     _paths = new List<MapEntry<Path, Paint>>();
@@ -756,6 +722,7 @@ class _PathHistory {
   void updateCurrent(Offset nextPoint) {
     if (_inDrag) {
       Path path = _paths.last.key;
+      path.moveTo(nextPoint.dx, nextPoint.dy);
       path.lineTo(nextPoint.dx, nextPoint.dy);
     }
   }
