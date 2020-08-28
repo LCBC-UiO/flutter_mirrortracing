@@ -756,6 +756,7 @@ class _PathHistory {
   void updateCurrent(Offset nextPoint) {
     if (_inDrag) {
       Path path = _paths.last.key;
+      path.moveTo(nextPoint.dx, nextPoint.dy);
       path.lineTo(nextPoint.dx, nextPoint.dy);
     }
   }
