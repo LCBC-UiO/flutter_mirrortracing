@@ -52,3 +52,9 @@ https://stackoverflow.com/questions/55220612/how-to-save-a-text-file-in-external
 ```
 /sdcard/Android/data/com.example.mirrortask/files/
 ```
+### Building/releasing
+New devices needs to be added to the apple developer portal
+Then fastlane match needs to fetch the provisioning profile and update git repo and local keychain
+`bundle exec fastlane match development`
+Then from the ios folder: 
+`bundle exec fastlane firebase_ios`
