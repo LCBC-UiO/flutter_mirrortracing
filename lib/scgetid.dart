@@ -76,8 +76,8 @@ class _GetIdScreenState extends State<GetIdScreen> {
                 (
                   "Enter participant ID\n"
                   "${hint != "" ? "(" + hint + ")" : ""}"
-                ), 
-                style:  Theme.of(context).textTheme.subhead,
+                ),
+                style:  Theme.of(context).textTheme.subtitle1,
                 textAlign: TextAlign.center,
               ),
               divy_1,
@@ -93,7 +93,7 @@ class _GetIdScreenState extends State<GetIdScreen> {
   Widget _getUserIdTextField() {
     return CupertinoTextField(
       textAlign: TextAlign.center,
-      style: Theme.of(context).textTheme.display1,
+      style: Theme.of(context).textTheme.headline4,
       autofocus: true,
       onChanged: (v) async {
         if (!validUserIdChars.hasMatch(v)) {
@@ -116,8 +116,8 @@ class _GetIdScreenState extends State<GetIdScreen> {
             Navigator.of(context).pushReplacement(
               MaterialPageRoute(
                 builder: (context) => GetProjectIdScreen.getRoute(
-                  visitData: VisitData(userId: _userId), 
-                  objImg: objImg, 
+                  visitData: VisitData(userId: _userId),
+                  objImg: objImg,
                   trialId: 1,
                 ),
               )

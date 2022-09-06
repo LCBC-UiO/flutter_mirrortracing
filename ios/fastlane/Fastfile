@@ -34,7 +34,7 @@ platform :ios do
         firebase_app_distribution(
             app: firebase_app_id,
             testers: app_testers,
-            release_notes: "Second release!",
+            release_notes: "Flutter 2.8.1 release!",
         )
 
     end

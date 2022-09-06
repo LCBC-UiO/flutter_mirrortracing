@@ -7,7 +7,7 @@ import 'settings.dart';
 /*----------------------------------------------------------------------------*/
 
 class SetScreenWidthScreen extends StatefulWidget {
-  
+
   @override
   State<StatefulWidget> createState() => _SetScreenWidthScreenState();
 }
@@ -26,10 +26,10 @@ class _SetScreenWidthScreenState extends State<SetScreenWidthScreen> {
   Widget build(BuildContext context) {
     return LcScaffold(
       onNext: _onNext,
-      body: Column( 
+      body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text("Enter the width of the screens visible area (in cm):", style:  Theme.of(context).textTheme.subhead,),
+          Text("Enter the width of the screens visible area (in cm):", style:  Theme.of(context).textTheme.subtitle1,),
           divy_2,
           _getTextField(),
           divy_3,
@@ -41,7 +41,7 @@ class _SetScreenWidthScreenState extends State<SetScreenWidthScreen> {
   Widget _getTextField() {
     return CupertinoTextField(
       textAlign: TextAlign.center,
-      style: Theme.of(context).textTheme.display1,
+      style: Theme.of(context).textTheme.headline4,
       autofocus: true,
       onSubmitted: (v) async {
         final double value = double.tryParse(v);

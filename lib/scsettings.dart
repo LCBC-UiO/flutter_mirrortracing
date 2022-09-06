@@ -25,7 +25,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     return LcScaffold(
       body:  DefaultTextStyle(
-        style: theme.primaryTextTheme.subhead,
+        style: theme.primaryTextTheme.subtitle1,
         child: _SettingsList(),
       )
     );
@@ -163,7 +163,7 @@ class _Heading extends StatelessWidget {
     final ThemeData theme = Theme.of(context);
     return _OptionsItem(
       child: DefaultTextStyle(
-        style: theme.textTheme.body1.copyWith(
+        style: theme.textTheme.bodyText2.copyWith(
           fontFamily: 'GoogleSans',
           color: theme.accentColor,
         ),
@@ -238,7 +238,7 @@ class _FlatButton extends StatelessWidget {
       padding: EdgeInsets.zero,
       onPressed: onPressed,
       child: DefaultTextStyle(
-        style: Theme.of(context).textTheme.subhead,
+        style: Theme.of(context).textTheme.subtitle1,
         child: child,
       ),
     );
