@@ -13,6 +13,10 @@
 # Uncomment the line if you want fastlane to automatically update itself
 # update_fastlane
 
+firebase_app_id = "1:962139002233:ios:888ab0edb960d6a15f8ba8"
+app_testers ="iamlien@gmail.com, lcbc.app.dev@gmail.com"
+tester_udids_file = "tester_udids.txt"
+
 default_platform(:ios)
 
 platform :ios do
@@ -28,10 +32,37 @@ platform :ios do
         increment_build_number
         gym(export_method: "development")
         firebase_app_distribution(
-            app: "1:962139002233:ios:888ab0edb960d6a15f8ba8",
-            testers: "iamlien@gmail.com, lcbc.app.dev@gmail.com",
+            app: firebase_app_id,
+            testers: app_testers,
             release_notes: "Second release!",
         )
 
     end
+end
+
+
+platform :ios do
+    desc "Mirrortracing adhoc"
+    lane :firebase_ios_adhoc do
+        increment_build_number
+        match(type: "adhoc")
+        gym(export_method: "ad-hoc")
+        firebase_app_distribution(
+            app: firebase_app_id,
+            testers: app_testers,
+            release_notes: "Ad-hoc release!",
+        )
+
+    end
+end
+
+lane :download_udids do
+    firebase_app_distribution_get_udids(
+        app: firebase_app_id,
+        output_file: tester_udids_file,
+    )
+end
+
+lane :add_new_devices do
+    register_devices(devices_file: tester_udids_file)
 end
