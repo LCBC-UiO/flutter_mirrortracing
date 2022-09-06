@@ -31,7 +31,7 @@ class DrawScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-        builder: (context) => _ExperimentState(),
+        create: (context) => _ExperimentState(),
         child: LcScaffold(
         actions: <Widget>[
           LcScaffold.getActionReset(context)
@@ -69,7 +69,7 @@ class ExperimentMain extends StatefulWidget {
       children: [
         Expanded(
           child: top ?? Text(""),
-        ), 
+        ),
         Center(
           child: Container(
             decoration: BoxDecoration(
@@ -264,7 +264,7 @@ class _ExperimentMainState extends State<ExperimentMain> {
     );
   }
 
-  
+
 
   Widget _getCenter() {
     final expState = Provider.of<_ExperimentState>(context);
@@ -434,7 +434,7 @@ class _ExperimentMainState extends State<ExperimentMain> {
         title: Text("Reset drawing?"),
         actions: [
           CupertinoDialogAction(
-            isDefaultAction: false, 
+            isDefaultAction: false,
             child: Text("Reset"),
             isDestructiveAction: true,
             onPressed: () async {
@@ -447,7 +447,7 @@ class _ExperimentMainState extends State<ExperimentMain> {
             },
           ),
           CupertinoDialogAction(
-            isDefaultAction: true, 
+            isDefaultAction: true,
             child: Text("Back"),
             isDestructiveAction: false,
             onPressed: () {

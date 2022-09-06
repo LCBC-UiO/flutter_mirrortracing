@@ -22,7 +22,7 @@ dependencies:
   shared_preferences:
   image:
   path_provider:
-  provider:
+  provider: ^5.0.0
   sqflite:
   flutter_launcher_icons:
   nettskjema:
@@ -84,6 +84,6 @@ flutter:
   # see https://flutter.dev/custom-fonts/#from-packages
 
 flutter_icons:
-  android: "launcher_icon" 
+  android: "launcher_icon"
   ios: true
   image_path: "assets_src/appicon.png"
