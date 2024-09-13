@@ -53,7 +53,7 @@ https://stackoverflow.com/questions/55220612/how-to-save-a-text-file-in-external
 /sdcard/Android/data/com.example.mirrortask/files/
 ```
 ### Building/releasing
-Currently builds on flutter version 2.8.1 / Dart 2.15.1
+Currently builds on flutter version 2.10.5 / Dart 2.16.2 / cocoapods 1.15.2
 
 - New devices needs to be added to the apple developer portal
 - Fastlane match needs to fetch the provisioning profile and update git repo and local keychain:  

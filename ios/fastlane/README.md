@@ -15,6 +15,19 @@ Install _fastlane_ using
 or alternatively using `brew install fastlane`
 
 # Available Actions
+### download_udids
+```
+fastlane download_udids
+```
+
+### add_new_devices
+```
+fastlane add_new_devices
+```
+
+
+----
+
 ## iOS
 ### ios beta
 ```
@@ -26,6 +39,11 @@ Description of what the lane does
 fastlane ios firebase_ios
 ```
 Mirrortracing
+### ios firebase_ios_adhoc
+```
+fastlane ios firebase_ios_adhoc
+```
+Mirrortracing adhoc
 
 ----
 

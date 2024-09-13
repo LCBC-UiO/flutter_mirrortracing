@@ -25,6 +25,7 @@ dependencies:
   provider: ^5.0.0
   sqflite:
   flutter_launcher_icons:
+  http: <0.13.0
   nettskjema:
     git:
       url: https://github.com/LCBC-UiO/dart_nettskjema
