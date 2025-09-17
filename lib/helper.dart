@@ -27,16 +27,16 @@ String enumToString(final o) => o.toString().split('.').last;
 /*----------------------------------------------------------------------------*/
 
 class LcScaffold extends StatelessWidget {
-  final Widget body;
+  final Widget? body;
   final List<Widget> actions;
-  final Function onNext;
-  final Function onPrev;
+  final VoidCallback? onNext;
+  final VoidCallback? onPrev;
   final Widget iconPrev;
   final Widget iconNext;
 
   LcScaffold({
     this.body,
-    this.actions: const [],
+    this.actions = const [],
     this.onNext,
     this.onPrev,
     this.iconNext = const Icon(Icons.navigate_next),
@@ -94,54 +94,31 @@ class LcScaffold extends StatelessWidget {
 
   Widget _getButtonRow(context) {
     // "next"-button
-    Widget nextButton;
-    if (onNext != null) {
-      nextButton = FloatingActionButton(
-        onPressed: onNext,
-        child: iconNext,
-        backgroundColor: Theme.of(context).primaryColor,
-        foregroundColor: Theme.of(context).canvasColor,
-      );
-    }
-    // "prev"-button
-    Widget prevButton;
-    if (onPrev != null) {
-      prevButton = FloatingActionButton(
-        onPressed: onPrev,
-        child: iconPrev,
-        backgroundColor: Theme.of(context).primaryColor,
-        foregroundColor: Theme.of(context).canvasColor,
-        heroTag: 'prev',
-      );
-    }
-    Widget buttonRow;
-    if (nextButton != null && prevButton != null) {
-      buttonRow = Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          prevButton,
-          nextButton
-        ],
-      );
-    } else if (nextButton != null) {
-      buttonRow = Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          nextButton,
-        ],
-      );
-    } else if (prevButton != null) {
-      buttonRow = Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          prevButton,
-        ],
-      );
-    }
-    return buttonRow != null ? Padding(
+    final Widget nextButton = FloatingActionButton(
+      onPressed: onNext,
+      child: iconNext,
+      backgroundColor: Theme.of(context).primaryColor,
+      foregroundColor: Theme.of(context).canvasColor,
+    );
+      // "prev"-button
+    final Widget prevButton = FloatingActionButton(
+      onPressed: onPrev,
+      child: iconPrev,
+      backgroundColor: Theme.of(context).primaryColor,
+      foregroundColor: Theme.of(context).canvasColor,
+      heroTag: 'prev',
+    );
+    final Widget buttonRow = Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        prevButton,
+        nextButton
+      ],
+    );
+    return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10),
         child: buttonRow,
-      ) : null;
+      );
   }
 }
 
@@ -149,7 +126,7 @@ class LcScaffold extends StatelessWidget {
 
 class _CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
-  final List<Widget> actions;
+  final List<Widget>? actions;
 
   _CustomAppBar({
     this.actions

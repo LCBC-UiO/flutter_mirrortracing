@@ -1,18 +1,18 @@
-import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:mirrortask/scinit.dart';
 
 /*----------------------------------------------------------------------------*/
 
-void main() async { 
+void main() { 
   runApp(
-    MirrorTracingApp()
+    const MirrorTracingApp()
   );
 }
 
 /*----------------------------------------------------------------------------*/
 
 class MirrorTracingApp extends StatelessWidget {
+  const MirrorTracingApp({super.key});
   @override
   Widget build(BuildContext context) {
     return MaterialApp(

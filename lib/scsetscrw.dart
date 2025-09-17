@@ -7,7 +7,7 @@ import 'settings.dart';
 /*----------------------------------------------------------------------------*/
 
 class SetScreenWidthScreen extends StatefulWidget {
-
+  const SetScreenWidthScreen({super.key});
   @override
   State<StatefulWidget> createState() => _SetScreenWidthScreenState();
 }
@@ -15,7 +15,7 @@ class SetScreenWidthScreen extends StatefulWidget {
 /*----------------------------------------------------------------------------*/
 
 class _SetScreenWidthScreenState extends State<SetScreenWidthScreen> {
-  Function _onNext;
+  VoidCallback? _onNext;
 
   @override
   void dispose() {
@@ -29,7 +29,7 @@ class _SetScreenWidthScreenState extends State<SetScreenWidthScreen> {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text("Enter the width of the screens visible area (in cm):", style:  Theme.of(context).textTheme.subtitle1,),
+          Text("Enter the width of the screens visible area (in cm):", style:  Theme.of(context).textTheme.titleMedium,),
           divy_2,
           _getTextField(),
           divy_3,
@@ -41,13 +41,13 @@ class _SetScreenWidthScreenState extends State<SetScreenWidthScreen> {
   Widget _getTextField() {
     return CupertinoTextField(
       textAlign: TextAlign.center,
-      style: Theme.of(context).textTheme.headline4,
+      style: Theme.of(context).textTheme.headlineMedium,
       autofocus: true,
       onSubmitted: (v) async {
-        final double value = double.tryParse(v);
+        final double? value = double.tryParse(v);
         bool ok = true;
         ok = ok && (value != null);
-        ok = ok && (value >= 5);
+        ok = ok && (value! >= 5);
         ok = ok && (value <= 50);
         if (!ok) {
           return;
@@ -71,6 +71,5 @@ class _SetScreenWidthScreenState extends State<SetScreenWidthScreen> {
     );
   }
 }
-
 
 

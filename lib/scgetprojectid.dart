@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:mirrortask/helper.dart';
 import 'package:mirrortask/settings.dart';
 import 'package:crypto/crypto.dart';
@@ -19,17 +18,18 @@ class GetProjectIdScreen extends StatefulWidget {
   final ObjImg objImg;
   final int trialId;
 
-  GetProjectIdScreen({
-    @required this.visitData,
-    @required this.objImg,
-    @required this.trialId,
+  const GetProjectIdScreen({
+    super.key,
+    required this.visitData,
+    required this.objImg,
+    required this.trialId,
   });
 
   // skip this page if no projects are configured
   static Widget getRoute({
-    @required VisitData visitData,
-    @required ObjImg objImg,
-    @required int trialId,
+    required VisitData visitData,
+    required ObjImg objImg,
+    required int trialId,
   }) {
     if (LcSettings().getStrList(LcSettings.PROJECT_IDS_STRLIST).isEmpty) {
       visitData.projectId = "NA";
@@ -93,9 +93,9 @@ class _GetProjectIdScreenState extends State<GetProjectIdScreen> {
                     widthFactor: 2/3,
                     child: ListView.builder(
                       shrinkWrap: true,
-                      itemCount: snapshot.data.length,
+                      itemCount: snapshot.data!.length,
                       itemBuilder: (_, index) {
-                        final String projectName = snapshot.data[index];
+                        final String projectName = snapshot.data![index];
                         final List<int> bytes = md5.convert(utf8.encode(projectName)).bytes.sublist(0, 4);
                         final int sum = bytes.fold(0, (p, c) => (p + c));
                         return Card(
@@ -133,9 +133,9 @@ class _GetProjectIdScreenState extends State<GetProjectIdScreen> {
   }
 
 
-  Function _getConfirmDelete(String profileName) {
+  Future<bool?> Function(DismissDirection) _getConfirmDelete(String profileName) {
     return (DismissDirection direction) async {
-      final bool res = await showDialog(
+      final bool? res = await showDialog<bool>(
         context: context,
         builder: (BuildContext context) {
           return CupertinoAlertDialog(

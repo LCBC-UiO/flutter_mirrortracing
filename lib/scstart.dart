@@ -4,7 +4,6 @@ import 'package:mirrortask/helper.dart';
 import 'package:mirrortask/scselectcfg.dart';
 import 'package:mirrortask/settings.dart';
 
-import 'scgetid.dart';
 import 'scsettings.dart';
 import 'sctestnettskjema.dart';
 

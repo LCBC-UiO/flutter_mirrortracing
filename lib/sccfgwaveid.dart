@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:mirrortask/helper.dart';
 import 'package:mirrortask/settings.dart';
 import 'package:crypto/crypto.dart';
@@ -9,6 +8,7 @@ import 'package:crypto/crypto.dart';
 /*----------------------------------------------------------------------------*/
 
 class ConfigureWaveIdsScreen extends StatefulWidget {
+  const ConfigureWaveIdsScreen({super.key});
   @override
   _ConfigureWaveIdsScreenState createState() => _ConfigureWaveIdsScreenState();
 }
@@ -32,14 +32,12 @@ class _ConfigureWaveIdsScreenState extends State<ConfigureWaveIdsScreen> {
             ),
           )
         );
-        if (waveId != null) {
-          Set<String> waveIds = LcSettings().getStrList(LcSettings.WAVE_IDS_STRLIST).toSet();
-          waveIds.add(waveId);
-          await LcSettings().setStrList(LcSettings.WAVE_IDS_STRLIST, waveIds.toList());
-          setState(() {
-          });
-        }
-      },
+        Set<String> waveIds = LcSettings().getStrList(LcSettings.WAVE_IDS_STRLIST).toSet();
+        waveIds.add(waveId);
+        await LcSettings().setStrList(LcSettings.WAVE_IDS_STRLIST, waveIds.toList());
+        setState(() {
+        });
+            },
       iconNext: Icon(Icons.add),
       body: FutureBuilder<List<String>>(
         future: () async {
@@ -70,9 +68,9 @@ class _ConfigureWaveIdsScreenState extends State<ConfigureWaveIdsScreen> {
                     widthFactor: 2/3,
                     child: ListView.builder(
                       shrinkWrap: true,
-                      itemCount: snapshot.data.length,
+                      itemCount: snapshot.data!.length,
                       itemBuilder: (_, index) {
-                        final String waveId = snapshot.data[index];
+                        final String waveId = snapshot.data![index];
                         final List<int> bytes = md5.convert(utf8.encode(waveId)).bytes.sublist(0, 4);
                         final int sum = bytes.fold(0, (p, c) => (p + c));
                         return Dismissible(
@@ -80,7 +78,7 @@ class _ConfigureWaveIdsScreenState extends State<ConfigureWaveIdsScreen> {
                           onDismissed: (e) async {
                             Set<String> waveIds = LcSettings().getStrList(LcSettings.WAVE_IDS_STRLIST).toSet();
                             waveIds.remove(waveId);
-                            snapshot.data.remove(waveId);
+                            snapshot.data!.remove(waveId);
                             await LcSettings().setStrList(LcSettings.WAVE_IDS_STRLIST, waveIds.toList());
                             setState(() {
                             });
@@ -111,9 +109,9 @@ class _ConfigureWaveIdsScreenState extends State<ConfigureWaveIdsScreen> {
   }
 
 
-  Function _getConfirmDelete(String waveId) {
+  Future<bool?> Function(DismissDirection) _getConfirmDelete(String waveId) {
     return (DismissDirection direction) async {
-      final bool res = await showDialog(
+      final bool? res = await showDialog<bool>(
         context: context,
         builder: (BuildContext context) {
           return CupertinoAlertDialog(

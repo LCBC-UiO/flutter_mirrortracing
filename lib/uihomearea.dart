@@ -1,7 +1,6 @@
 
 
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class HomeArea extends StatelessWidget {
@@ -11,12 +10,12 @@ class HomeArea extends StatelessWidget {
   final double outerRadius;
 
   HomeArea({
-    Key key,
-    innerColor,
+    Key? key,
+    Color? innerColor,
     this.outerColor = Colors.transparent,
-    @required this.innerRadius,
-    @required this.outerRadius,
-  }) : this.innerColor = innerColor ?? Colors.green.withAlpha(64), super(key: key);
+    required this.innerRadius,
+    required this.outerRadius,
+  }) : innerColor = innerColor ?? Colors.green.withAlpha(64), super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -34,14 +33,12 @@ class _FinishAreaCircle extends CustomPainter {
   final double width;
   final Color color;
 
-  Paint _paint;
+  late final Paint _paint = Paint()
+    ..color = color
+    ..strokeWidth = 10.0
+    ..style = PaintingStyle.fill;
 
-  _FinishAreaCircle({@required this.width, @required this.color}) {
-    _paint = Paint()
-      ..color = color
-      ..strokeWidth = 10.0
-      ..style = PaintingStyle.fill;
-  }
+  _FinishAreaCircle({required this.width, required this.color});
 
   @override
   void paint(Canvas canvas, Size size) {

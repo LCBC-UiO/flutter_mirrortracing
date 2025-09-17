@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:mirrortask/helper.dart';
 import 'package:mirrortask/settings.dart';
 import 'package:crypto/crypto.dart';
@@ -9,6 +8,7 @@ import 'package:crypto/crypto.dart';
 /*----------------------------------------------------------------------------*/
 
 class ConfigureProjectIdsScreen extends StatefulWidget {
+  const ConfigureProjectIdsScreen({super.key});
   @override
   _ConfigureProjectIdsScreenState createState() => _ConfigureProjectIdsScreenState();
 }
@@ -32,14 +32,12 @@ class _ConfigureProjectIdsScreenState extends State<ConfigureProjectIdsScreen> {
             ),
           )
         );
-        if (projectName != null) {
-          Set<String> projects = LcSettings().getStrList(LcSettings.PROJECT_IDS_STRLIST).toSet();
-          projects.add(projectName);
-          await LcSettings().setStrList(LcSettings.PROJECT_IDS_STRLIST, projects.toList());
-          setState(() {
-          });
-        }
-      },
+        Set<String> projects = LcSettings().getStrList(LcSettings.PROJECT_IDS_STRLIST).toSet();
+        projects.add(projectName);
+        await LcSettings().setStrList(LcSettings.PROJECT_IDS_STRLIST, projects.toList());
+        setState(() {
+        });
+            },
       iconNext: Icon(Icons.add),
       body: FutureBuilder<List<String>>(
         future: () async {
@@ -70,9 +68,9 @@ class _ConfigureProjectIdsScreenState extends State<ConfigureProjectIdsScreen> {
                     widthFactor: 2/3,
                     child: ListView.builder(
                       shrinkWrap: true,
-                      itemCount: snapshot.data.length,
+                      itemCount: snapshot.data!.length,
                       itemBuilder: (_, index) {
-                        final String projectName = snapshot.data[index];
+                        final String projectName = snapshot.data![index];
                         final List<int> bytes = md5.convert(utf8.encode(projectName)).bytes.sublist(0, 4);
                         final int sum = bytes.fold(0, (p, c) => (p + c));
                         return Dismissible(
@@ -80,7 +78,7 @@ class _ConfigureProjectIdsScreenState extends State<ConfigureProjectIdsScreen> {
                           onDismissed: (e) async {
                             Set<String> projects = LcSettings().getStrList(LcSettings.PROJECT_IDS_STRLIST).toSet();
                             projects.remove(projectName);
-                            snapshot.data.remove(projectName);
+                            snapshot.data!.remove(projectName);
                             await LcSettings().setStrList(LcSettings.PROJECT_IDS_STRLIST, projects.toList());
                             setState(() {
                             });
@@ -111,9 +109,9 @@ class _ConfigureProjectIdsScreenState extends State<ConfigureProjectIdsScreen> {
   }
 
 
-  Function _getConfirmDelete(String projName) {
+  Future<bool?> Function(DismissDirection) _getConfirmDelete(String projName) {
     return (DismissDirection direction) async {
-      final bool res = await showDialog(
+      final bool? res = await showDialog<bool>(
         context: context,
         builder: (BuildContext context) {
           return CupertinoAlertDialog(

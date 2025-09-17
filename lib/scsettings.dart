@@ -12,6 +12,7 @@ import 'scsetsize.dart';
 /*----------------------------------------------------------------------------*/
 
 class SettingsScreen extends StatefulWidget {
+  const SettingsScreen({super.key});
   @override
   State<StatefulWidget> createState() => _SettingsScreenState();
 }
@@ -25,7 +26,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     return LcScaffold(
       body:  DefaultTextStyle(
-        style: theme.primaryTextTheme.subtitle1,
+        style: theme.primaryTextTheme.titleMedium ?? const TextStyle(),
         child: _SettingsList(),
       )
     );
@@ -44,7 +45,7 @@ class _SettingsList extends StatelessWidget {
           () {
             Navigator.of(context).push(
               MaterialPageRoute(
-                builder: (context) => ConfigureProjectIdsScreen(),
+                builder: (context) => const ConfigureProjectIdsScreen(),
               )
             );
           }
@@ -54,7 +55,7 @@ class _SettingsList extends StatelessWidget {
           () {
             Navigator.of(context).push(
               MaterialPageRoute(
-                builder: (context) => ConfigureWaveIdsScreen(),
+                builder: (context) => const ConfigureWaveIdsScreen(),
               )
             );
           }
@@ -64,7 +65,7 @@ class _SettingsList extends StatelessWidget {
           () {
             Navigator.of(context).push(
               MaterialPageRoute(
-                builder: (context) => SetSizeScreen(),
+                builder: (context) => const SetSizeScreen(),
               )
             );
           }
@@ -74,7 +75,7 @@ class _SettingsList extends StatelessWidget {
           () {
             Navigator.of(context).push(
               MaterialPageRoute(
-                builder: (context) => SetHomeAreaPositionScreen(),
+                builder: (context) => const SetHomeAreaPositionScreen(),
               )
             );
           }
@@ -91,20 +92,20 @@ class _SettingsList extends StatelessWidget {
                   controller: TextEditingController(text: LcSettings().getInt(LcSettings.NETTSKJEMA_ID_INT).toString()),
                   autofocus: true,
                   onSubmitted: (v) async {
-                    final nettskjemaId = int.tryParse(v);
+                    final nettskjemaId = int.tryParse(v) ?? -1;
                     try {
                       await ResultData.testNettskjema(nettskjemaId);
                     } catch (e) {
                       msg = "Error: ${e.toString()}";
                     }
-                    await LcSettings().setInt(LcSettings.NETTSKJEMA_ID_INT, int.tryParse(v));
+                    await LcSettings().setInt(LcSettings.NETTSKJEMA_ID_INT, int.tryParse(v) ?? -1);
                     Navigator.pop(context);
                   },
                 ),
               )
             );
             final snackBar = SnackBar(content: Text(msg));
-            Scaffold.of(context).showSnackBar(snackBar);
+            ScaffoldMessenger.of(context).showSnackBar(snackBar);
             print(msg);
           }
         ),
@@ -163,9 +164,9 @@ class _Heading extends StatelessWidget {
     final ThemeData theme = Theme.of(context);
     return _OptionsItem(
       child: DefaultTextStyle(
-        style: theme.textTheme.bodyText2.copyWith(
+        style: (theme.textTheme.bodyMedium ?? const TextStyle()).copyWith(
           fontFamily: 'GoogleSans',
-          color: theme.accentColor,
+          color: theme.colorScheme.secondary,
         ),
         child: Semantics(
           child: Text(text),
@@ -181,7 +182,7 @@ const double _kItemHeight = 48.0;
 const EdgeInsetsDirectional _kItemPadding = EdgeInsetsDirectional.only(start: 56.0);
 
 class _OptionsItem extends StatelessWidget {
-  const _OptionsItem({ Key key, this.child }) : super(key: key);
+  const _OptionsItem({ Key? key, required this.child }) : super(key: key);
 
   final Widget child;
 
@@ -218,27 +219,24 @@ class _ActionItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _OptionsItem(
-      child: _FlatButton(
-        onPressed: onTap,
-        child: Text(text),
-      ),
+      child: _FlatButton(onPressed: onTap, child: Text(text)),
     );
   }
 }
 
 class _FlatButton extends StatelessWidget {
-  const _FlatButton({ Key key, this.onPressed, this.child }) : super(key: key);
+  const _FlatButton({ Key? key, required this.onPressed, required this.child }) : super(key: key);
 
   final VoidCallback onPressed;
   final Widget child;
 
   @override
   Widget build(BuildContext context) {
-    return FlatButton(
-      padding: EdgeInsets.zero,
+    return TextButton(
+      style: TextButton.styleFrom(padding: EdgeInsets.zero),
       onPressed: onPressed,
       child: DefaultTextStyle(
-        style: Theme.of(context).textTheme.subtitle1,
+        style: Theme.of(context).textTheme.titleMedium ?? const TextStyle(),
         child: child,
       ),
     );

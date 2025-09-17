@@ -1,8 +1,6 @@
 /*----------------------------------------------------------------------------*/
 
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter/widgets.dart';
 import 'package:mirrortask/scgetid.dart';
 import 'package:mirrortask/scstart.dart';
 import 'helper.dart';
@@ -12,12 +10,13 @@ import 'settings.dart';
 class TestNettskjemaScreen extends StatefulWidget {
   final double screenWidth;
 
-  TestNettskjemaScreen({
-    @required this.screenWidth
+  const TestNettskjemaScreen({
+    required this.screenWidth,
+    super.key,
   });
 
   // forward to next screen if no id is configured
-  static Widget getRoute({@required double screenWidth}) {
+  static Widget getRoute({required double screenWidth}) {
     if (LcSettings().getInt(LcSettings.NETTSKJEMA_ID_INT) < 0) {
       return GetIdScreen( screenWidth: screenWidth );
     }
@@ -35,8 +34,8 @@ enum _Status {
 }
 
 class _TestNettskjemaScreenState extends State<TestNettskjemaScreen> {
-  _Status status;
-  String msg;
+  late _Status status;
+  late String msg;
 
   @override
   void initState() {
@@ -99,7 +98,7 @@ class _TestNettskjemaScreenState extends State<TestNettskjemaScreen> {
                             return _getIcon(Icons.check, Colors.green);
                             break;
                         }
-                        return null;
+                        return const SizedBox.shrink();
                       }(),
                       divy_2,
                       Text(msg)

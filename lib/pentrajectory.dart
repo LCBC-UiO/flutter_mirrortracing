@@ -3,8 +3,8 @@ import 'package:flutter/foundation.dart';
 /*----------------------------------------------------------------------------*/
 
 class PenTrajectory {
-  List<List<_PenTrajectoryElement>> _t = [];
-  DateTime _startTime;
+  final List<List<_PenTrajectoryElement>> _t = [];
+  DateTime? _startTime;
 
   void newLine() => _t.add([]);
 
@@ -15,7 +15,7 @@ class PenTrajectory {
       _PenTrajectoryElement(
         posX: x.round(), 
         posY: y.round(),
-        timeMs: now.difference(_startTime).inMilliseconds,
+        timeMs: now.difference(_startTime!).inMilliseconds,
       )
     );
   }
@@ -57,8 +57,8 @@ class _PenTrajectoryElement{
   final int timeMs;
 
   _PenTrajectoryElement({
-    @required this.posX,
-    @required this.posY,
-    @required this.timeMs,
+    required this.posX,
+    required this.posY,
+    required this.timeMs,
   });
 }

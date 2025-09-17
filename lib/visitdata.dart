@@ -6,6 +6,6 @@ class VisitData {
   String waveId = "";
 
   VisitData({
-    @required this.userId
+    required this.userId
   });
 }

@@ -8,6 +8,7 @@ import 'package:mirrortask/settings.dart';
 /*----------------------------------------------------------------------------*/
 
 class InitScreen extends StatefulWidget {
+  const InitScreen({super.key});
 
   @override
   InitScreenState createState() => InitScreenState();

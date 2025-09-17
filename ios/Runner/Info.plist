@@ -19,7 +19,7 @@
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>9</string>
+	<string>15</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
@@ -44,6 +44,10 @@
 	<key>LSSupportsOpeningDocumentsInPlace</key>
 	<true/>
 	<key>UIFileSharingEnabled</key>
+	<true/>
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
+	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 </dict>
 </plist>
