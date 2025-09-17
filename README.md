@@ -53,7 +53,8 @@ https://stackoverflow.com/questions/55220612/how-to-save-a-text-file-in-external
 /sdcard/Android/data/com.example.mirrortask/files/
 ```
 ### Building/releasing
-Currently builds on flutter version 2.10.5 / Dart 2.16.2 / cocoapods 1.15.2
+Currently builds on flutter version 3.24.3 / Dart 3.5.3 / cocoapods 1.16.2
+Avoid fastlane issues by using an updated ruby version 3.4.5 works with the above. 
 
 - New devices needs to be added to the apple developer portal
 - Fastlane match needs to fetch the provisioning profile and update git repo and local keychain:  

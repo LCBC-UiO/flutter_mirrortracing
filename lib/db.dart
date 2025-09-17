@@ -4,15 +4,15 @@ import 'package:path/path.dart';
 /*----------------------------------------------------------------------------*/
 
 class LcDb {
-  Database _db;
-  Set<DbListener> _listeners = Set<DbListener>();
+  late Database _db;
+  final Set<DbListener> _listeners = <DbListener>{};
 
   void addListener(final DbListener l) {
     _listeners.add(l);
   }
 
   Future<void> init() async {
-    _db ??= await openDatabase(
+    _db = await openDatabase(
       join(await getDatabasesPath(), 'sqlite.db'),
       version: 1,
     );
@@ -21,7 +21,7 @@ class LcDb {
     }
   }
 
-  Database db() => this._db;
+  Database db() => _db;
 
   static final LcDb _singleton = new LcDb._internal();
 

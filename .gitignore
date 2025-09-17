@@ -73,9 +73,11 @@
 !**/ios/**/default.perspectivev3
 !/packages/flutter_tools/test/data/dart_dependencies_test/**/.packages
 
-
 .flutter-plugins-dependencies
 ios/Runner.app.dSYM.zip
 ios/Runner.ipa
 ios/tester_udids.txt
 ios/fastlane/report.xml
+
+# FVM Version Cache
+.fvm/

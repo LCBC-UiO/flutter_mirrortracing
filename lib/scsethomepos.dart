@@ -1,6 +1,4 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:mirrortask/scsethomesize.dart';
 import 'helper.dart';
 import 'scdraw.dart';
@@ -10,6 +8,7 @@ import 'uihomearea.dart';
 /*----------------------------------------------------------------------------*/
 
 class SetHomeAreaPositionScreen extends StatefulWidget {
+  const SetHomeAreaPositionScreen({super.key});
   @override
   State<StatefulWidget> createState() => _SetHomeAreaPositionScreenState();
 }
@@ -20,10 +19,10 @@ class _SetHomeAreaPositionScreenState extends State<SetHomeAreaPositionScreen> {
   final double _boxSize = LcSettings().getDouble(LcSettings.RELATIVE_BOX_SIZE_DBL);
   final double _objSize = LcSettings().getDouble(LcSettings.RELATIVE_OBJECT_SIZE_DBL);
 
-  double _homeX;
-  double _homeY;
-  double _homeInnerRadius;
-  double _homeOuterRadius;
+  late double _homeX;
+  late double _homeY;
+  late double _homeInnerRadius;
+  late double _homeOuterRadius;
 
   @override
   void initState() {

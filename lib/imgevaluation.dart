@@ -1,5 +1,6 @@
 import 'dart:isolate';
 import 'dart:typed_data';
+import 'dart:ui' as ui;
 import 'package:image/image.dart' as img;
 import 'package:flutter/material.dart';
 import 'package:mirrortask/scdraw.dart';
@@ -16,22 +17,22 @@ class ImgEvaluation {
   final int numBoundaryCrossings;
 
   ImgEvaluation({
-    @required this.drawing,
-    @required this.numTotalSamples,
-    @required this.numOutsideSamples,
-    @required this.numTotalPixels,
-    @required this.numOutsidePixels,
-    @required this.numBoundaryCrossings,
+    required this.drawing,
+    required this.numTotalSamples,
+    required this.numOutsideSamples,
+    required this.numTotalPixels,
+    required this.numOutsidePixels,
+    required this.numBoundaryCrossings,
   });
 
   static Future<ImgEvaluation> calculate({
-    @required img.Image objMask,
-    @required img.Image objBoudary,
-    @required PictureDetails drawing,
-    @required PenTrajectory trajectory,
+    required img.Image objMask,
+    required img.Image objBoudary,
+    required PictureDetails drawing,
+    required PenTrajectory trajectory,
     }) async {
       ReceivePort receivePort = ReceivePort();
-      final ByteData drawingBytes = (await (await drawing.toImage()).toByteData());
+      final ByteData drawingBytes = (await (await drawing.toImage()).toByteData(format: ui.ImageByteFormat.rawRgba))!;
       final param = _IsolateParam(
         receivePort.sendPort,
         drawingBytes,
@@ -94,7 +95,7 @@ void _calcResultImage(_IsolateParam param) {
   int numTotalSamples = 0;
   int numOutsideSamples = 0;
   int numBoundaryCrossings = 0;
-  bool lastIsInside;
+  bool? lastIsInside;
   for (int k = 0; k < t.length; k++) {
     for (int l = 0; l < t[k].length; l++) {
       final i = t[k][l].posX;

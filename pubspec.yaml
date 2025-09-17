@@ -14,28 +14,26 @@ description: Record and evaluate a mirror tracing test.
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.1.0 <3.0.0"
+  sdk: ">=3.0.0 <4.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
-  shared_preferences:
-  image:
-  path_provider:
-  provider: ^5.0.0
-  sqflite:
-  flutter_launcher_icons:
-  http: <0.13.0
-  nettskjema:
-    git:
-      url: https://github.com/LCBC-UiO/dart_nettskjema
-  intl:
-  path:
+  shared_preferences: ^2.2.3
+  image: ^3.3.0
+  path_provider: ^2.1.4
+  provider: ^6.1.2
+  sqflite: ^2.3.3+1
+  flutter_launcher_icons: ^0.11.0
+  http: ^1.2.2
+  collection: ^1.18.0
+  intl: ^0.19.0
+  path: ^1.9.0
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^0.1.2
-
+  cupertino_icons: ^1.0.8
+  crypto: ^3.0.5
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -45,6 +43,7 @@ dev_dependencies:
 # following page: https://dart.dev/tools/pub/pubspec
 
 # The following section is specific to Flutter.
+  args: ^2.6.0
 flutter:
 
   # The following line ensures that the Material Icons font is

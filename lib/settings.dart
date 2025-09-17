@@ -6,9 +6,9 @@ import 'db.dart';
 /*----------------------------------------------------------------------------*/
 
 class LcSettings implements DbListener {
-  Set<String> _keys = Set();
-  String _projectName;
-  Map<String, String> _projectSettings;
+  final Set<String> _keys = <String>{};
+  late String _projectName;
+  Map<String, String> _projectSettings = <String, String>{};
 
   static const String RANDOM_32_STR            = "RANDOM_32_STR";
   static const String OBJECT_PATH_STR          = "OBJECT_PATH_STR";
@@ -27,7 +27,7 @@ class LcSettings implements DbListener {
 
 
   Future<void> init(String projectName) async {
-    this._projectName = projectName;
+    _projectName = projectName;
     _keys.clear();
     _projectSettings = await _readFromDb(projectName);
     await _initValueStr(RANDOM_32_STR, await _generateRandom32());
@@ -39,8 +39,8 @@ class LcSettings implements DbListener {
     await _initValueInt(HOME_POS_Y_INT,   100);
     await _initValueInt(HOME_INNER_RADIUS_INT,  20);
     await _initValueInt(HOME_OUTER_RADIUS_INT,  50);
-    await _initValueStrList(PROJECT_IDS_STRLIST,  List<String>());
-    await _initValueStrList(WAVE_IDS_STRLIST,     List<String>());
+    await _initValueStrList(PROJECT_IDS_STRLIST,  <String>[]);
+    await _initValueStrList(WAVE_IDS_STRLIST,     <String>[]);
     await _initValueStr(USER_ID_REGEX_STR, r'^[a-zA-Z0-9]+$');
     await _initValueStr(USER_ID_HINT_STR, "use a-z,A-Z,0-9");
     _keys.add(RANDOM_32_STR);
@@ -113,37 +113,43 @@ class LcSettings implements DbListener {
   }  
 
   String getStr(String key) {
-    return _projectSettings[key];
+    return _projectSettings[key]!;
   }
   int getInt(String key) {
-    return int.tryParse(_projectSettings[key]);
+    return int.parse(_projectSettings[key]!);
   }
   double getDouble(String key) {
-    return double.tryParse(_projectSettings[key]);
+    return double.parse(_projectSettings[key]!);
   }
   List<String> getStrList(String key) {
-    return jsonDecode(_projectSettings[key]).cast<String>();
+    final dynamic v = jsonDecode(_projectSettings[key]!);
+    return (v as List).cast<String>();
   }
 
   static Future<Map<String, String>> _readFromDb(String projectName) async {
-    List<Map> q = await LcDb().db().query(
+    final List<Map<String, Object?>> q = await LcDb().db().query(
       _kTableNameSettings,
       columns: ["key","value"],
       where: "profile = ?",
       whereArgs: [ projectName ],
       orderBy: "profile",
     );
-    Map<String, String> r = {};
-    q.forEach((e) => r[e["key"]] = e["value"] );
+    final Map<String, String> r = {};
+    for (final e in q) {
+      r[e["key"]! as String] = e["value"]! as String;
+    }
     return r;
   }
 
   Future<List<String>> getConfigs()  async {
-    List<Map> q = await LcDb().db().rawQuery(
+    final List<Map<String, Object?>> q = await LcDb().db().rawQuery(
       'SELECT DISTINCT profile FROM $_kTableNameSettings;'
     );
-    List<String> c = [];
-    q.forEach( (e) => c.add(e["profile"]) );
+    final List<String> c = [];
+    for (final e in q) {
+      final v = e["profile"];
+      if (v is String) c.add(v);
+    }
     return c;
   }
 
@@ -155,7 +161,7 @@ class LcSettings implements DbListener {
     );
   }
 
-  get activeConfigName => _projectName;
+  String get activeConfigName => _projectName;
 
   static final LcSettings _singleton = new LcSettings._internal();
 

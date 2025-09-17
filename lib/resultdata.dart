@@ -1,12 +1,11 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:mirrortask/imgevaluation.dart';
 import 'package:mirrortask/pentrajectory.dart';
 import 'package:mirrortask/settings.dart';
 import 'visitdata.dart';
-import 'package:nettskjema/nettskjema.dart';
+import 'package:mirrortask/nettskjema.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:image/image.dart' as img;
 import 'helper.dart';
@@ -22,12 +21,12 @@ class ResultData {
   final double canvasWidth;
 
   ResultData({
-    @required this.visitData,
-    @required this.date,
+    required this.visitData,
+    required this.date,
     this.comment = "",
-    @required this.imgEval,
-    @required this.trajectory,
-    @required this.canvasWidth,
+    required this.imgEval,
+    required this.trajectory,
+    required this.canvasWidth,
   });
 
   Map<String,String> _toNettskjemaMap() {
@@ -44,7 +43,7 @@ class ResultData {
     };
   }
 
-  get _fnPrefix {
+  String get _fnPrefix {
     final datestr = date.toString().split(".")[0].replaceAll(" ", "_").replaceAll(":", "-");
     return "${datestr}_${visitData.userId}";
   }
@@ -65,11 +64,14 @@ class ResultData {
   }
   
 
-  Future<void> saveLocally(context) async {
+  Future<void> saveLocally(BuildContext context) async {
     print(_fnPrefix);
-    final dir = Theme.of(context).platform == TargetPlatform.iOS 
-      ? await getApplicationDocumentsDirectory()
-      : await getExternalStorageDirectory();
+    Directory dir;
+    if (Theme.of(context).platform == TargetPlatform.iOS) {
+      dir = await getApplicationDocumentsDirectory();
+    } else {
+      dir = (await getExternalStorageDirectory()) ?? await getApplicationDocumentsDirectory();
+    }
     File f;
     f = File("${dir.path}/mirrortrace_${_fnPrefix}_image.png");
     await f.writeAsBytes(img.encodePng(imgEval.drawing, level: 1));

@@ -1,9 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter/services.dart';
-import 'package:mirrortask/db.dart';
 import 'package:mirrortask/helper.dart';
 import 'package:mirrortask/scsetscrw.dart';
 import 'package:mirrortask/settings.dart';
@@ -14,6 +11,7 @@ import 'scstart.dart';
 /*----------------------------------------------------------------------------*/
 
 class SelectConfigScreen extends StatefulWidget {
+  const SelectConfigScreen({super.key});
   @override
   _SelectConfigScreenState createState() => _SelectConfigScreenState();
 }
@@ -37,11 +35,9 @@ class _SelectConfigScreenState extends State<SelectConfigScreen> {
             ),
           )
         );
-        if (configName != null) {
-          await LcSettings().init(configName);
-          setState(() {});
-        }
-      },
+        await LcSettings().init(configName);
+        setState(() {});
+            },
       iconNext: Icon(Icons.add),
       body: FutureBuilder<List<String>>(
         future: LcSettings().getConfigs(),
@@ -68,16 +64,16 @@ class _SelectConfigScreenState extends State<SelectConfigScreen> {
                     widthFactor: 2/3,
                     child: ListView.builder(
                       shrinkWrap: true,
-                      itemCount: snapshot.data.length,
+                      itemCount: snapshot.data!.length,
                       itemBuilder: (_, index) {
-                        final String profileName = snapshot.data[index];
+                        final String profileName = snapshot.data![index];
                         final List<int> bytes = md5.convert(utf8.encode(profileName)).bytes.sublist(0, 4);
                         final int sum = bytes.fold(0, (p, c) => (p + c));
                         return Dismissible(
                           confirmDismiss: _getConfirmDelete(profileName),
                           onDismissed: (e) async {
                             await LcSettings().delete(profileName);
-                            snapshot.data.remove(profileName);
+                            snapshot.data!.remove(profileName);
                             setState(() {
                             });
                           },
@@ -115,9 +111,9 @@ class _SelectConfigScreenState extends State<SelectConfigScreen> {
   }
 
 
-  Function _getConfirmDelete(String profileName) {
+  Future<bool?> Function(DismissDirection) _getConfirmDelete(String profileName) {
     return (DismissDirection direction) async {
-      final bool res = await showDialog(
+      final bool? res = await showDialog<bool>(
         context: context,
         builder: (BuildContext context) {
           return CupertinoAlertDialog(

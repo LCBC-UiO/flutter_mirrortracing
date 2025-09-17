@@ -10,14 +10,14 @@ class ObjImg {
   final img.Image mask;
   final img.Image boundary;
   ObjImg({
-    @required this.mask,
-    @required this.boundary,
+    required this.mask,
+    required this.boundary,
   });
 }
 
 /*----------------------------------------------------------------------------*/
 
-Future<ObjImg> loadObjImg({int boxWidth, int objWidth}) async {
+Future<ObjImg> loadObjImg({required int boxWidth, required int objWidth}) async {
   final String objFn = LcSettings().getStr(LcSettings.OBJECT_PATH_STR);
   final ByteData assetBytes = (await rootBundle.load(objFn));
   ReceivePort receivePort = ReceivePort();
@@ -47,13 +47,11 @@ class _IsolateParam {
 void _loadObjImg(_IsolateParam param) {
   final buffer = param.assetBytes.buffer;
   List<int> bytes = buffer.asUint8List(param.assetBytes.offsetInBytes, param.assetBytes.lengthInBytes);
-  img.Image objectRaw = img.decodePng(bytes);
+  img.Image objectRaw = img.decodePng(bytes)!;
   // create big canvas  - we will scale later
   img.Image canvasUnscaled = (){
-    //final int cw = (objectRaw.width / LcSettings().getDouble(LcSettings.OBJECT_SIZE_DBL)).round();
     final int cw = (objectRaw.width * (param.boxWidth/param.objWidth)).round();
     img.Image c = img.Image(cw, cw);
-    // set transparent
     c.fill(0xff000000);
     return c;
   }();

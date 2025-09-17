@@ -22,10 +22,11 @@ class DrawScreen extends StatelessWidget {
   final ObjImg objImg;
   final int trialId;
 
-  DrawScreen({
-    @required this.visitData,
-    @required this.objImg,
-    @required this.trialId,
+  const DrawScreen({
+    super.key,
+    required this.visitData,
+    required this.objImg,
+    required this.trialId,
   });
 
   @override
@@ -53,22 +54,23 @@ class ExperimentMain extends StatefulWidget {
   final ObjImg objImg;
   final int trialId;
 
-  ExperimentMain({
-    @required this.visitData,
-    @required this.objImg,
-    @required this.trialId,
+  const ExperimentMain({
+    super.key,
+    required this.visitData,
+    required this.objImg,
+    required this.trialId,
   });
 
   static Widget getDrawScreenLayout({
-    final Widget top,
-    final Widget center,
-    final Widget bottom,
-    final int centerSize,
+    final Widget? top,
+    final Widget? center,
+    final Widget? bottom,
+    required final int centerSize,
   }) {
     return Column(
       children: [
         Expanded(
-          child: top ?? Text(""),
+          child: top ?? const Text(""),
         ),
         Center(
           child: Container(
@@ -86,7 +88,7 @@ class ExperimentMain extends StatefulWidget {
           ),
         ),
         Expanded(
-          child: bottom ?? Text(""),
+          child: bottom ?? const Text(""),
         )
       ]
     );
@@ -98,17 +100,17 @@ class ExperimentMain extends StatefulWidget {
 /*----------------------------------------------------------------------------*/
 
 class _ExperimentMainState extends State<ExperimentMain> {
-  PainterController _controller;
+  late PainterController _controller;
 
-  ResultData _resultData;
-  Image _resultImg;
+  ResultData? _resultData;
+  Image? _resultImg;
 
-  Image _imgBoundary;
+  late Image _imgBoundary;
   _HomeAreaHelper _homeArea= _HomeAreaHelper();
-  PenTrajectory _penTrajectory;
+  late PenTrajectory _penTrajectory;
 
-  _ActionState _dataSaved;
-  _ActionState _dataUploaded;
+  _ActionState _dataSaved = _ActionState.init;
+  _ActionState _dataUploaded = _ActionState.init;
 
 
   @override
@@ -116,7 +118,7 @@ class _ExperimentMainState extends State<ExperimentMain> {
     super.initState();
     _controller = _newController();
     _resultData = null;
-    _imgBoundary = Image.memory(img.encodePng(widget.objImg.boundary));
+    _imgBoundary = Image.memory(Uint8List.fromList(img.encodePng(widget.objImg.boundary)));
     _penTrajectory = PenTrajectory();
     _homeArea = _HomeAreaHelper();
     _homeArea.state = _HomeAreaHelper.stateInit;
@@ -135,7 +137,7 @@ class _ExperimentMainState extends State<ExperimentMain> {
 
 
   void _cbOnStrokeStart(Offset o) {
-    final expState = Provider.of<_ExperimentState>(context);
+    final expState = Provider.of<_ExperimentState>(context, listen: false);
     if (expState.state == _ExperimentState.init && _homeArea.isInner(o)) {
       setState(() {
         expState.state = _ExperimentState.recording;
@@ -150,7 +152,7 @@ class _ExperimentMainState extends State<ExperimentMain> {
   }
 
   void _cbOnStrokeUpdate(Offset o) {
-    if (Provider.of<_ExperimentState>(context).state == _ExperimentState.recording) {
+    if (Provider.of<_ExperimentState>(context, listen: false).state == _ExperimentState.recording) {
       _penTrajectory.add(o.dx, o.dy);
     }
     if (_homeArea.state == _HomeAreaHelper.stateStarted && ! _homeArea.isOuter(o)) {
@@ -233,8 +235,8 @@ class _ExperimentMainState extends State<ExperimentMain> {
         )
       );
     }
-    final double insideSamples = (_resultData.imgEval.numTotalSamples - _resultData.imgEval.numOutsideSamples) / _resultData.imgEval.numTotalSamples * 100;
-    final double insidePixels = (_resultData.imgEval.numTotalPixels - _resultData.imgEval.numOutsidePixels) / _resultData.imgEval.numTotalPixels * 100;
+    final double insideSamples = ((_resultData!.imgEval.numTotalSamples - _resultData!.imgEval.numOutsideSamples) / _resultData!.imgEval.numTotalSamples) * 100;
+    final double insidePixels = ((_resultData!.imgEval.numTotalPixels - _resultData!.imgEval.numOutsidePixels) / _resultData!.imgEval.numTotalPixels) * 100;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: <Widget>[
@@ -243,21 +245,21 @@ class _ExperimentMainState extends State<ExperimentMain> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
             Text("trial: ${widget.trialId.toString()} completed"),
-            Text("${_resultData.date.toString().split(".")[0]}"),
-            Text("num. continuous lines: ${_resultData.trajectory.numContinuousLines}"),
-            Text("total time (ms): ${_resultData.trajectory.totalTime}"),
-            Text("pen drawing time (ms): ${_resultData.trajectory.drawingTime}"),
+            Text("${_resultData!.date.toString().split(".")[0]}"),
+            Text("num. continuous lines: ${_resultData!.trajectory.numContinuousLines}"),
+            Text("total time (ms): ${_resultData!.trajectory.totalTime}"),
+            Text("pen drawing time (ms): ${_resultData!.trajectory.drawingTime}"),
           ],
         ),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
-            Text("number of samples: ${_resultData.imgEval.numTotalSamples}"),
+            Text("number of samples: ${_resultData!.imgEval.numTotalSamples}"),
             Text("samples inside object: ${insideSamples.toStringAsFixed(1)}%"),
             Text("pixels inside object: ${insidePixels.toStringAsFixed(1)}%"),
-            Text("num. boundary crossings ${_resultData.imgEval.numBoundaryCrossings}"),
-            Text("displ. canvas width (cm): ${_resultData.canvasWidth.toStringAsFixed(1)}"),
+            Text("num. boundary crossings ${_resultData!.imgEval.numBoundaryCrossings}"),
+            Text("displ. canvas width (cm): ${_resultData!.canvasWidth.toStringAsFixed(1)}"),
           ],
         ),
       ],
@@ -275,7 +277,7 @@ class _ExperimentMainState extends State<ExperimentMain> {
     }
     if (expState.state == _ExperimentState.finished) {
       return Center(
-        child: _resultImg
+        child: _resultImg!
       );
     }
     return Stack(
@@ -404,7 +406,7 @@ class _ExperimentMainState extends State<ExperimentMain> {
   }
 
   void _actionDone() async {
-    final expState = Provider.of<_ExperimentState>(context);
+    final expState = Provider.of<_ExperimentState>(context, listen: false);
     setState(() {
       expState.state = _ExperimentState.finishing;
     });
@@ -421,7 +423,7 @@ class _ExperimentMainState extends State<ExperimentMain> {
       canvasWidth: LcSettings().getDouble(LcSettings.SCREEN_WIDTH_CM_DBL)
         * LcSettings().getDouble(LcSettings.RELATIVE_BOX_SIZE_DBL),
     );
-    _resultImg = Image.memory(img.encodePng(_resultData.imgEval.drawing));
+    _resultImg = Image.memory(Uint8List.fromList(img.encodePng(_resultData!.imgEval.drawing)));
     setState(() {
       expState.state = _ExperimentState.finished;
     });
@@ -464,18 +466,18 @@ class _ExperimentMainState extends State<ExperimentMain> {
       _dataSaved = _ActionState.inprogress;
     });
     try {
-      await _resultData.saveLocally(context);
+      await _resultData!.saveLocally(context);
       setState(() {
         _dataSaved = _ActionState.done;
       });
       final snackBar = SnackBar(content: Text("Data saved"));
-      Scaffold.of(context).showSnackBar(snackBar);
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
     } catch (e) {
       setState(() {
         _dataSaved = _ActionState.init;
       });
       final snackBar = SnackBar(content: Text("Error: data not saved!"));
-      Scaffold.of(context).showSnackBar(snackBar);
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
     }
   }
 
@@ -484,18 +486,18 @@ class _ExperimentMainState extends State<ExperimentMain> {
       _dataUploaded = _ActionState.init;
     });
     try {
-      await _resultData.uploadNettskjema();
+      await _resultData!.uploadNettskjema();
       setState(() {
         _dataUploaded = _ActionState.done;
       });
       final snackBar = SnackBar(content: Text("Data uploaded"));
-      Scaffold.of(context).showSnackBar(snackBar);
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
     } catch (e) {
       setState(() {
         _dataUploaded = _ActionState.init;
       });
       final snackBar = SnackBar(content: Text("Error: ${e.toString()}"));
-      Scaffold.of(context).showSnackBar(snackBar);
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
     }
   }
 }
@@ -591,14 +593,14 @@ class _HomeAreaHelper {
 
 class Painter extends StatefulWidget {
   final PainterController painterController;
-  final Function onPanStart;
-  final Function onPanUpdate;
-  final Function onPanEnd;
+  final void Function(Offset) onPanStart;
+  final void Function(Offset) onPanUpdate;
+  final void Function() onPanEnd;
 
   Painter(PainterController painterController, {
-    @required this.onPanStart,
-    @required this.onPanUpdate,
-    @required this.onPanEnd,
+    required this.onPanStart,
+    required this.onPanUpdate,
+    required this.onPanEnd,
   })
       : this.painterController = painterController,
         super(key: new ValueKey<PainterController>(painterController));
@@ -608,7 +610,7 @@ class Painter extends StatefulWidget {
 }
 
 class _PainterState extends State<Painter> {
-  bool _finished;
+  late bool _finished;
 
   @override
   void initState() {
@@ -621,7 +623,7 @@ class _PainterState extends State<Painter> {
     setState(() {
       _finished = true;
     });
-    return context.size;
+    return context.size!;
   }
 
   @override
@@ -651,7 +653,7 @@ class _PainterState extends State<Painter> {
     Offset pos = (context.findRenderObject() as RenderBox)
         .globalToLocal(start.globalPosition);
     widget.onPanStart(pos);
-    if (Provider.of<_ExperimentState>(context).state == _ExperimentState.recording) {
+    if (Provider.of<_ExperimentState>(context, listen: false).state == _ExperimentState.recording) {
       widget.painterController._pathHistory.add(pos);
       widget.painterController._notifyListeners();
     }
@@ -675,7 +677,7 @@ class _PainterState extends State<Painter> {
 class _PainterPainter extends CustomPainter {
   final _PathHistory _path;
 
-  _PainterPainter(this._path, {Listenable repaint}) : super(repaint: repaint);
+  _PainterPainter(this._path, {Listenable? repaint}) : super(repaint: repaint);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -708,25 +710,17 @@ class PictureDetails {
   }
 
   Future<Uint8List> toPNG() async {
-    return (await (await toImage()).toByteData(format: ui.ImageByteFormat.png))
-        .buffer
-        .asUint8List();
+    final byteData = await (await toImage()).toByteData(format: ui.ImageByteFormat.png);
+    return byteData!.buffer.asUint8List();
   }
 }
 
 
 class _PathHistory {
-  List<MapEntry<Path, Paint>> _paths;
-  Paint currentPaint;
-  Paint _backgroundPaint;
-  bool _inDrag;
-
-
-  _PathHistory() {
-    _paths = new List<MapEntry<Path, Paint>>();
-    _inDrag = false;
-    _backgroundPaint = new Paint();
-  }
+  List<MapEntry<Path, Paint>> _paths = <MapEntry<Path, Paint>>[];
+  late Paint currentPaint;
+  Paint _backgroundPaint = Paint();
+  bool _inDrag = false;
 
   void setBackgroundColor(Color backgroundColor) {
     _backgroundPaint.color = backgroundColor;
@@ -779,9 +773,9 @@ class PainterController extends ChangeNotifier {
   Color _backgroundColor = new Color.fromARGB(255, 255, 255, 255);
 
   double _thickness = 1.0;
-  PictureDetails _cached;
-  _PathHistory _pathHistory;
-  ValueGetter<Size> _widgetFinish;
+  PictureDetails? _cached;
+  late _PathHistory _pathHistory;
+  late ValueGetter<Size> _widgetFinish;
 
   PainterController() {
     _pathHistory = new _PathHistory();
@@ -839,7 +833,7 @@ class PainterController extends ChangeNotifier {
     if (!isFinished()) {
       _cached = _render(_widgetFinish());
     }
-    return _cached;
+    return _cached!;
   }
 
   PictureDetails _render(Size size) {

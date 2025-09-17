@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:nettskjema/nettskjema.dart';
+import 'package:mirrortask/nettskjema.dart';
 import 'package:path/path.dart';
 import 'package:args/args.dart';
 import 'package:intl/intl.dart';
@@ -12,7 +12,7 @@ import 'package:intl/intl.dart';
 ///
 ///
 
-ArgResults argResults;
+late ArgResults argResults;
 
 enum NettskjemaFieldNames {
   subj_id,
@@ -34,7 +34,7 @@ void main(List<String> arguments) async {
 
   argResults = parser.parse(arguments);
 
-  final int nettskjemaId = int.tryParse(argResults.rest[0]);
+  final int nettskjemaId = int.parse(argResults.rest[0]);
   final String path      = argResults.rest[1];
   final String fnprefix  = argResults.rest[2]; // mirrortrace_2019-12-09_13-34-07_bob
 
@@ -46,13 +46,13 @@ void main(List<String> arguments) async {
       DateFormat dateFormat = new DateFormat("'mirrortrace_'yyyy-MM-dd_HH-mm-ss");
       return dateFormat.parse(fnprefix);
     }().toIso8601String(),
-    enumToString(NettskjemaFieldNames.project_id): _parseInfo('project_id',  path, fnprefix + '_info.txt' ),
-    enumToString(NettskjemaFieldNames.wave_id): _parseInfo('wave_id',  path, fnprefix + '_info.txt' ),
+    enumToString(NettskjemaFieldNames.project_id): _parseInfo('project_id',  path, fnprefix + '_info.txt' ) ?? '',
+    enumToString(NettskjemaFieldNames.wave_id): _parseInfo('wave_id',  path, fnprefix + '_info.txt' ) ?? '',
     enumToString(NettskjemaFieldNames.image_png): base64Encode(File(join(path, fnprefix + '_image.png')).readAsBytesSync()),
-    enumToString(NettskjemaFieldNames.image_width_cm): _parseInfo('image_width_cm',  path, fnprefix + '_info.txt' ),
+    enumToString(NettskjemaFieldNames.image_width_cm): _parseInfo('image_width_cm',  path, fnprefix + '_info.txt' ) ?? '',
     enumToString(NettskjemaFieldNames.trajectory): File(join(path, fnprefix + '_trajectory.json')).readAsStringSync(),
     enumToString(NettskjemaFieldNames.profile_id): 'command-line',
-    enumToString(NettskjemaFieldNames.comment): _parseInfo('comment',  path, fnprefix + '_info.txt' ),
+    enumToString(NettskjemaFieldNames.comment): _parseInfo('comment',  path, fnprefix + '_info.txt' ) ?? '',
   };
   print(nmap);
   NettskjemaPublic n = NettskjemaPublic(nettskjemaId: nettskjemaId);
@@ -60,7 +60,7 @@ void main(List<String> arguments) async {
   await n.upload(nmap);
 }
 
-String _parseInfo(String key, String dir, String fn) {
+String? _parseInfo(String key, String dir, String fn) {
   File f = File(join(dir,fn));
   List<String> lines = f.readAsLinesSync();
   for (String l in lines) {

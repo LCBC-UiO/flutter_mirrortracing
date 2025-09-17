@@ -14,8 +14,9 @@ class GetIdScreen extends StatefulWidget {
   final Future<ObjImg> _fLoadObjImg;
 
   GetIdScreen({
-    @required this.screenWidth
-  }) : _fLoadObjImg = _getFLoadObjImg(screenWidth);
+    Key? key,
+    required this.screenWidth
+  }) : _fLoadObjImg = _getFLoadObjImg(screenWidth), super(key: key);
 
 
   static _getFLoadObjImg(double w) {
@@ -34,8 +35,8 @@ class GetIdScreen extends StatefulWidget {
 /*----------------------------------------------------------------------------*/
 
 class _GetIdScreenState extends State<GetIdScreen> {
-  Function _onNext;
-  bool _showTextField;
+  VoidCallback? _onNext;
+  late bool _showTextField;
   String _userId = "";
   final validUserIdChars = RegExp(LcSettings().getStr(LcSettings.USER_ID_REGEX_STR));
 
@@ -77,7 +78,7 @@ class _GetIdScreenState extends State<GetIdScreen> {
                   "Enter participant ID\n"
                   "${hint != "" ? "(" + hint + ")" : ""}"
                 ),
-                style:  Theme.of(context).textTheme.subtitle1,
+                style:  Theme.of(context).textTheme.titleMedium,
                 textAlign: TextAlign.center,
               ),
               divy_1,
@@ -93,7 +94,7 @@ class _GetIdScreenState extends State<GetIdScreen> {
   Widget _getUserIdTextField() {
     return CupertinoTextField(
       textAlign: TextAlign.center,
-      style: Theme.of(context).textTheme.headline4,
+      style: Theme.of(context).textTheme.headlineMedium,
       autofocus: true,
       onChanged: (v) async {
         if (!validUserIdChars.hasMatch(v)) {

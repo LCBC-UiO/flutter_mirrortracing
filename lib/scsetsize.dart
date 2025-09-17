@@ -1,6 +1,4 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'helper.dart';
 import 'scdraw.dart';
 import 'scsethomepos.dart';
@@ -9,6 +7,7 @@ import 'settings.dart';
 /*----------------------------------------------------------------------------*/
 
 class SetSizeScreen extends StatefulWidget {
+  const SetSizeScreen({super.key});
   @override
   State<StatefulWidget> createState() => _SetSizeScreenState();
 }
@@ -16,8 +15,8 @@ class SetSizeScreen extends StatefulWidget {
 /*----------------------------------------------------------------------------*/
 
 class _SetSizeScreenState extends State<SetSizeScreen> {
-  double _boxSize;
-  double _objSize;
+  late double _boxSize;
+  late double _objSize;
 
   @override
   void initState() {

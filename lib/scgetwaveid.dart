@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:mirrortask/helper.dart';
 import 'package:mirrortask/scdraw.dart';
 import 'package:mirrortask/settings.dart';
@@ -17,17 +16,18 @@ class GetWaveIdScreen extends StatefulWidget {
   final ObjImg objImg;
   final int trialId;
 
-  GetWaveIdScreen({
-    @required this.visitData,
-    @required this.objImg,
-    @required this.trialId,
+  const GetWaveIdScreen({
+    super.key,
+    required this.visitData,
+    required this.objImg,
+    required this.trialId,
   });
 
   // skip this page if no wave IDs are configured
   static Widget getRoute({
-    @required VisitData visitData,
-    @required ObjImg objImg,
-    @required int trialId,
+    required VisitData visitData,
+    required ObjImg objImg,
+    required int trialId,
   }) {
     if (LcSettings().getStrList(LcSettings.WAVE_IDS_STRLIST).isEmpty) {
       visitData.waveId = "NA";
@@ -91,9 +91,9 @@ class _GetWaveIdScreenState extends State<GetWaveIdScreen> {
                     widthFactor: 2/3,
                     child: ListView.builder(
                       shrinkWrap: true,
-                      itemCount: snapshot.data.length,
+                      itemCount: snapshot.data!.length,
                       itemBuilder: (_, index) {
-                        final String waveId = snapshot.data[index];
+                        final String waveId = snapshot.data![index];
                         final List<int> bytes = md5.convert(utf8.encode(waveId)).bytes.sublist(0, 4);
                         final int sum = bytes.fold(0, (p, c) => (p + c));
                         return Card(
